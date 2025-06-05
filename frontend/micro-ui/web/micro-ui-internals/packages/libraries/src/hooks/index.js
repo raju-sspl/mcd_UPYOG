@@ -65,7 +65,7 @@ import useVehicleTripCreate from "./fsm/useVehicleTripCreate";
 import useFSMInbox from "./fsm/useInbox";
 import useApplicationUpdate from "./fsm/useApplicationUpdate";
 import useWorkflowData from "./fsm/useWorkflowData";
-import useRouteSubscription from "./fsm/useRouteSubscription";
+import useRouteSubscription from "./useRouteSubscription";
 import useDsoSearch from "./fsm/useDsoSearch";
 import usePropertySearch from "./pt/usePropertySearch";
 import usePropertySearchNew from "./pt/usePropertySearchNew";
@@ -263,9 +263,9 @@ import useWSConfigMDMS from "./ws/useWSConfigMDMS";
 import useFeedBackSearch from "./useFeedBackSearch";
 
 import usePetMDMS from "./ptr/usePetMDMS";
-import useBreedTypeMDMS from "./ptr/useBreedTypeMDMS";
+// import useBreedTypeMDMS from "./ptr/useBreedTypeMDMS";
 import usePTRCreateAPI from "./ptr/usePTRCreateAPI";
-import usePTRPetMDMS from "./ptr/usePTRPetMDMS";
+// import usePTRPetMDMS from "./ptr/usePTRPetMDMS";
 import usePTRGenderMDMS from "./ptr/usePTRGenderMDMS";
 import usePTRSearch from "./ptr/usePTRSearch";
 import usePtrApplicationDetail from "./ptr/usePtrApplicationDetail";
@@ -302,10 +302,10 @@ import useSVApplicationDetail from "./sv/useSVApplicationDetail";
 import useSvSearchApplication from "./sv/useSvSearchApplication";
 import useSVApplicationAction from "./sv/useSVApplicationAction";
 import useADSApplicationDetail from "./ads/useADSApplicationDetail";
-import useProductPriceMDMS from "./ew/useProductPriceMDMS";
-import useSpecialCategory from "./chb/useSpecialCategory";
-import useResidentType from "./chb/useResidentType";
-import usePurpose from "./chb/usePurpose";
+// import useProductPriceMDMS from "./ew/useProductPriceMDMS";
+// import useSpecialCategory from "./chb/useSpecialCategory";
+// import useResidentType from "./chb/useResidentType";
+// import usePurpose from "./chb/usePurpose";
 import useChbCreateAPI from "./chb/useChbCreateAPI";
 import useADSCreateAPI from "./ads/useADSCreateAPI";
 import useChbDocumentsMDMS from "./chb/useChbDocumentsMDMS";
@@ -321,8 +321,8 @@ import useChbSearch from "./chb/useChbSearch";
 import useTenantsCHB from "./chb/useTenants";
 import useChbApplicationAction from "./chb/useChbApplicationAction";
 import useServiceSearchCHB from "./chb/useServiceSearchCHB";
-import useChbCommunityHalls from "./chb/useChbCommunityHalls";
-import useChbHallCode from "./chb/useChbHallCode"
+// import useChbCommunityHalls from "./chb/useChbCommunityHalls";
+// import useChbHallCode from "./chb/useChbHallCode"
 import useChbSlotSearch from "./chb/useChbSlotSearch";
 import useDemandEstimation from "./chb/useDemandEstimation"
 import useTenantsADS from "./ads/useTenants"
@@ -382,7 +382,6 @@ const fsm = {
   useDesludging: useDesludging,
   useMDMS: useMDMS,
   useSearch,
-  useRouteSubscription,
   useSearchAll,
   useInbox: useFSMInbox,
   useApplicationUpdate,
@@ -419,8 +418,8 @@ const fsm = {
 };
 const ptr = {
   usePetMDMS,
-  usePTRPetMDMS,
-  useBreedTypeMDMS,
+  // usePTRPetMDMS,
+  // useBreedTypeMDMS,
   usePTRCreateAPI,
   usePTRApplicationAction,
   usePTRGenderMDMS,
@@ -658,7 +657,7 @@ const sv = {
 }
 
 const ew = {
-  useProductPriceMDMS,
+  // useProductPriceMDMS,
   useEWCreateAPI,
   useTenants: useTenantsEW,
   useEWSearch,
@@ -667,9 +666,9 @@ const ew = {
 };
 
 const chb={
-  useSpecialCategory,
-  useResidentType,
-  usePurpose,
+  // useSpecialCategory,
+  // useResidentType,
+  // usePurpose,
   useChbCreateAPI,
   useChbDocumentsMDMS,
   useChbDocumentSearch,
@@ -678,8 +677,8 @@ const chb={
   useTenants:useTenantsCHB,
   useChbApplicationAction,
   useServiceSearchCHB,
-  useChbCommunityHalls,
-  useChbHallCode,
+  // useChbCommunityHalls,
+  // useChbHallCode,
   useChbSlotSearch,
   useDemandEstimation
 }
@@ -777,7 +776,8 @@ const Hooks = {
   cm,
   useCustomBackNavigation,
   wt,
-  vendor
+  vendor,
+  useRouteSubscription
 };
 
 export default Hooks;

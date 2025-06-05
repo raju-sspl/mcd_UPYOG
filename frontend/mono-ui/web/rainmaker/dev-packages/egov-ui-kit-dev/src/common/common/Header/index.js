@@ -171,6 +171,8 @@ class Header extends Component {
     } = this.props;
     const tenantId = role.toLowerCase() === "citizen" ? userInfo.permanentCity : getTenantId();
     const currentCity = cities.filter((item) => item.code === tenantId);
+    const localeData = JSON.parse(sessionStorage.getItem("Digit.Employee.zone") || "{}");
+    const zoneName = localeData && localeData.value ? localeData.value : "";
     const ulbLogo =
       currentCity.length > 0 ? get(currentCity[0], "logoId") : "https://s3.ap-south-1.amazonaws.com/pb-egov-assets/pb.amritsar/logo.png";
     return (
@@ -179,6 +181,7 @@ class Header extends Component {
           className={className}
           title={title ? title : headerTitle}
           ulbName={name}
+          zone={zoneName}
           defaultTitle={defaultTitle}
           titleAddon={titleAddon}
           role={role}

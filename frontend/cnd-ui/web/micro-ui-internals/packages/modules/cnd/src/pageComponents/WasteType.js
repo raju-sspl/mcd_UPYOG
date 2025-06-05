@@ -1,10 +1,11 @@
-import { CardLabel, FormStep, TextInput, DatePicker, UploadFile, ApplyFilterBar } from "@nudmcdgnpm/digit-ui-react-components";
+import { CardLabel, FormStep, TextInput, DatePicker, UploadFile } from "@nudmcdgnpm/digit-ui-react-components";
 import React, { useState, useEffect } from "react";
 import MultiSelectDropdown from "./MultiSelectDropdown";
 import { CND_VARIABLES,LoadingSpinner } from "../utils";
 import { useApplicationDetails } from "../pages/employee/Edit/ApplicationContext";
 import { convertToObject } from "../utils";
 import WasteTypeTable from "./WasteTypeTable";
+import { calculateTotalWasteInTons, formatWasteQuantity } from "../utils";
 
 /**
 * WasteType component that collects information about waste collection requests including
@@ -38,6 +39,23 @@ const WasteType = ({ t, config, onSelect, formData }) => {
     siteMediaPhoto: formData?.wasteType?.siteMediaPhoto || null,
     siteStack: formData?.wasteType?.siteStack || null,
   });
+
+  /* TODO: add these CSS inside Classname
+  isInPickupProgress, containerStyle, labelStyle  
+  these CSS added for Waste quantity as well as Pickup date because they are not aliging well in Facility centre Screen
+  */
+  const isInPickupProgress = applicationDetails?.applicationStatus === "WASTE_PICKUP_INPROGRESS";
+
+  const containerStyle = {
+    display: isInPickupProgress ? 'flex' : 'block',
+    alignItems: isInPickupProgress ? 'center' : 'initial',
+    marginBottom: '10px'
+  };
+
+  const labelStyle = {
+    minWidth: isInPickupProgress ? '180px' : 'auto',
+    flexShrink: isInPickupProgress ? 0 : 'initial'
+  };
 
   // Initially the files state should just be empty, as we don't have the actual File objects
   const [files, setFiles] = useState({ 
@@ -87,6 +105,15 @@ const WasteType = ({ t, config, onSelect, formData }) => {
     }
   }, [formData]);
 
+  // Calculate total waste in tons whenever wasteDetails changes
+  useEffect(() => {
+    if(isEmployee){
+    const totalWasteInTons = calculateTotalWasteInTons(wasteDetails);
+    // Format the total with ton unit and set it as the waste quantity
+    setwasteQuantity(formatWasteQuantity(totalWasteInTons));
+    }
+  }, [wasteDetails, isEmployee]);
+
   const handleFileUpload = async (e, fieldName) => {
     const file = e.target.files[0];
     
@@ -125,7 +152,7 @@ const WasteType = ({ t, config, onSelect, formData }) => {
     }
   };
 
-  const { data: waste_Material_Type } = Digit.Hooks.useCustomMDMS(Digit.ULBService.getStateId(), CND_VARIABLES.MDMS_MASTER, [{ name: "WasteType" }], {
+  const { data: waste_Material_Type } = Digit.Hooks.useEnabledMDMS(Digit.ULBService.getStateId(), CND_VARIABLES.MDMS_MASTER, [{ name: "WasteType" }], {
     select: (data) => {
       const formattedData = data?.[CND_VARIABLES.MDMS_MASTER]?.["WasteType"];
       return formattedData?.filter((item) => item.active === true);
@@ -188,7 +215,7 @@ const WasteType = ({ t, config, onSelect, formData }) => {
    };
 
    // Available unit options
-  const unitOptions = ["Kilogram", "Ton", "Metric Ton", "No."];
+  const unitOptions = ["Kilogram", "Ton", "Metric Ton"];
 
   // Handle adding a new waste type from the WasteTypeTable component
   const handleAddWasteType = (wasteType, quantity, unit) => {
@@ -217,31 +244,23 @@ const WasteType = ({ t, config, onSelect, formData }) => {
       wasteDetails
     })};
   }, [wasteMaterialType, wasteQuantity, pickupDate, wasteDetails]);
-  
-  // TODO: For Handling the  removing a waste type will use in future
-  // const handleRemoveWasteType = (wasteTypeCode) => {
-  //   // Remove from wasteMaterialType
-  //   setwasteMaterialType(prev => prev.filter(type => type.code !== wasteTypeCode));
-    
-  //   // Remove from wasteDetails
-  //   setWasteDetails(prev => {
-  //     const updated = { ...prev };
-  //     delete updated[wasteTypeCode];
-  //     return updated;
-  //   });
-  // };
 
   const goNext = () => {
+    // Get the total waste in tons
+    const totalWasteInTons = calculateTotalWasteInTons(wasteDetails);
+    
     let wasteTypeStep = {
       ...formData.wasteType,
       wasteMaterialType,
-      wasteQuantity,
+      wasteQuantity: isEmployee? formatWasteQuantity(totalWasteInTons):wasteQuantity, // Use the converted total
       pickupDate,
       siteMediaPhoto: fileUploads.siteMediaPhoto,
       siteStack: fileUploads.siteStack,
+      wasteDetails,
     };
     onSelect(config.key, { ...formData[config.key], ...wasteTypeStep }, false);
   };
+
   
   return (
     <React.Fragment>
@@ -275,28 +294,33 @@ const WasteType = ({ t, config, onSelect, formData }) => {
           />
           )}
          
-          <CardLabel>
+          <div style={containerStyle}>
+          <CardLabel style={labelStyle}>
             {`${t("CND_WASTE_QUANTITY")}`}<span className="astericColor">*</span>
           </CardLabel>
+         { isEmployee? 
+         <span style={{fontWeight:"bold"}}>{wasteQuantity}</span>
+         :
           <TextInput
             t={t}
             type={"text"}
-            isMandatory={false}
+            isMandatory={true}
             optionKey="i18nKey"
             name="wasteQuantity"
             value={wasteQuantity}
             onChange={setWasteQuantity}
-            style={inputStyles}
-            ValidationRequired={false}
+            style={{width:isInPickupProgress?"72%":userType === "EMPLOYEE" ? "50%" : "100%"}}
+            ValidationRequired={true}
             {...(validation = {
-              isRequired: false,
-              pattern: "^[0-9. ]{1,5}$",
-              type: "tel",
+              isRequired: true,
+              pattern: "^[0-9]+(\\.[0-9]+)?$",
+              type: "number",
               title: "",
             })}
-          />
-          
-          <CardLabel>{t("CND_SCHEDULE_PICKUP")}</CardLabel>
+          />}
+        </div>
+        <div style={containerStyle}>
+          <CardLabel style={labelStyle}>{t("CND_SCHEDULE_PICKUP")}</CardLabel>
           <DatePicker
             date={pickupDate}
             name="pickupDate"
@@ -310,6 +334,7 @@ const WasteType = ({ t, config, onSelect, formData }) => {
               validDate: (val) => (/^\d{4}-\d{2}$/.test(val) ? true : t("ERR_DEFAULT_INPUT_FIELD_MSG")), // Validates MM/YY format
             }}
           />
+          </div>
          { !isEmployee && (
           <React.Fragment>
           <CardLabel>{`${t("CND_SITE_MEDIA")}`}</CardLabel>

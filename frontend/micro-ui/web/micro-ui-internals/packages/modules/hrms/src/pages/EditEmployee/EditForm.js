@@ -80,8 +80,9 @@ const EditForm = ({ tenantId, data }) => {
         },
         boundaryType: { label: ele.boundaryType, i18text:`EGOV_LOCATION_BOUNDARYTYPE_${ele.boundaryType.toUpperCase()}` },
         boundary: { code: ele.boundary },
+        zone: { code: ele.zone },
         roles: data?.user?.roles.filter((item) => item.tenantId == ele.boundary),
-      });
+      }); 
     }),
     Assignments: data?.assignments.map((ele, index) => {
       return Object.assign({}, ele, {
@@ -119,7 +120,7 @@ const EditForm = ({ tenantId, data }) => {
 
     for (let i = 0; i < formData?.Jurisdictions?.length; i++) {
       let key = formData?.Jurisdictions[i];
-      if (!(key?.boundary && key?.boundaryType && key?.hierarchy && key?.tenantId && key?.roles?.length > 0)) {
+      if (!(key?.boundary && key?.zone && key?.boundaryType && key?.hierarchy && key?.tenantId && key?.roles?.length > 0)) {
         setcheck(false);
         break;
       } else {

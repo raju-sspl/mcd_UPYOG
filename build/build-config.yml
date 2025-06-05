@@ -914,3 +914,18 @@ config:
         dockerfile: 'build/maven/Dockerfile'
    #   - work-dir: "municipal-services/cnd-calculator/src/main/resources/db"
    #     image-name: "cnd-calculate-db"
+
+
+  - name: 'builds/upyog/municipal-services/home-ui'
+    build:
+      - work-dir: 'municipal-services/home-ui'
+        image-name: 'home-ui'
+        dockerfile: 'build/maven/Dockerfile'
+   #   - work-dir: "municipal-services/home/src/main/resources/db"
+   #     image-name: "home-db"
+   
+  - name: builds/upyog/frontend/micro-ui/finance-ui
+    build:
+      - work-dir: frontend/finance-ui/
+        dockerfile: frontend/finance-ui/web/finance/Dockerfile
+        image-name: finance-ui

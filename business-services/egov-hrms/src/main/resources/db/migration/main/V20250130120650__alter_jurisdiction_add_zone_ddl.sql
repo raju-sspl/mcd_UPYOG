@@ -1,0 +1,1 @@
+ALTER TABLE eg_hrms_jurisdiction ADD COLUMN zone CHARACTER VARYING(250) NOT NULL;

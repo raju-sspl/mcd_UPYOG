@@ -21,7 +21,16 @@ export const CNDSearch = {
   RegistrationDetails: ({ cndApplicationDetail: response, t }) => {
     // function to filter out the fields which have values
     const filterEmptyValues = (values) => values.filter(item => item.value);
-    
+
+    const slotlistRows = response?.wasteTypeDetails.map((items,index)=>(
+      [
+        index+1,
+        items?.wasteType,
+        items?.quantity,
+        items?.metrics ? items?.metrics :"-",
+      ]
+    )) || [];
+
 
     return [
       {
@@ -32,11 +41,32 @@ export const CNDSearch = {
           { title: "CND_REQUEST_TYPE", value: response?.applicationType },
           { title: "CND_PROPERTY_USAGE", value: response?.propertyType },
           { title: "CND_TYPE_CONSTRUCTION", value: response?.typeOfConstruction },
-          { title: "CND_WASTE_QUANTITY", value: response?.totalWasteQuantity },
+          { title: "CND_WASTE_QUANTITY", value: response?.totalWasteQuantity + " Ton"},
           { title: "CND_SCHEDULE_PICKUP", value: response?.requestedPickupDate },
+          ...(response?.applicationStatus==="COMPLETED" 
+            ? [{title: "CND_EMP_SCHEDULE_PICKUP", value: response.pickupDate, isBold:true}]
+            : []
+          ),
           { title: "CND_TIME_CONSTRUCTION", value: response?.constructionFromDate + " to " + response?.constructionToDate},
         ]),
       },
+      // Conditionally include AST_ALLOCATION_DETAILS
+      ...(response?.applicationStatus==="COMPLETED"
+        ? [
+          {
+            title: "CND_FACILITY_DETAILS",
+            asSectionHeader: true,
+            values: [
+              { title: "CND_DISPOSE_DATE", value: response?.facilityCenterDetail?.disposalDate?.split(" ")[0]},
+              { title: "CND_DISPOSE_TYPE", value: response?.facilityCenterDetail?.disposalType },
+              { title: "CND_DUMPING_STATION", value: response?.facilityCenterDetail?.dumpingStationName},
+              { title: "CND_DISPOSAL_SITE_NAME", value: response?.facilityCenterDetail?.nameOfDisposalSite},
+              { title: "CND_GROSS_WEIGHT", value: response?.facilityCenterDetail?.grossWeight + " Ton"},
+              { title: "CND_NET_WEIGHT", value: response?.facilityCenterDetail?.netWeight + " Ton"},
+            ],
+          }
+        ]
+        : []),
       {
         title: "COMMON_PERSONAL_DETAILS",
         asSectionHeader: true,
@@ -59,15 +89,26 @@ export const CNDSearch = {
           { title: "PINCODE", value: response?.addressDetail?.pinCode },
         ]),
       },
+
       {
         title: "CND_WASTE_DETAILS",
         asSectionHeader: true,
-        values: response?.wasteTypeDetails?.map((items,index)=>{
-          return {
-            title: `${t("CND_WASTE_TYPE")} ${index + 1}`, value: items?.wasteType,
-          };
-        })
-      },
+        isTable: true,
+        headers: ["CND_S_NO", "CND_WASTE_TYPE", "CND_QUANTITY", "CND_METRICS"],
+        tableRows: slotlistRows,
+      }
+      // {
+      //   title: "CND_WASTE_DETAILS",
+      //   asSectionHeader: true,
+      //   values: response?.wasteTypeDetails?.map((items,index)=>{
+      //     return {
+      //       title: `${t("CND_WASTE_TYPE")} ${index + 1}`, 
+      //       value:  items?.quantity > 0
+      //         ? `${items?.wasteType}, ${items?.quantity} ${items?.metrics}`
+      //         : items?.wasteType,
+      //     };
+      //   })
+      // },
 
     ];
   },

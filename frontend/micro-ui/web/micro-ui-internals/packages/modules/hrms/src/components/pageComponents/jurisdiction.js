@@ -1,4 +1,4 @@
-import { CardLabel, Dropdown, LabelFieldPair, Loader, RemoveableTag ,MultiSelectDropdown} from "@upyog/digit-ui-react-components";
+import { CardLabel, Dropdown, LabelFieldPair, Loader, RemoveableTag, MultiSelectDropdown } from "@nudmcdgnpm/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import cleanup from "../Utils/cleanup";
 // import MultiSelectDropdown from "./Multiselect";
@@ -15,7 +15,7 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
         hierarchy: null,
         boundaryType: null,
         boundary: null,
-        zone: null,   // <-- Added by umesh
+        zone: null, // <-- Added by umesh
         roles: [],
       },
     ]
@@ -30,7 +30,7 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
         boundary: jurisdiction?.boundary?.code,
         tenantId: jurisdiction?.boundary?.code,
         auditDetails: jurisdiction?.auditDetails,
-        zone: jurisdiction?.zone?.code || null, // <-- added this line by umesh
+        zone: jurisdiction?.zone?.code || null, // <-- added by umesh
       };
       res = cleanup(res);
       if (jurisdiction?.roles) {
@@ -60,6 +60,7 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
         hierarchy: null,
         boundaryType: null,
         boundary: null,
+        zone: null,
         roles: [],
       },
     ]);
@@ -71,6 +72,7 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
         hierarchy: unit?.hierarchy?.code,
         boundaryType: unit?.boundaryType?.label,
         boundary: unit?.boundary?.code,
+        zone: unit?.zone?.code,
         tenantId: unit?.boundary?.code,
         auditDetails: unit?.auditDetails,
         isdeleted: true,
@@ -104,7 +106,9 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
   }
 
   function getroledata() {
-    return data?.MdmsRes?.["ACCESSCONTROL-ROLES"].roles.map(role => { return { code: role.code, name: role?.name ? role?.name : " " , labelKey: 'ACCESSCONTROL_ROLES_ROLES_' + role.code } });
+    return data?.MdmsRes?.["ACCESSCONTROL-ROLES"].roles.map((role) => {
+      return { code: role.code, name: role?.name ? role?.name : " ", labelKey: "ACCESSCONTROL_ROLES_ROLES_" + role.code };
+    });
   }
 
   if (isLoading) {
@@ -160,12 +164,20 @@ function Jurisdiction({
         .filter((ele) => {
           return ele?.hierarchyType?.code == jurisdiction?.hierarchy?.code;
         })
-        .map((item) => { return { ...item.boundary, i18text: Digit.Utils.locale.convertToLocale(item.boundary.label, 'EGOV_LOCATION_BOUNDARYTYPE') } })
+        .map((item) => {
+          return { ...item.boundary, i18text: Digit.Utils.locale.convertToLocale(item.boundary.label, "EGOV_LOCATION_BOUNDARYTYPE") };
+        })
     );
   }, [jurisdiction?.hierarchy, data?.MdmsRes]);
   const tenant = Digit.ULBService.getCurrentTenantId();
   useEffect(() => {
-    selectboundary(data?.MdmsRes?.tenant?.tenants.filter(city => city.code != Digit.ULBService.getStateId()).map(city => { return { ...city, i18text: Digit.Utils.locale.getCityLocale(city.code) } }));
+    selectboundary(
+      data?.MdmsRes?.tenant?.tenants
+        .filter((city) => city.code != Digit.ULBService.getStateId())
+        .map((city) => {
+          return { ...city, i18text: Digit.Utils.locale.getCityLocale(city.code) };
+        })
+    );
   }, [jurisdiction?.boundaryType, data?.MdmsRes]);
 
   useEffect(() => {
@@ -186,110 +198,44 @@ function Jurisdiction({
     setjurisdictions((pre) => pre.map((item) => (item.key === jurisdiction.key ? { ...item, boundary: value } : item)));
   };
 
-  // added by umesh ============================
+  // added by umesh================
 
-  // const zoneOptions = data?.MdmsRes?.["egov-location"]?.TenantBoundary?.[0]?.boundary?.children?.map((zone) => ({
-  //   code: zone.code,
-  //   i18text: zone.name || zone.code
-  //   // i18text: Digit.Utils.locale.convertToLocale(zone.code, 'EGOV_LOCATION_ZONE') // Optional: use `Digit.Utils.locale.convertToLocale(zone.code, 'EGOV_LOCATION_ZONE')` for i18n
-  // })) || [];
+  const tenantId = jurisdiction?.boundary?.code;
 
-  const [zoneOptions, setZoneOptions] = useState([]);
-  
+  const { data: zoneMdmsData = [], isLoading: isZoneLoading } = Digit.Hooks.useCustomMDMS(
+    tenantId,
 
-  const fetchZonesForBoundary = async (tenantId) => {
-    try {
-      const requestBody = {
-        RequestInfo: {
-          apiId: "Rainmaker",
-          authToken: "YOUR_AUTH_TOKEN", // Replace with actual auth token or logic to fetch token
-          msgId: `${Date.now()}|en_IN`,
-          plainAccessRequest: {},
-        },
-        MdmsCriteria: {
-          tenantId,
-          moduleDetails: [
-            {
-              moduleName: "egov-location",
-              masterDetails: [
-                {
-                  name: "TenantBoundary",
-                },
-              ],
-            },
-          ],
-        },
-      };
-  
-      const response = await fetch(
-        `/egov-mdms-service/v1/_search?tenantId=${tenantId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
-  
-      const data = await response.json();
-      // console.log("Api Data : ",data);
-      // Assuming zones are inside children of boundary
-      const zones = data?.MdmsRes?.["egov-location"]?.TenantBoundary?.[0]?.boundary?.children || [];
+    "egov-location",
 
+    [
+      {
+        name: "TenantBoundary",
+      },
+    ],
 
-      console.log("Zone : ",zones);
-      return zones.map((zone) => ({
-        code: zone.code,
-        i18text: zone.name || zone.code,
-      }));
-    } catch (err) {
-      console.error("Error fetching zones:", err);
-      return [];
+    {
+      select: (data) => {
+        const zones = data?.["egov-location"]?.TenantBoundary?.[0]?.boundary?.children || [];
+
+        return zones.map((zone) => ({
+          code: zone.code,
+
+          i18text: zone.name || zone.code,
+        }));
+      },
+
+      enabled: !!tenantId,
     }
-  };
+  );
 
-  
-  useEffect(() => {
-    const loadZones = async () => {
-      if (jurisdiction?.boundary?.code) {
-        const zones = await fetchZonesForBoundary(jurisdiction.boundary.code);
-        setZoneOptions(zones);
-  
-        // Check if current zone is valid in the new options
-        const isZoneStillValid = zones.some(
-          (zone) => zone.code === jurisdiction.zone?.code
-        );
-  
-        if (!isZoneStillValid) {
-          setjurisdictions((prev) =>
-            prev.map((item) =>
-              item.key === jurisdiction.key
-                ? { ...item, zone: null }
-                : item
-            )
-          );
-        }
-      } else {
-        setZoneOptions([]);
-        setjurisdictions((prev) =>
-          prev.map((item) =>
-            item.key === jurisdiction.key
-              ? { ...item, zone: null }
-              : item
-          )
-        );
-      }
-    };
-  
-    loadZones();
-  }, [jurisdiction?.boundary?.code]); // ✅ Only re-run when actual boundary code changes
-  
-  
-  
+  const zoneData = [];
 
-  
-  // ========================================================== ===================
+  zoneMdmsData &&
+    zoneMdmsData.map((data) => {
+      zoneData.push({ i18text: `TENANT_${data.code}`, code: `${data.code}`, value: `${data.code}` });
+    });
+
+  // ==========================================================end ===================
 
   const selectrole = (e, data) => {
     // const index = jurisdiction?.roles.filter((ele) => ele.code == data.code);
@@ -301,22 +247,23 @@ function Jurisdiction({
     //   res = [{ ...data }, ...jurisdiction?.roles];
     // }
     let res = [];
-    e && e?.map((ob) => {
-      res.push(ob?.[1]);
-    });
+    e &&
+      e?.map((ob) => {
+        res.push(ob?.[1]);
+      });
 
-    res?.forEach(resData => {resData.labelKey = 'ACCESSCONTROL_ROLES_ROLES_' + resData.code})
+    res?.forEach((resData) => {
+      resData.labelKey = "ACCESSCONTROL_ROLES_ROLES_" + resData.code;
+    });
 
     setjurisdictions((pre) => pre.map((item) => (item.key === jurisdiction.key ? { ...item, roles: res } : item)));
   };
-
 
   const onRemove = (index, key) => {
     let afterRemove = jurisdiction?.roles.filter((value, i) => {
       return i !== index;
     });
     setjurisdictions((pre) => pre.map((item) => (item.key === jurisdiction.key ? { ...item, roles: afterRemove } : item)));
-
   };
   return (
     <div key={jurisdiction?.keys} style={{ marginBottom: "16px" }}>
@@ -362,41 +309,39 @@ function Jurisdiction({
             t={t}
           />
         </LabelFieldPair>
+
         <LabelFieldPair>
-          <CardLabel className="card-label-smaller">{`${t("HR_BOUNDARY_LABEL")} * `}</CardLabel>
+          <CardLabel className="card-label-smaller">{`${t("HR_BOUNDARY_LABEL")} *`}</CardLabel>
+
           <Dropdown
             className="form-field"
             isMandatory={true}
             selected={jurisdiction?.boundary}
             disable={Boundary?.length === 0}
             option={Boundary}
-            select={selectedboundary}
+            select={(value) => {
+              selectedboundary(value);
+              setjurisdictions((prev) => prev.map((item) => (item.key === jurisdiction.key ? { ...item, boundary: value, zone: null } : item)));
+            }}
             optionKey="i18text"
             t={t}
           />
         </LabelFieldPair>
 
         <LabelFieldPair>
-        <CardLabel className="card-label-smaller">{`${t("HR_ZONE_LABEL")} * `}</CardLabel>
-        <Dropdown
-          className="form-field"
-          isMandatory={true}
-          selected={jurisdiction.zone}
-          disable={zoneOptions.length === 0}
-          option={zoneOptions}
-          select={(value) =>
-            setjurisdictions((prev) =>
-              prev.map((item) =>
-                item.key === jurisdiction.key ? { ...item, zone: value } : item
-              )
-            )
-          }
-          optionKey="i18text"
-          t={t}
-        />
+          <CardLabel className="card-label-smaller">{`${t("HR_ZONE_LABEL")} * `}</CardLabel>
 
-      </LabelFieldPair>
-
+          <Dropdown
+            className="form-field"
+            isMandatory={true}
+            selected={jurisdiction?.zone}
+            disable={zoneData.length === 0}
+            option={zoneData}
+            select={(value) => setjurisdictions((prev) => prev.map((item) => (item.key === jurisdiction.key ? { ...item, zone: value } : item)))}
+            optionKey="i18text"
+            t={t}
+          />
+        </LabelFieldPair>
 
         <LabelFieldPair>
           <CardLabel className="card-label-smaller">{t("HR_COMMON_TABLE_COL_ROLE")} *</CardLabel>

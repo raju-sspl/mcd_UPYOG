@@ -25,7 +25,11 @@ import { ApplicationProvider } from "./pages/employee/Edit/ApplicationContext";
 import EditSubmissionResponse from "./pages/employee/Edit/EditSubmissionResponse";
 import PropertyNature from "./pageComponents/PropertyNature";
 import CNDVendorCard from "./components/CNDVendorCard";
-
+import FacilityCentreCreationDetails from "./pages/employee/FacilityCentre/FacilityCentreCreate";
+import PickupArrivalDetails from "./pageComponents/PickupArrivalDetails";
+import DisposeDetails from "./pageComponents/DisposeDetails";
+import FacilitySubmissionResponse from "./pages/employee/FacilityCentre/FacilitySubmissionResponse";
+import Address from "./pageComponents/Address";
 
 const componentsToRegister = {
   ApplicantDetails,
@@ -47,7 +51,12 @@ const componentsToRegister = {
   ApplicationProvider,
   EditSubmissionResponse,
   PropertyNature,
-  CNDVendorCard
+  CNDVendorCard,
+  FacilityCentreCreationDetails,
+  PickupArrivalDetails,
+  DisposeDetails,
+  FacilitySubmissionResponse,
+  Address
   };
   
   // function to register the component as per standard 

@@ -91,9 +91,6 @@ public class EnrichmentService {
     }
 
 
-
-
-
     /**
      * Enriches the processInstanceFromRequest with next possible action depending on current currentState
      * @param requestInfo The RequestInfo of the request

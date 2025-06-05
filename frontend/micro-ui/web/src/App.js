@@ -3,8 +3,9 @@ import React from "react";
 import {
   initPGRComponents,
   PGRReducers,
-} from "@upyog/digit-ui-module-pgr";
+} from "@nudmcdgnpm/digit-ui-module-pgr";
 import { initFSMComponents } from "@upyog/digit-ui-module-fsm";
+import { FinanceModule } from "@mcd89/digit-ui-module-finance";
 import {
   PTModule,
   PTLinks,
@@ -22,7 +23,7 @@ import { initLibraries } from "@nudmcdgnpm/digit-ui-libraries";
 import {
   HRMSModule,
   initHRMSComponents,
-} from "@upyog/digit-ui-module-hrms";
+} from "@mcd89/digit-ui-module-hrms";
 import {
   TLModule,
   TLLinks,
@@ -33,6 +34,7 @@ import { initOBPSComponents } from "@upyog/digit-ui-module-obps";
 import { initNOCComponents } from "@upyog/digit-ui-module-noc";
 import { initEngagementComponents } from "@upyog/digit-ui-module-engagement";
 import { initWSComponents } from "@upyog/digit-ui-module-ws";
+import { initFinanceComponents } from "@mcd89/digit-ui-module-finance";
 // import { initCustomisationComponents } from "./Customisations";
 import { initCommonPTComponents } from "@upyog/digit-ui-module-commonpt";
 import { initBillsComponents } from "@upyog/digit-ui-module-bills";
@@ -73,6 +75,7 @@ const enabledModules = [
   "OBPS",
   "NOC",
   "Engagement",
+  "Finance",
   "CommonPT",
   "WS",
   "Reports",
@@ -102,6 +105,7 @@ window.Digit.ComponentRegistryService.setupRegistry({
   MCollectLinks,
   MCollectModule,
   HRMSModule,
+  FinanceModule,
   TLModule,
   TLLinks,
   ReceiptsModule,
@@ -144,6 +148,7 @@ initEngagementComponents();
 initWSComponents();
 initCommonPTComponents();
 initBillsComponents();
+initFinanceComponents();
 // initReportsComponents();
 // initCustomisationComponents();
 

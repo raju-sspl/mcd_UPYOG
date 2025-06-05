@@ -446,7 +446,7 @@ serviceMaps:
       - jsonPath: $.Employees.*.serviceHistory.*.auditDetails.lastModifiedDate
 
 
-    - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, isActive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, zone, tenantid, isActive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
       basePath: Employees.*.jurisdictions.*
       jsonMaps:
@@ -460,6 +460,8 @@ serviceMaps:
       - jsonPath: $.Employees.*.jurisdictions.*.boundaryType
 
       - jsonPath: $.Employees.*.jurisdictions.*.boundary
+
+      - jsonPath: $.Employees.*.jurisdictions.*.zone
 
       - jsonPath: $.Employees[*][?({id} in @.jurisdictions[*].id)].tenantId
 

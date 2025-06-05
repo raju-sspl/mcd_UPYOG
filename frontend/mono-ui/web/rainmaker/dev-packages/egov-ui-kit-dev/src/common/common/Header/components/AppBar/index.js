@@ -12,7 +12,6 @@ import "./index.css";
 import { connect } from "react-redux";
 import get from "lodash/get";
 
-
 const styles = {
   titleStyle: { fontSize: "20px", fontWeight: 500 },
 };
@@ -27,6 +26,7 @@ const iconButtonStyle = {
 const EgovAppBar = ({
   className,
   ulbName,
+  zone,
   defaultTitle,
   ulbLogo,
   title,
@@ -68,14 +68,29 @@ const EgovAppBar = ({
                 label={titleAddon}
               />
             )}
-            {isUserSetting && <div className="rainmaker-displayInline">
-              <Label
-                containerStyle={{ marginLeft: "10px" }}
-                className="screenHeaderLabelStyle appbar-municipal-label"
-                label={ulbName && `TENANT_TENANTS_${ulbName.toUpperCase().replace(/[.]/g, "_")}`}
-              />
-              <Label containerStyle={{ marginLeft: "4px" }} className="screenHeaderLabelStyle appbar-municipal-label" label={defaultTitle} />
-            </div>}
+            {isUserSetting && (
+              <div className="rainmaker-displayInline">
+                <Label
+                  containerStyle={{ marginLeft: "10px" }}
+                  className="screenHeaderLabelStyle appbar-municipal-label"
+                  label={
+                    ulbName &&
+                    defaultTitle &&
+                    `ULBGRADE_${defaultTitle.replace("ULBGRADE_", "")}_TENANT_TENANTS_${ulbName.toUpperCase().replace(/[.]/g, "_")}`
+                  }
+                />
+                {zone && (
+                  <React.Fragment>
+                    <span style={{ margin: "0 4px" }}> - </span>
+                    <Label
+                      containerStyle={{ marginLeft: "0px" }}
+                      className="screenHeaderLabelStyle appbar-municipal-label"
+                      label={`TENANT_${zone.toUpperCase().replace(/[.]/g, "_")}`}
+                    />
+                  </React.Fragment>
+                )}
+              </div>
+            )}
           </div>
         }
         titleStyle={styles.titleStyle}
@@ -106,7 +121,7 @@ const EgovAppBar = ({
         )}
 
         <div className="appbar-right-logo">
-          <img src={logoImage?logoImage:digitLogo} />
+          <img src={logoImage ? logoImage : digitLogo} />
         </div>
         <div className="icon-button">
           {refreshButton && (
@@ -155,10 +170,7 @@ const onSearchClick = (history) => {
 const mapStateToProps = ({ common }) => {
   const { stateInfoById } = common;
   let logoImage = get(stateInfoById, "0.logoUrl");
-  return {  logoImage };
+  return { logoImage };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(EgovAppBar);
+export default connect(mapStateToProps, null)(EgovAppBar);
