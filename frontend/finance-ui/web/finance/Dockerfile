@@ -12,8 +12,8 @@ RUN ls -lah
 #RUN node web/envs.js
 RUN cd web/ \
     && node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))' \
-    && node -e 'console.log("workbench only")' \
-    && cd workbench/ \
+    && node -e 'console.log("finance only")' \
+    && cd finance/ \
     &&  ./install-deps.sh \
     && cd ../ \
     && yarn install \ 
@@ -26,4 +26,4 @@ ENV WORK_DIR=/var/web/finance-ui
 RUN mkdir -p ${WORK_DIR}
 
 COPY --from=build /app/web/build ${WORK_DIR}/
-COPY --from=build /app/web/workbench/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/web/finance/nginx.conf /etc/nginx/conf.d/default.conf

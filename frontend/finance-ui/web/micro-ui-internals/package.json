@@ -29,6 +29,7 @@
     "devD:common": "cd packages/modules/common && yarn start",
     "devD:utilities": "cd packages/modules/utilities && yarn start",
     "dev:workbench": "cd packages/modules/workbench && yarn start",
+    "dev:finance2": "cd packages/modules/finance2 && yarn start",
     "dev:engagement": "cd packages/modules/engagement && yarn start",
     "build": "run-p build:**",
     "build:libraries": "cd packages/libraries && yarn build",
@@ -42,6 +43,7 @@
     "build:utilities": "cd packages/modules/utilities && yarn build",
     "build:engagement": "cd packages/modules/engagement && yarn build",
     "buildD:workbench": "cd packages/modules/workbench && yarn build",
+    "buildD:finance2": "cd packages/modules/finance2 && yarn build",
     "deploy:jenkins": "./scripts/jenkins.sh",
     "clean": "rm -rf node_modules"
   },

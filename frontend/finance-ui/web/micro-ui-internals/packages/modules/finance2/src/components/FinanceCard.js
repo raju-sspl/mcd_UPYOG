@@ -4,8 +4,8 @@
  * Purpose : Finance Card for micro-ui
  * Code status : open
  */
+import { EmployeeModuleCard, FinanceChartIcon } from "@egovernments/digit-ui-react-components";
 import React from "react";
-import { EmployeeModuleCard, FinanceChartIcon } from "@nudmcdgnpm/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 
 const FinanceCard = () => {
@@ -19,23 +19,22 @@ const FinanceCard = () => {
   const propsForModuleCard = {
     Icon: <FinanceChartIcon />,
     moduleName: t("ACTION_TEST_FINANCE").toUpperCase(),
-    kpis: [
-      {
-        count: "-",
-        label: t("TENANT_FINANCE_MODULE"),
-        link: "/digit-ui/employee/finance/home",
-      },
-      {
-        count: "-",
-        label: t("ACTION_TEST_FINANCE_INBOX"),
-        link: "/digit-ui/employee/finance/inbox",
-      }
-    ],
     links: [
-      // {
-      //   label: t("ACTION_TEST_FINANCE_INBOX"),
-      //   link: `/digit-ui/employee/finance/inbox`,
-      // }
+      {
+      label: t("ACTION_TEST_INBOX"),
+      link: `/${window?.contextPath}/employee/finance/inbox`,
+    //   roles: ROLES.MDMS,
+    },
+    {
+      label: t("TENANT_FINANCE_MODULE"),
+      link: `/${window?.contextPath}/employee/finance/journal-voucher`,
+    //   roles: ROLES.LOCALISATION,
+    },
+    {
+      label: t("ACTION_TEST_APPLY_TEST"),
+      link: `/${window?.contextPath}/employee/finance/test`,
+    //   roles: ROLES.WORKFLOW,
+    }
     ],
   };
 

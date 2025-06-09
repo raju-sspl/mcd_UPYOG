@@ -6,12 +6,10 @@
  */
 import React from "react";
 import { useRouteMatch } from "react-router-dom";
-// import FinanceCard from "./components/financecard";
+import Inbox from "./components/inbox";
 import FinanceApp from "./pages";
-import RedirectToFinanceInbox from "./utils/RedirectToFinanceInbox";
-import RedirectToFinanceHome from "./utils/RedirectToFinanceHome";
 import FinanceCard from "./components/FinanceCard";
-// import FinanceCard from "./components/FinanceCard";
+import JournalVoucher from "./components/test/JournalVoucher";
 
 
 export const FinanceModule = ({ stateCode, userType, tenants }) => {
@@ -26,7 +24,6 @@ export const FinanceModule = ({ stateCode, userType, tenants }) => {
   const isFinanceEmployee = userRoles.includes("EMPLOYEE") || userRoles.includes("FINANCE_EMPLOYEE");
 
   if (!isFinanceEmployee) return null;
-
   if (userType === "employee") {
     return <FinanceApp path={path} url={url} />;
   } else return null;
@@ -35,8 +32,8 @@ export const FinanceModule = ({ stateCode, userType, tenants }) => {
 const componentsToRegister = {
   FinanceCard,
   FinanceModule,
-  RedirectToFinanceInbox,
-  RedirectToFinanceHome
+  Inbox,
+  JournalVoucher
 };
 
 export const initFinanceComponents = () => {
