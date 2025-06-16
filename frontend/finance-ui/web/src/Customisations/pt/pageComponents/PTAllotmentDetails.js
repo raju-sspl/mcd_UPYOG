@@ -1,4 +1,4 @@
-import { CardLabel, CitizenInfoLabel, FormStep, LabelFieldPair, TextInput,CardLabelError } from "@egovernments/digit-ui-react-components";
+import { CardLabel, CitizenInfoLabel, FormStep, LabelFieldPair, TextInput,CardLabelError } from "@mcd89/finance-ui-react-components";
 import React, { useState } from "react";
 var validation ={};
 const PTAllotmentDetails = ({ t, config, onSelect, value, userType, formData }) => {

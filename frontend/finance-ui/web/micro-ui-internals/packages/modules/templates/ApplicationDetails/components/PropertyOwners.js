@@ -1,4 +1,4 @@
-import { CardSubHeader, Row, StatusTable } from "@egovernments/digit-ui-react-components";
+import { CardSubHeader, Row, StatusTable } from "@mcd89/finance-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 

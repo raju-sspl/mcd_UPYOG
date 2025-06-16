@@ -1,4 +1,4 @@
-import { Body, Loader } from "@egovernments/digit-ui-react-components";
+import { Body, Loader } from "@mcd89/finance-ui-react-components";
 import React from "react";
 import { getI18n } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "react-query";

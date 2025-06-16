@@ -20,6 +20,7 @@ class UserSettings extends Component {
     tenantSelected: getTenantId(),
     tempTenantSelected: getTenantId(),
     open: false,
+    roleSelected: "",
   };
   style = {
     baseStyle: {
@@ -56,6 +57,14 @@ class UserSettings extends Component {
       width: "102px",
       marginBottom: "24px",
     },
+    roleDropDownStyle: {
+      background: "#ffffff",
+      height: "65px",
+      marginRight: "30px",
+      width: "200px",
+      marginBottom: "24px",
+    },
+
   };
 
   onChange = (event, index, value) => {
@@ -139,6 +148,17 @@ class UserSettings extends Component {
       return { value: tenantId, label: getLocaleLabels(tenantId, "TENANT_TENANTS_" + getTransformedLocale(tenantId)) };
     });
 
+    let userRoleList = [
+      { value: "", label: "Assigned Roles" },
+      ...get(userInfo, "roles", [])
+        .map((role) => role.name)
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .map((roleCode) => ({
+          value: roleCode,
+          label: roleCode,
+        }))
+    ];
+
     return (
       <div className="userSettingsContainer">
         {isUserSetting && <LogoutDialog
@@ -158,6 +178,19 @@ class UserSettings extends Component {
             labelStyle={style.label}
             dropDownData={tenantIdsList}
             value={tenantSelected}
+            underlineStyle={{ borderBottom: "none" }}
+          />
+        )}
+        {process.env.REACT_APP_NAME === "Employee" && isUserSetting && (
+          <DropDown
+            onChange={(event, index, value) => {
+              this.setState({ roleSelected: value });
+            }}
+            listStyle={style.listStyle}
+            style={style.roleDropDownStyle}
+            labelStyle={style.label}
+            dropDownData={userRoleList}
+            value={this.state.roleSelected} 
             underlineStyle={{ borderBottom: "none" }}
           />
         )}
@@ -208,7 +241,7 @@ class UserSettings extends Component {
                   innerDivStyle={style.listInnerDivStyle}
                   className="drawer-list-style"
                   items={CommonMenuItems}
-                  listContainerStyle={{ background: "#ffffff" }}
+                  listContainerStyle={{ background: "#333" }}
                   listItemStyle={{ borderBottom: "1px solid #e0e0e0" }}
                 />
               ) : (

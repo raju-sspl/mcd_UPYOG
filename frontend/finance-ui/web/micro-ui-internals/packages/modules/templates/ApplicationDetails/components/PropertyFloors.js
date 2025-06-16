@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { CardSubHeader, StatusTable, Row, CardSectionHeader } from "@egovernments/digit-ui-react-components";
+import { CardSubHeader, StatusTable, Row, CardSectionHeader } from "@mcd89/finance-ui-react-components";
 
 function PropertyFloors({ floors }) {
   const { t } = useTranslation();

@@ -2,6 +2,7 @@ import { Dropdown, Hamburger, TopBar as TopBarComponent } from "@nudmcdgnpm/digi
 import React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import ChangeCity from "../ChangeCity";
+import ChangeRole from "../ChangeRole";
 import ChangeLanguage from "../ChangeLanguage";
 
 const TextToImg = (props) => (
@@ -114,7 +115,7 @@ const TopBar = ({
   return (
     <div className="topbar">
       {mobileView ? <Hamburger handleClick={toggleSidebar} color="#9E9E9E" /> : null}
-      <img className="city" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" />
+      <img className="city" src="https://mcd-asset.s3.ap-south-1.amazonaws.com/Logo.png" />
       <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
         {loggedin &&
           (cityDetails?.city?.ulbGrade ? (
@@ -141,6 +142,13 @@ const TopBar = ({
                 <ChangeCity dropdown={true} t={t} />
               )}
             </div>
+            <div className="left">
+              {!window.location.href.includes("employee/user/login") &&
+              !window.location.href.includes("employee/user/language-selection") && (
+                <ChangeRole t={t} />
+              )}
+            </div>
+
             <div className="left">{showLanguageChange && <ChangeLanguage dropdown={true} />}</div>
             {userDetails?.access_token && (
               <div className="left">
@@ -162,7 +170,7 @@ const TopBar = ({
                 />
               </div>
             )}
-            <img className="state" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" />
+            <img className="state" src="https://mcd-asset.s3.ap-south-1.amazonaws.com/sbm-logo1.png" />
           </div>
         )}
       </span>

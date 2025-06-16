@@ -8,7 +8,7 @@ import {
   RemoveableTag,
   ShareIcon,
   WhatsappIcon,
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import { format } from "date-fns";
 import React, { useEffect, Fragment, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";

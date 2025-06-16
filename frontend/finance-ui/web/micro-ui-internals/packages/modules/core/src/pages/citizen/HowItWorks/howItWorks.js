@@ -1,6 +1,6 @@
 import {
   BackButton, CloseSvg, CustomButton, DownloadImgIcon, Header, Loader, PDFSvg
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import React, { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 

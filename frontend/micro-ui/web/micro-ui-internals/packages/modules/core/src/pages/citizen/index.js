@@ -293,7 +293,7 @@ const Home = ({
               window.open("https://nitcon.org/", "_blank").focus();
             }}
           >
-            Designed & Developed By NITCON Ltd.
+            Designed & Developed By NITCON Ltd
           </span>
           {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
 

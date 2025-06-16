@@ -927,5 +927,5 @@ config:
   - name: builds/upyog/frontend/micro-ui/finance-ui
     build:
       - work-dir: frontend/finance-ui/
-        dockerfile: frontend/finance-ui/web/finance/Dockerfile
+        dockerfile: frontend/finance-ui/web/finance2/Dockerfile
         image-name: finance-ui

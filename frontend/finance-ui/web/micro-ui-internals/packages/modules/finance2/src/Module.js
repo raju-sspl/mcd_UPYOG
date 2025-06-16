@@ -8,7 +8,7 @@ import React from "react";
 import { useRouteMatch } from "react-router-dom";
 import Inbox from "./components/inbox";
 import FinanceApp from "./pages";
-import FinanceCard from "./components/FinanceCard";
+import Finance2Card from "./components/FinanceCard";
 import JournalVoucher from "./components/test/JournalVoucher";
 
 
@@ -30,7 +30,7 @@ export const FinanceModule = ({ stateCode, userType, tenants }) => {
 };
 
 const componentsToRegister = {
-  FinanceCard,
+  Finance2Card,
   FinanceModule,
   Inbox,
   JournalVoucher

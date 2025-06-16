@@ -80,9 +80,9 @@ const EmployeeApp = ({
                 </div>
                 </div>
               <picture>
-                <source id="backgroung-login" media="(min-width: 950px)" srcset="https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+(1920x1080).jpg" style={{"position":"absolute","height":"100%","width":"100%"}} />
-                  <source media="(min-width: 250px)" srcset="https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+%28500x900%29.jpg" />
-                    <img src="https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+(1920x1080).jpg" alt="imagealttext" style={{"position":"absolute","height":"100%","width":"100%","zIndex":"1","display":window.location.href.includes("user/profile")?"none":""}}/>
+                <source id="backgroung-login" media="(min-width: 950px)" srcset="https://mcd-asset.s3.ap-south-1.amazonaws.com/bannerImage.jpg" style={{"position":"absolute","height":"100%","width":"100%"}} />
+                  <source media="(min-width: 250px)" srcset="https://mcd-asset.s3.ap-south-1.amazonaws.com/bannerImageMobileView.jpg" />
+                    <img src="https://mcd-asset.s3.ap-south-1.amazonaws.com/bannerImage.jpg" alt="imagealttext" style={{"position":"absolute","height":"100%","width":"100%","zIndex":"1","display":window.location.href.includes("user/profile")?"none":""}}/>
                     </picture>
               {/* <img class="image" id="main-img" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/employee-login.png" /> */}
               {/* <img class="image" id="main-img" src="https://i.postimg.cc/9Q7jT6Dd/Banner-Image-2.png" /> */}
@@ -161,7 +161,7 @@ const EmployeeApp = ({
               window.open("https://nitcon.org/", "_blank").focus();
             }}
           >
-            Designed & Developed By NITCON Ltd.
+            Designed & Developed By NITCON Ltd
           </span>
           {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
         </div>

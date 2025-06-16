@@ -11,7 +11,7 @@ import {
   PTIcon,
   TLIcon,
   WSICon,
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -107,12 +107,12 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                     Info={
                       code === "OBPS"
                         ? () => (
-                            <CitizenInfoLabel
-                              style={{ margin: "0px", padding: "10px" }}
-                              info={t("CS_FILE_APPLICATION_INFO_LABEL")}
-                              text={t(`BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL`)}
-                            />
-                          )
+                          <CitizenInfoLabel
+                            style={{ margin: "0px", padding: "10px" }}
+                            info={t("CS_FILE_APPLICATION_INFO_LABEL")}
+                            text={t(`BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL`)}
+                          />
+                        )
                         : null
                     }
                     isInfo={code === "OBPS" ? true : false}

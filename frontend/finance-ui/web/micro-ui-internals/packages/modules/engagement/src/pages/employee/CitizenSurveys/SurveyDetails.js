@@ -1,4 +1,4 @@
-import { Header, Modal, Loader } from "@egovernments/digit-ui-react-components";
+import { Header, Modal, Loader } from "@mcd89/finance-ui-react-components";
 import React, { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";

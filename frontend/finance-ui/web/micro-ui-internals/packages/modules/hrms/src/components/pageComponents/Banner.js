@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CardLabel, LabelFieldPair } from "@egovernments/digit-ui-react-components";
+import { CardLabel, LabelFieldPair } from "@mcd89/finance-ui-react-components";
 const HRBanner = ({ t, config }) => {
   return (
     <LabelFieldPair>

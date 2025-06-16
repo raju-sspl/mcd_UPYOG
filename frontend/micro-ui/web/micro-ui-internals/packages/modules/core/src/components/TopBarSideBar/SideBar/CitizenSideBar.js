@@ -8,6 +8,7 @@ import SideBarMenu from "../../../config/sidebar-menu";
 import ChangeCity from "../../ChangeCity";
 import StaticCitizenSideBar from "./StaticCitizenSideBar";
 import { APPLICATION_PATH } from "../../../pages/citizen/Home/EDCR/utils";
+import ChangeRole from "../../ChangeRole";
 
 const defaultImage =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAO4AAADUCAMAAACs0e/bAAAAM1BMVEXK0eL" +
@@ -70,6 +71,9 @@ const Profile = ({ info, stateName, t }) => {
       {window.location.href.includes("/employee") &&
         !window.location.href.includes("/employee/user/login") &&
         !window.location.href.includes("employee/user/language-selection") && <ChangeCity t={t} mobileView={true} />}
+      <div id="profile-location" className="label-container loc-Profile">
+        <div className="label-text"><ChangeRole t={t} mobileView={true} /></div>
+      </div>
     </div>
   );
 };

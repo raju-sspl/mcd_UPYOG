@@ -1,4 +1,4 @@
-import { Dropdown, Loader } from '@egovernments/digit-ui-react-components';
+import { Dropdown, Loader } from '@mcd89/finance-ui-react-components';
 import React, { useState } from 'react'
 
 const configViewBillCheckModal = ({

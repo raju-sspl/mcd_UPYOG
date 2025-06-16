@@ -1,4 +1,4 @@
-import { CardLabelError, Dropdown, RemoveableTag, TextInput, MultiSelectDropdown } from "@egovernments/digit-ui-react-components";
+import { CardLabelError, Dropdown, RemoveableTag, TextInput, MultiSelectDropdown } from "@mcd89/finance-ui-react-components";
 import React, { Fragment, useMemo } from "react";
 import { Controller } from "react-hook-form";
 

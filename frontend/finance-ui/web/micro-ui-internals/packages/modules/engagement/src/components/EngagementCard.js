@@ -8,7 +8,7 @@ import {
   PMBIconSolid,
   SurveyIconSolid,
   PropertyHouse,
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 
 const EngagementCard = () => {
   const userRoles = Digit.SessionStorage.get("User")?.info?.roles;

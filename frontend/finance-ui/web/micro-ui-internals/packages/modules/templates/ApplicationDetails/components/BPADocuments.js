@@ -5,7 +5,7 @@ import {
     LabelFieldPair,
     MultiUploadWrapper,
     CardSubHeader
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import DocumentsPreview from "./DocumentsPreview";
 
 const BPADocuments = ({ t, formData, applicationData, docs, bpaActionsDetails }) => {

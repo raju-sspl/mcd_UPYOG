@@ -10,7 +10,7 @@ import {
   ExternalLinkIcon,
   GenericFileIcon,
   PDFSvg
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import { format } from 'date-fns';
 import { getFileSize } from '../../utils';
 import { downloadDocument, openDocumentLink, openUploadedDocument } from '../../utils';

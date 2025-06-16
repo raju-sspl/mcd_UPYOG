@@ -232,7 +232,8 @@ class ActionMenuComp extends Component {
       }
     })
 
-    return orderBy(submenuItems, (item) => item.name.toLowerCase())
+    // return orderBy(submenuItems, (item) => item.name.toLowerCase())
+    return submenuItems
   }
 
   fetchLocales = () => {

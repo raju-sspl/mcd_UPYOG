@@ -16,7 +16,7 @@ import {
   ImageViewer,
   Loader,
   Toast,
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 
 import TimeLine from "../../components/TimeLine";
 

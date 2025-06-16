@@ -9,7 +9,7 @@ import {
   Dropdown,
   FormComposer,
   TextArea,
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import { useTranslation } from "react-i18next";
 
 const SelectULB = ({ userType, t, setValue, onSelect, config, data, formData, register, errors, setError, clearErrors, formState, control }) => {  return (

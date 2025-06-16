@@ -15,7 +15,7 @@ import {
  PropertyHouse,
  ReceiptIcon,
  CaseIcon,
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import ReactTooltip from "react-tooltip";
 import { set } from "lodash";
 import { useHistory, useLocation, Link } from "react-router-dom";
@@ -198,11 +198,11 @@ const Sidebar = ({ data }) => {
            let leftIcon =
              IconsObject[iconName] || IconsObject.collections;
            if (iconKey === "dynamic") {
-             const IconComp = require("@egovernments/digit-ui-react-components")?.[iconName];
+             const IconComp = require("@mcd89/finance-ui-react-components")?.[iconName];
              leftIcon = IconComp ? <IconComp /> : leftIcon;
            }
            if (iconKey === "svg") {
-             const IconComp = require("@egovernments/digit-ui-react-components")?.SVG?.[iconName];
+             const IconComp = require("@mcd89/finance-ui-react-components")?.SVG?.[iconName];
              leftIcon = IconComp ? <IconComp fill="white" /> : leftIcon;
            }
 
@@ -295,11 +295,11 @@ const Sidebar = ({ data }) => {
            let leftIcon =
              IconsObject[iconName] || IconsObject.collections;
            if (iconKey === "dynamic") {
-             const IconComp = require("@egovernments/digit-ui-react-components")?.[iconName];
+             const IconComp = require("@mcd89/finance-ui-react-components")?.[iconName];
              leftIcon = IconComp ? <IconComp /> : leftIcon;
            }
            if (iconKey === "svg") {
-             const IconComp = require("@egovernments/digit-ui-react-components")?.SVG?.[iconName];
+             const IconComp = require("@mcd89/finance-ui-react-components")?.SVG?.[iconName];
              leftIcon = IconComp ? <IconComp fill="white" /> : leftIcon;
            }
 

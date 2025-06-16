@@ -19,7 +19,7 @@ import {
   BreakLine,
   InfoIconOutline,
   UploadIcon
-} from "@egovernments/digit-ui-react-components";
+} from "@mcd89/finance-ui-react-components";
 import { useTranslation } from "react-i18next";
 import reducer, { intialState } from "../../utils/LocAddReducer";
 // import sampleFile from "../../utils/file.xlsx"

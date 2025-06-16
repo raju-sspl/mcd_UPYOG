@@ -9,19 +9,18 @@
   },
   "workspaces": [
     "micro-ui-internals/packages/libraries",
-    "micro-ui-internals/packages/react-components",
-    "micro-ui-internals/packages/modules/*"
+    "micro-ui-internals/packages/react-components"
   ],
-  "homepage": "/finance-ui",
+  "homepage": "/digit-ui",
   "dependencies": {
     "@egovernments/digit-ui-libraries": "1.8.1",
     "@nudmcdgnpm/digit-ui-module-workbench": "1.0.0",
     "@egovernments/digit-ui-module-core": "1.8.2",
     "@egovernments/digit-ui-module-hrms": "1.8.0",
-    "@egovernments/digit-ui-react-components": "1.8.4",
+    "@mcd89/finance-ui-react-components": "1.0.0",
     "@egovernments/digit-ui-module-dss": "1.8.0",
     "@egovernments/digit-ui-module-pgr": "1.8.0",
-    "@mcd89/digit-ui-module-finance2": "1.0.7",
+    "@mcd89/digit-ui-module-finance2": "1.0.10",
     "@egovernments/digit-ui-module-common": "1.8.0",
     "@egovernments/digit-ui-module-utilities": "1.0.0",
     "@egovernments/digit-ui-module-engagement": "1.8.0",

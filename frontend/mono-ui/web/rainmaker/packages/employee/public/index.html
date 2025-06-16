@@ -16,6 +16,61 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.bootstrap.min.css">
     <title>UPYOG</title>
+    <style type="text/css">
+      
+
+@media (min-width: 1400px) {
+    .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+        max-width: 100% !important;
+    }
+}
+/* ============ desktop view ============ */
+@media all and (min-width: 992px) {
+
+	.sidebar li{ position: relative; }
+
+	.sidebar li .submenu{ 
+		display: none;
+		position: fixed;
+		/* left:100%;  */
+		top:64px;
+		min-width: 240px;
+	}
+
+	[dir=rtl] .sidebar li .submenu{ 
+		right:100%; left:auto;
+	}
+
+	
+	.sidebar li:hover > .submenu{ display: block; }
+
+}	
+/* ============ desktop view .end// ============ */
+
+
+/* ============ small devices ============ */
+@media (max-width: 991px) {
+
+	.sidebar .submenu, .sidebar .dropdown-menu{
+		position: static!important;
+		margin-left:0.7rem; margin-right:0.7rem; margin-bottom: .5rem;
+	}
+
+}	
+/* ============ small devices .end// ============ */
+
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: var(--bs-dark);
+}
+.sidebar .nav-link:hover {
+    background: var(--bs-light);
+    color: var(--bs-primary);
+}
+
+</style>
+
   </head>
 
   <body>

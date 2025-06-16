@@ -1,4 +1,4 @@
-import { LabelFieldPair,CardLabel} from '@egovernments/digit-ui-react-components';
+import { LabelFieldPair,CardLabel} from '@mcd89/finance-ui-react-components';
 import React from 'react'
 
 const configAttendanceRejectModal = ({

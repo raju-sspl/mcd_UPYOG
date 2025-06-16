@@ -1,7 +1,7 @@
 {
   "name": "@mcd89/digit-ui-module-finance2",
-  "version": "1.0.7",
-  "description": "Finance",
+  "version": "1.0.10",
+  "description": "Finance2",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
@@ -15,7 +15,7 @@
     "prepublish": "yarn build"
   },
   "dependencies": {
-    "@egovernments/digit-ui-react-components": "1.5.22",
+    "@mcd89/finance-ui-react-components": "1.0.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "6.15.8",

@@ -5,7 +5,7 @@ import * as locale from "./locale";
 import * as obps from "./obps";
 import * as pt from "./pt";
 import * as privacy from "./privacy";
-import PDFUtil, { downloadReceipt ,downloadPDFFromLink,downloadBill ,getFileUrl} from "./pdf";
+import PDFUtil, { downloadReceipt, downloadPDFFromLink, downloadBill, getFileUrl } from "./pdf";
 import getFileTypeFromFileStoreURL from "./fileType";
 import preProcessMDMSConfig from "./preProcessMDMSConfig";
 import preProcessMDMSConfigInboxSearch from "./preProcessMDMSConfigInboxSearch";
@@ -134,7 +134,7 @@ const getLocaleRegion = () => {
  * @returns {string} 
  */
 const getLocaleDefault = () => {
-  return globalConfigs?.getConfig("LOCALE_DEFAULT")  || "en";
+  return globalConfigs?.getConfig("LOCALE_DEFAULT") || "en";
 };
 
 /**
@@ -148,7 +148,7 @@ const getLocaleDefault = () => {
  * @returns {string} 
  */
 const getDefaultLanguage = () => {
-  return  `${getLocaleDefault()}_${getLocaleRegion()}`;
+  return `${getLocaleDefault()}_${getLocaleRegion()}`;
 };
 
 const detectDsoRoute = (pathname) => {
@@ -212,6 +212,19 @@ const fsmAccess = () => {
   const FSM_ACCESS = userRoles?.filter((role) => fsmRoles?.includes(role));
 
   return FSM_ACCESS?.length > 0;
+};
+const finance2Access = () => {
+  const userInfo = Digit.UserService.getUser();
+  const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
+  const financeRoles = [
+    "EMPLOYEE",
+    "EGF_BILL_CREATOR",
+    "EGF_BILL_APPROVER",
+  ];
+
+  const FINANCE2_ACCESS = userRoles?.filter((role) => financeRoles?.includes(role));
+
+  return FINANCE2_ACCESS?.length > 0;
 };
 
 const NOCAccess = () => {
@@ -314,7 +327,7 @@ const hrmsAccess = () => {
 const wsAccess = () => {
   const userInfo = Digit.UserService.getUser();
   const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
-  const waterRoles = ["WS_CEMP", "WS_APPROVER", "WS_FIELD_INSPECTOR", "WS_DOC_VERIFIER","WS_CLERK"];
+  const waterRoles = ["WS_CEMP", "WS_APPROVER", "WS_FIELD_INSPECTOR", "WS_DOC_VERIFIER", "WS_CLERK"];
 
   const WS_ACCESS = userRoles?.filter((role) => waterRoles?.includes(role));
 
@@ -324,7 +337,7 @@ const wsAccess = () => {
 const swAccess = () => {
   const userInfo = Digit.UserService.getUser();
   const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
-  const sewerageRoles = ["SW_CEMP", "SW_APPROVER", "SW_FIELD_INSPECTOR", "SW_DOC_VERIFIER","SW_CLERK"];
+  const sewerageRoles = ["SW_CEMP", "SW_APPROVER", "SW_FIELD_INSPECTOR", "SW_DOC_VERIFIER", "SW_CLERK"];
 
   const SW_ACCESS = userRoles?.filter((role) => sewerageRoles?.includes(role));
 
@@ -353,6 +366,7 @@ export default {
   routeSubscription,
   pgrAccess,
   fsmAccess,
+  finance2Access,
   BPAREGAccess,
   BPAAccess,
   dss,

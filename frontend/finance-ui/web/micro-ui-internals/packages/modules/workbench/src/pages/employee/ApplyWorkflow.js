@@ -1,4 +1,4 @@
-import { Header, Dropdown, LabelFieldPair, CardLabel, Card, Button,Toast,TextInput,Modal } from "@egovernments/digit-ui-react-components";
+import { Header, Dropdown, LabelFieldPair, CardLabel, Card, Button,Toast,TextInput,Modal } from "@mcd89/finance-ui-react-components";
 import React, { useState, useEffect} from "react";
 import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";

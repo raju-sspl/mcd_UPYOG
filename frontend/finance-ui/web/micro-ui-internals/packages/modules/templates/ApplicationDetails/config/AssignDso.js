@@ -1,5 +1,5 @@
 import React from "react";
-import { DatePicker, Dropdown, CardLabelError } from "@egovernments/digit-ui-react-components";
+import { DatePicker, Dropdown, CardLabelError } from "@mcd89/finance-ui-react-components";
 
 function todayDate() {
   var today = new Date();
