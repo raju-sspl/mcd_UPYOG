@@ -100,7 +100,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                     .type(user.getType() != null ? user.getType().name() : null).roles(contract_roles).build();
             requestInfo = RequestInfo.builder().userInfo(userInfo).build();
             user = encryptionDecryptionUtil.decryptObject(user, "UserSelf", User.class, requestInfo);
-
+            log.info(user.getUuid());
         } catch (UserNotFoundException e) {
             log.error("User not found", e);
             throw new OAuth2Exception("Invalid login credentials");
@@ -151,9 +151,27 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             List<GrantedAuthority> grantedAuths = new ArrayList<>();
             grantedAuths.add(new SimpleGrantedAuthority("ROLE_" + user.getType()));
             final SecureUser secureUser = new SecureUser(getUser(user));
+            log.info("SecureUser {} has been authenticated",secureUser.getUsername());
             userService.resetFailedLoginAttempts(user);
-            return new UsernamePasswordAuthenticationToken(secureUser,
-                    password, grantedAuths);
+            log.info("User {} has been successfully reset before call UsernamePasswordAuthenticationToken", user.getUuid());
+            log.info("Returning UsernamePasswordAuthenticationToken: principal = {}, credentials = {}, authorities = {}",
+                    secureUser,
+                    password,
+                    grantedAuths);
+            //return new UsernamePasswordAuthenticationToken(secureUser, password, grantedAuths);
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                    secureUser,
+                    password,
+                    grantedAuths
+            );
+
+            //Log token content
+            log.info("Constructed UsernamePasswordAuthenticationToken: isAuthenticated = {}, principal class = {}",
+                    token.isAuthenticated(),
+                    token.getPrincipal() != null ? token.getPrincipal().getClass().getName() : "null"
+            );
+            // Return
+            return token;
         } else {
             // Handle failed login attempt
             // Fetch Real IP after being forwarded by reverse proxy

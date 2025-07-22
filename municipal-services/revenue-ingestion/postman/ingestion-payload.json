@@ -1,0 +1,66 @@
+{
+  "RequestInfo": {
+    "apiId": "Rainmaker",
+    "authToken": "e8c0c71a-3fcc-462c-b42c-696b032c37f8",
+    "msgId": "1749811023888|en_IN",
+  },
+  "items": [
+    {
+      "applicationTransactionId": "PTR34361683007740802",
+      "transactionPurpose": "PROPERTY_TAX",
+      "applicationCode": "PTR",
+      "tenantId": "pg.citya",
+      "zoneCode": "CBZ"
+      "department": "DEPT_25",
+      "narration": "PROPERTY_TAX payment via HDFC",
+      "orderAmount": 3200,
+      "transactionStatus": "Success",
+      "transactionInitiatedOn": "2025-06-14",
+      "transactionModifiedOn": "2025-06-14",
+      "paymentAggregrator": "HDFC",
+      "calculationJson": [
+        {
+          "financialYear": "2023-24",
+          "collectionPeriod": "ANNUAL",
+          "periodFrom": "2023-04-01",
+          "periodTo": "2024-03-31",
+          "totalAmount": 1600,
+          "propertyOwernshipType": "StateGovt/Center/General/VacantLand etc",
+          "components": {
+            // is this Property Tax i need to calculate property tax by doing the calculation again like minus of educationCess, interest etc?
+            "totalAmount": 1599.8,
+            "finalAmount": 1600,
+            // instead total amount give only property tax only component
+            "propertyTax": 1499,
+            "educationCess": 100.8,
+            "exemption": 0,
+            "penalty": 0,
+            "rebate": 0,
+            "interest": 0,
+            "rebateDescription": "ONLINE SUBMITTED sAMOUNT DEDUCTED OF RS .(1600)"
+          }
+        },
+        {
+          "financialYear": "2024-25",
+          "collectionPeriod": "ANNUAL",
+          "periodFrom": "2024-04-01",
+          "periodTo": "2025-03-31",
+          "totalAmount": 1600,
+          "components": {
+            // is this Property Tax i need to calculate property tax by doing the calculation again like minus of educationCess, interest etc?
+            "totalAmount": 1599.8,
+            "finalAmount": 1600,
+            // instead total amount give only property tax only component
+            "propertyTax": 1499,
+            "educationCess": 100.8,
+            "exemption": 0,
+            "penalty": 0,
+            "rebate": 0,
+            "interest": 0,
+            "rebateDescription": "- ONLINE SUBMITTED sAMOUNT DEDUCTED OF RS .(1600)"
+          }
+        }
+      ]
+    }
+  ]
+}

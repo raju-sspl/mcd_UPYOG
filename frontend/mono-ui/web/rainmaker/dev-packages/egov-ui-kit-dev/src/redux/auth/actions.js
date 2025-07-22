@@ -14,6 +14,7 @@ import {
   localStorageGet,
   clearUserDetails,
   setUserObj,
+  getTenantId
 } from "../../utils/localStorageUtils";
 
 // temp fix
@@ -136,6 +137,44 @@ export const logout = () => {
   return async () => {
     try {
       const authToken = getAccessToken();
+      // Step 1: Custom logout API for Finance logout ClearToken, This is a custom API call to clear the auth token from the server
+      if (authToken) {
+         try {
+          const tenantIdFull = getTenantId(); 
+          const tenantParts = tenantIdFull.split('.');
+          const cityCode = tenantParts.length > 1 ? tenantParts[1] : undefined;  // tenantParts[0] is "pg" in this case
+          const baseProxy = process.env.REACT_APP_BASE_PROXY || "https://mcdupyog.sparrowsoftech.in"; 
+          const parsedURL = new URL(baseProxy);
+          const domain = parsedURL.hostname; // e.g., mcdupyog.sparrowsoftech.in
+          const protocol = parsedURL.protocol; 
+          const clearTokenURL = `${protocol}//${cityCode}-${domain}/services/EGF/rest/logout`;  // Construct the final ClearToken URL
+          const payload = {
+            RequestInfo: {
+              apiId: null,
+              ver: null,
+              ts: new Date().getTime(),
+              action: null,
+              did: null,
+              key: null,
+              msgId: null,
+              authToken: authToken,
+              correlationId: null,
+              userInfo: null,
+            },
+          };
+          await fetch(clearTokenURL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(payload),
+          });
+        } catch (e) {
+          console.error("Error during custom logout API call:", e);
+        }
+      }
+      // Step 2: Call default Auth logout endpoint
       if (authToken) {
         const response = await httpRequest(AUTH.LOGOUT.URL, AUTH.LOGOUT.ACTION, [], { "access_token" : authToken });
       } else {
