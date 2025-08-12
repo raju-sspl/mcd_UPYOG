@@ -147,7 +147,7 @@ export const logout = () => {
           const parsedURL = new URL(baseProxy);
           const domain = parsedURL.hostname; // e.g., mcdupyog.sparrowsoftech.in
           const protocol = parsedURL.protocol; 
-          const clearTokenURL = `${protocol}//${cityCode}-${domain}/services/EGF/rest/logout`;  // Construct the final ClearToken URL
+          const clearTokenURL = `${protocol}//${cityCode}-${domain}/services/EGF/rest/logout`;  // Construct the final logout URL
           const payload = {
             RequestInfo: {
               apiId: null,

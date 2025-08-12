@@ -44,17 +44,17 @@ public class CustomTokenService extends DefaultTokenServices {
             }
         }
 
-        OAuth2AccessToken accessToken;
+        OAuth2AccessToken accessToken =null;
 
         try {
             log.info("About to create access token...");
             accessToken = super.createAccessToken(authentication);
             log.info("Access token created successfully:");
+            return accessToken;
         } catch (Exception e) {
             log.error("Exception occurred while creating access token", e);
             throw e; // You can rethrow or wrap if you want
         }
-        return accessToken;
         //return super.createAccessToken(authentication);
     }
 
