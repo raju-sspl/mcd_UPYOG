@@ -39,7 +39,7 @@ serviceMaps:
 
 
 
-    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, iscurrentassignment, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, division, fromdate, todate, govtordernumber, reportingto, isHOD, iscurrentassignment, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
       basePath: Employees.*.assignments.*
       jsonMaps:
@@ -54,6 +54,8 @@ serviceMaps:
       - jsonPath: $.Employees.*.assignments.*.department
 
       - jsonPath: $.Employees.*.assignments.*.designation
+       
+      - jsonPath: $.Employees.*.assignments.*.division
 
       - jsonPath: $.Employees.*.assignments.*.fromDate
 
@@ -281,7 +283,7 @@ serviceMaps:
 
 
 
-    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, iscurrentassignment, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, division, fromdate, todate, govtordernumber, reportingto, isHOD, iscurrentassignment, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
       basePath: Employees.*.assignments.*
       jsonMaps:
@@ -296,6 +298,8 @@ serviceMaps:
       - jsonPath: $.Employees.*.assignments.*.department
 
       - jsonPath: $.Employees.*.assignments.*.designation
+      
+      - jsonPath: $.Employees.*.assignments.*.division
 
       - jsonPath: $.Employees.*.assignments.*.fromDate
 

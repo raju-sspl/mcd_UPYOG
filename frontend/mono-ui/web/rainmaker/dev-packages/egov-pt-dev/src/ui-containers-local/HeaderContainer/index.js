@@ -7,7 +7,7 @@ import {
   getTenantId,
   getUserInfo
 } from "egov-ui-kit/utils/localStorageUtils";
-import digitLogo from "egov-ui-kit/assets/images/Digit_logo.png";
+import digitLogo from "egov-ui-kit/assets/images/sbm-logo.png";
 import get from "lodash/get";
 import { fetchLocalizationLabel } from "egov-ui-kit/redux/app/actions";
 import Header from "egov-ui-kit/common/common/Header";

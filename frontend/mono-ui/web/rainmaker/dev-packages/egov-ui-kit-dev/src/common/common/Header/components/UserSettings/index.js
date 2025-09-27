@@ -170,7 +170,7 @@ class UserSettings extends Component {
           title={"CORE_CHANGE_TENANT"}
           body={"CORE_CHANGE_TENANT_DESCRIPTION"}
         />}
-        {process.env.REACT_APP_NAME === "Employee" && isUserSetting && (
+        {/* {process.env.REACT_APP_NAME === "Employee" && isUserSetting && (
           <DropDown
             onChange={this.onTenantChange}
             listStyle={style.listStyle}
@@ -180,7 +180,7 @@ class UserSettings extends Component {
             value={tenantSelected}
             underlineStyle={{ borderBottom: "none" }}
           />
-        )}
+        )} */}
         {process.env.REACT_APP_NAME === "Employee" && isUserSetting && (
           <DropDown
             onChange={(event, index, value) => {
@@ -241,7 +241,7 @@ class UserSettings extends Component {
                   innerDivStyle={style.listInnerDivStyle}
                   className="drawer-list-style"
                   items={CommonMenuItems}
-                  listContainerStyle={{ background: "#333" }}
+                  listContainerStyle={{ background: "#ffffff" }}
                   listItemStyle={{ borderBottom: "1px solid #e0e0e0" }}
                 />
               ) : (

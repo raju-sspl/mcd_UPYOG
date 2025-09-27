@@ -1,4 +1,4 @@
-import { FormComposer, Toast,Loader } from "@nudmcdgnpm/digit-ui-react-components";
+import { FormComposer, Toast, Loader } from "@nudmcdgnpm/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -13,10 +13,10 @@ const EditForm = ({ tenantId, data }) => {
   const [mobileNumber, setMobileNumber] = useState(null);
   const [phonecheck, setPhonecheck] = useState(false);
   const [checkfield, setcheck] = useState(false);
-   const { data: mdmsData,isLoading } = Digit.Hooks.useCommonMDMS(Digit.ULBService.getStateId(), "egov-hrms", ["CommonFieldsConfig"], {
+  const { data: mdmsData, isLoading } = Digit.Hooks.useCommonMDMS(Digit.ULBService.getStateId(), "egov-hrms", ["CommonFieldsConfig"], {
     select: (data) => {
-       return {
-        config: data?.MdmsRes?.['egov-hrms']?.CommonFieldsConfig
+      return {
+        config: data?.MdmsRes?.["egov-hrms"]?.CommonFieldsConfig,
       };
     },
     retry: false,
@@ -33,7 +33,7 @@ const EditForm = ({ tenantId, data }) => {
   }, []);
 
   useEffect(() => {
-    if (mobileNumber && mobileNumber.length == 10 && mobileNumber.match(Digit.Utils.getPattern('MobileNo'))) {
+    if (mobileNumber && mobileNumber.length == 10 && mobileNumber.match(Digit.Utils.getPattern("MobileNo"))) {
       setShowToast(null);
       if (data.user.mobileNumber == mobileNumber) {
         setPhonecheck(true);
@@ -78,11 +78,15 @@ const EditForm = ({ tenantId, data }) => {
           code: ele.hierarchy,
           name: ele.hierarchy,
         },
-        boundaryType: { label: ele.boundaryType, i18text:`EGOV_LOCATION_BOUNDARYTYPE_${ele.boundaryType.toUpperCase()}` },
+        boundaryType: { label: ele.boundaryType, i18text: `EGOV_LOCATION_BOUNDARYTYPE_${ele.boundaryType.toUpperCase()}` },
         boundary: { code: ele.boundary },
-        zone: { code: ele.zone },
+        zone: {
+          code: ele.zone,
+          i18text: "TENANT_" + ele.zone,
+          name: ele.zone,
+        },
         roles: data?.user?.roles.filter((item) => item.tenantId == ele.boundary),
-      }); 
+      });
     }),
     Assignments: data?.assignments.map((ele, index) => {
       return Object.assign({}, ele, {
@@ -93,23 +97,32 @@ const EditForm = ({ tenantId, data }) => {
         designation: {
           code: ele.designation,
           i18key: "COMMON_MASTERS_DESIGNATION_" + ele.designation,
+          name: ele.designation,
         },
         department: {
           code: ele.department,
           i18key: "COMMON_MASTERS_DEPARTMENT_" + ele.department,
+          name: ele.department,
         },
+        division: ele.division
+          ? {
+              code: ele.division,
+              divisionCode: ele.division,
+              i18key: "COMMON_MASTERS_DIVISION_" + ele.division,
+              name: ele.division,
+            }
+          : null,
       });
     }),
   };
 
   const checkMailNameNum = (formData) => {
-
-    const email = formData?.SelectEmployeeEmailId?.emailId || '';
-    const name = formData?.SelectEmployeeName?.employeeName || '';
-    const address = formData?.SelectEmployeeCorrespondenceAddress?.correspondenceAddress || '';
-    const validEmail = email.length == 0 ? true : email.match(Digit.Utils.getPattern('Email'));
-    return validEmail && name.match(Digit.Utils.getPattern('Name')) && address.match(Digit.Utils.getPattern('Address'));
-  }
+    const email = formData?.SelectEmployeeEmailId?.emailId || "";
+    const name = formData?.SelectEmployeeName?.employeeName || "";
+    const address = formData?.SelectEmployeeCorrespondenceAddress?.correspondenceAddress || "";
+    const validEmail = email.length == 0 ? true : email.match(Digit.Utils.getPattern("Email"));
+    return validEmail && name.match(Digit.Utils.getPattern("Name")) && address.match(Digit.Utils.getPattern("Address"));
+  };
 
   const onFormValueChange = (setValue = true, formData) => {
     if (formData?.SelectEmployeePhoneNumber?.mobileNumber) {
@@ -161,16 +174,20 @@ const EditForm = ({ tenantId, data }) => {
   };
 
   const onSubmit = (input) => {
-    if (input.Jurisdictions.filter(juris => juris.tenantId == tenantId && juris.isActive !== false).length == 0) {
+    if (input.Jurisdictions.filter((juris) => juris.tenantId == tenantId && juris.isActive !== false).length == 0) {
       setShowToast({ key: true, label: "ERR_BASE_TENANT_MANDATORY" });
       return;
     }
-    if (!Object.values(input.Jurisdictions.reduce((acc, sum) => {
-      if (sum && sum?.tenantId) {
-        acc[sum.tenantId] = acc[sum.tenantId] ? acc[sum.tenantId] + 1 : 1;
-      }
-      return acc;
-    }, {})).every(s => s == 1)) {
+    if (
+      !Object.values(
+        input.Jurisdictions.reduce((acc, sum) => {
+          if (sum && sum?.tenantId) {
+            acc[sum.tenantId] = acc[sum.tenantId] ? acc[sum.tenantId] + 1 : 1;
+          }
+          return acc;
+        }, {})
+      ).every((s) => s == 1)
+    ) {
       setShowToast({ key: true, label: "ERR_INVALID_JURISDICTION" });
       return;
     }
@@ -192,12 +209,11 @@ const EditForm = ({ tenantId, data }) => {
     requestdata.user.mobileNumber = input?.SelectEmployeePhoneNumber?.mobileNumber;
     requestdata["user"]["name"] = input?.SelectEmployeeName?.employeeName;
     requestdata.user.correspondenceAddress = input?.SelectEmployeeCorrespondenceAddress?.correspondenceAddress;
-    requestdata.user.roles = roles.filter(role=>role&&role.name);
+    requestdata.user.roles = roles.filter((role) => role && role.name);
     let Employees = [requestdata];
 
     /* use customiseUpdateFormData hook to make some chnages to the Employee object */
-    Employees=Digit?.Customizations?.HRMS?.customiseUpdateFormData?Digit.Customizations.HRMS.customiseUpdateFormData(data,Employees):Employees;
-
+    Employees = Digit?.Customizations?.HRMS?.customiseUpdateFormData ? Digit.Customizations.HRMS.customiseUpdateFormData(data, Employees) : Employees;
 
     history.replace("/digit-ui/employee/hrms/response", { Employees, key: "UPDATE", action: "UPDATE" });
   };
@@ -205,7 +221,9 @@ const EditForm = ({ tenantId, data }) => {
     return <Loader />;
   }
 
-  const config =mdmsData?.config?mdmsData.config: newConfig;
+  const config = mdmsData?.config ? mdmsData.config : newConfig;
+  console.log(config);
+  console.log(newConfig);
   return (
     <div>
       <FormComposer
@@ -222,7 +240,8 @@ const EditForm = ({ tenantId, data }) => {
         onSubmit={onSubmit}
         defaultValues={defaultValues}
         onFormValueChange={onFormValueChange}
-      /> {showToast && (
+      />{" "}
+      {showToast && (
         <Toast
           error={showToast.key}
           label={t(showToast.label)}

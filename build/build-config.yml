@@ -929,3 +929,11 @@ config:
       - work-dir: frontend/finance-ui/
         dockerfile: frontend/finance-ui/web/finance2/Dockerfile
         image-name: finance-ui
+        
+  - name: "builds/upyog/municipal-services/revenue-ingestion"
+    build:
+      - work-dir: "municipal-services/revenue-ingestion"
+        image-name: "revenue-ingestion"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "municipal-services/revenue-ingestion/src/main/resources/db"
+        image-name: "revenue-ingestion-db"

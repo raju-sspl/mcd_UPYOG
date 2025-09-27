@@ -1,6 +1,6 @@
 import { AppBar, DropDown } from "components";
 import { isPublicSearch } from "egov-ui-framework/ui-utils/commons";
-import digitLogo from "egov-ui-kit/assets/images/Digit_logo.png";
+import digitLogo from "egov-ui-kit/assets/images/sbm-logo.png";
 import msevaLogo from "egov-ui-kit/assets/images/mseva-punjab.png";
 import { fetchLocalizationLabel, setLocalizationLabels } from "egov-ui-kit/redux/app/actions";
 import { getQueryArg } from "egov-ui-kit/utils/commons";
@@ -195,7 +195,7 @@ const withoutAuthorization = (redirectionUrl) => (Component) => {
       ? msevaLogo
       : userTenant.length > 0
       ? get(userTenant[0], "logoId")
-      : "https://s3.ap-south-1.amazonaws.com/pb-egov-assets/pb.amritsar/logo.png";
+      : "https://mcd-asset.s3.ap-south-1.amazonaws.com/Logo.png";
     if (stateInfoById && stateInfoById.length > 0) {
       hasLocalisation = stateInfoById[0].hasLocalisation;
       defaultUrl = stateInfoById[0].defaultUrl;

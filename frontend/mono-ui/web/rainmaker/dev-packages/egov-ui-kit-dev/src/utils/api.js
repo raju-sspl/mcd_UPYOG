@@ -151,7 +151,26 @@ export const httpRequest = async (
       }
     }
   } catch (error) {
-    const { data, status } = error.response;
+    const response = error.response || {};
+    const data = response.data || {};
+    const status = response.status || 0;
+    var errorMessage = "";
+    if (data.Errors && data.Errors.length > 0) {
+      errorMessage =
+        (data.Errors[0].message || "") + (data.Errors[0].description || "");
+    }
+    var isTokenInvalid =
+      errorMessage.indexOf("InvalidAccessTokenException") !== -1 ||
+      errorMessage.indexOf("INVALID_TOKEN") !== -1 ||
+      hasTokenExpired(status, data);
+
+    if (isTokenInvalid) {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = `${window.location.origin}/digit-ui/employee/user/login`;
+      return;
+    }
+
     if (hasTokenExpired(status, data)) {
       apiError = "INVALID_TOKEN";
     } else {

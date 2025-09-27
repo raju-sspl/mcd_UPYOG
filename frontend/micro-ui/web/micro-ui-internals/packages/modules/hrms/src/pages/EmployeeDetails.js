@@ -199,6 +199,10 @@ const Details = () => {
                   textStyle={{ whiteSpace: "pre" }}
                 />
                 <Row label={t("HR_DEPT_LABEL")} text={t("COMMON_MASTERS_DEPARTMENT_" + element?.department)} />
+                <Row
+                  label={t("HR_DIVS_LABEL")}
+                  text={element?.division ? t("COMMON_MASTERS_DIVISION_" + element?.division) : "NA"}
+                />
                 <Row label={t("HR_DESG_LABEL")} text={t("COMMON_MASTERS_DESIGNATION_" + element?.designation)} />
               </StatusTable>
             ))}

@@ -1,0 +1,1 @@
+ALTER TABLE eg_hrms_assignment ADD COLUMN division CHARACTER VARYING(250);

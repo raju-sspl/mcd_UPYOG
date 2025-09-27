@@ -78,6 +78,13 @@
   }
 }
 
+.rainmaker-header-cont img {
+  height: 50px !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+
 #icon-hamburger,
 #back-navigator {
   fill: #ffffff !important;

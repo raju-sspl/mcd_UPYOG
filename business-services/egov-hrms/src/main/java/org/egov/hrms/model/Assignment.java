@@ -69,6 +69,9 @@ public class Assignment {
 	@SafeHtml
 	@NotNull
 	private String department;
+	
+	@SafeHtml
+	private String division;
 
 	@NotNull
 	private Long fromDate;

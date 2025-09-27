@@ -5,11 +5,11 @@
   position: relative;
   transition: all 0.3s ease;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  color: #ecf0f1;
+  color: #ecf0f1 !important;
 }
 
 .sidebar .nav-link {
-color: #ecf0f1;
+color: #ecf0f1 !important;
 padding: 3px 12px;
 display: flex;
 align-items: center;
@@ -22,19 +22,29 @@ border-top: solid 1px #425a72;
 
 }
 
-.nav>li>a:focus, .nav>li>a:hover{ background: #015296!important;}
+.nav>li>a:focus, .nav>li>a:hover{ background: #46627F!important; color: #fe7a51 !important; }
+// ===============
 
+.whiteColor {
+  width: 100%;
+  color:#fff !important
+}
 
+.whiteColor  > .label-text{
+  color:#fff !important
+}
+// =================
 .sidebar .nav-link:hover {
-  background-color: #015296;
-  color: #ffffff;
-  border-left: 3px solid #2C3E50;
+  background-color: #46627F;
+  color: #fe7a51 !important;
+  border-left: 3px solid #fe7a51 !important;
 }
 
 .sidebar .nav-link.selected {
   background-color: #2c3e50;
-  color: #3498db;
-  border-left: 3px solid #3498db;
+  color: #fe7a51 !important;
+  border-left: 3px solid #fe7a51 !important;
+  
 }
 
 .sidebar .nav-link.active {
@@ -161,7 +171,7 @@ border-top: solid 1px #425a72;
   flex: 1;
   padding: 12px 0;
   font-weight: 600;
-  color: #bdc3c7;
+  color: #bdc3c7 !important;
   font-size: 15px;
 }
 
@@ -177,15 +187,15 @@ border-top: solid 1px #425a72;
 
 .iconClassHover {
   margin-right: 12px;
-  color: #bdc3c7;
+  color: #fe7a51 !important;
 }
 
 .nav-link:hover .iconClassHover {
-  color: #3498db;
+  color: #fe7a51 !important;
 }
 
 .selected .iconClassHover {
-  color: #3498db;
+  color: #fe7a51 !important;
 }
 
 .mobile-search-toggle {
@@ -193,7 +203,7 @@ border-top: solid 1px #425a72;
   padding: 12px 20px;
   cursor: pointer;
   color: #ecf0f1;
-  background-color: #2c3e50;
+  background-color: #2c3e50; 
   border-bottom: 1px solid #3d566e;
 }
 
@@ -226,7 +236,7 @@ border-top: solid 1px #425a72;
 
 /* Nested submenu styles */
 .sidebar .submenu .submenu {
-  background-color: #2C3E50;
+  background-color: #2c3e50;
   left:30.4%;
   top: 64px;
   border-radius: 0 4px 4px 0;
@@ -237,6 +247,10 @@ border-top: solid 1px #425a72;
   .sidebar {
     width: 100%;
     min-height: auto;
+  }
+
+  .whiteColor > .label-text{
+    color:#fff !important
   }
 
   .mobile-search-toggle {
@@ -322,3 +336,55 @@ border-top: solid 1px #425a72;
 .sidebar .submenu .submenu .nav-item:hover {
   z-index: 12;
 }
+
+
+/* ===================== Smooth Accordion Effect ======================= */
+.sidebar-submenu {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.sidebar-submenu.open {
+  max-height: 1000px; /* large enough to fit any content */
+}
+
+/* Accordion Submenu with Fade */
+.submenu-accordion {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.submenu-accordion.open {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+/* Menu Arrow Animation */
+.menu-arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.menu-arrow.expanded {
+  transform: rotate(90deg);
+}
+
+/* Submenu items */
+.sidebar-submenu .nav-link {
+  padding-left: 35px; /* Indent */
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+.sidebar-submenu .nav-link:hover {
+  background-color: #374151;
+  color: #fe7a51 !important;
+}
+
+.drawer-button-toggle-container {
+  background-color: #f5f5f5 !important;
+}
+

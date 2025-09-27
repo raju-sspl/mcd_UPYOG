@@ -38,6 +38,7 @@ public class CustomTokenService extends DefaultTokenServices {
             log.warn("Could not get existing access token due to exception — ignoring exception and creating new.");
             try {
                 // Delete the old auth_to_access key (stale Redis mapping) in case of exception
+                log.error("Exception occurred while getting existing access token", e);
                 tokenService.deleteAuthToAccessKey(authentication);
             } catch (Exception ex) {
                 log.error("Error while deleting old auth_to_access key", ex);

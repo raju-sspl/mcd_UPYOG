@@ -4,7 +4,7 @@ import Label from "egov-ui-kit/utils/translationNode";
 import UserSettings from "../UserSettings";
 import Toolbar from "material-ui/Toolbar";
 import Badge from "@material-ui/core/Badge";
-import digitLogo from "egov-ui-kit/assets/images/Digit_logo.png";
+import digitLogo from "egov-ui-kit/assets/images/sbm-logo.png";
 import pbLogo from "egov-ui-kit/assets/images/pblogo.png";
 import IconButton from "material-ui/IconButton";
 import { onNotificationClick } from "egov-ui-kit/utils/commons";

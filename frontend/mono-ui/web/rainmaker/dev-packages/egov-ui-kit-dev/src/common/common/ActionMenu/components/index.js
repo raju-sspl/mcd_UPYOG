@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { Icon, TextFieldIcon } from "components"
-import { prepareFinalObject } from "egov-ui-framework/ui-redux/screen-configuration/actions"
-import { fetchLocalizationLabel } from "egov-ui-kit/redux/app/actions"
-import { fetchFromLocalStorage, getModuleName } from "egov-ui-kit/utils/commons"
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import { Icon, TextFieldIcon } from "components";
+import { prepareFinalObject } from "egov-ui-framework/ui-redux/screen-configuration/actions";
+import { fetchLocalizationLabel } from "egov-ui-kit/redux/app/actions";
+import { getModuleName } from "egov-ui-kit/utils/commons";
 import {
   getLocale,
   getStoredModulesList,
   getTenantId,
   localStorageGet,
   localStorageSet,
-  setModule,
   setStoredModulesList,
-} from "egov-ui-kit/utils/localStorageUtils"
-import Label from "egov-ui-kit/utils/translationNode"
-import { orderBy, some, split } from "lodash"
-import get from "lodash/get"
-import React, { Component } from "react"
-import { connect } from "react-redux"
-import { Link } from "react-router-dom"
-import "./index.css"
+  setModule,
+} from "egov-ui-kit/utils/localStorageUtils";
+import TranslationNode from "egov-ui-kit/utils/translationNode";
+import "./index.css";
 
 const styles = {
-  // Styles are preserved from the original component
   inputStyle: {
-    color: "#ecf0f1 !important",
-    marginTop: "0px",
-    marginLeft: "-10px",
+    color: window.innerWidth > 768 ? "#ecf0f1" : "#2c3e50",
+    bottom: "5px",
+    height: "auto",
+    paddingLeft: "5px",
+    textIndent: "5px",
+    marginTop: 0,
   },
   fibreIconStyle: {
     height: "21px",
@@ -47,68 +47,65 @@ const styles = {
     textIndent: "15px",
     color: "#ecf0f1",
   },
-  inputStyle: {
-    color: window.innerWidth > 768 ? "#ecf0f1" : "#2c3e50",
-    bottom: "5px",
-    height: "auto",
-    paddingLeft: "5px",
-    textIndent: "5px",
-    marginTop: 0,
-  },
-}
+};
 
 class ActionMenuComp extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       searchText: "",
       filteredActions: null,
       mobileSearchVisible: false,
       expandedItems: {},
-    }
+    };
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.activeRoutePath !== "null" && this.props.activeRoutePath !== prevProps.activeRoutePath) {
-      this.fetchLocales()
-      this.setState({ searchText: "" })
+    if (
+      this.props.activeRoutePath !== "null" &&
+      this.props.activeRoutePath !== prevProps.activeRoutePath
+    ) {
+      this.fetchLocales();
+      this.setState({ searchText: "" });
     }
   }
 
   getTopLevelMenuItems = (actionList) => {
-    if (!actionList) return []
-    const topLevelPaths = {}
+    if (!actionList) return [];
+    const topLevelPaths = {};
     actionList.forEach((action) => {
       if (action.path) {
-        const firstLevel = action.path.split(".")[0]
+        const firstLevel = action.path.split(".")[0];
         if (!topLevelPaths[firstLevel]) {
           topLevelPaths[firstLevel] = {
             name: firstLevel,
             path: firstLevel,
             displayName: firstLevel,
             leftIcon: action.leftIcon ? action.leftIcon.split(".")[0] : null,
-          }
+          };
         }
       }
-    })
-    return Object.values(topLevelPaths)
-  }
+    });
+    return Object.values(topLevelPaths);
+  };
 
   hasChildren = (path) => {
     return this.props.actionListArr.some(
-      (action) => action.path && action.path.startsWith(path + ".") && action.path !== path
-    )
-  }
+      (action) =>
+        action.path && action.path.startsWith(path + ".") && action.path !== path
+    );
+  };
 
   getSubmenuItems = (path) => {
-    const { actionListArr } = this.props
-    if (!actionListArr) return []
-    const submenuItems = []
-    const pathPrefix = path + "."
+    const { actionListArr } = this.props;
+    if (!actionListArr) return [];
+
+    const submenuItems = [];
+    const pathPrefix = path + ".";
     actionListArr.forEach((action) => {
       if (action.path && action.path.startsWith(pathPrefix)) {
-        const remainingPath = action.path.substring(pathPrefix.length)
-        const parts = remainingPath.split(".")
+        const remainingPath = action.path.substring(pathPrefix.length);
+        const parts = remainingPath.split(".");
         if (parts.length === 1) {
           submenuItems.push({
             name: action.displayName,
@@ -117,129 +114,108 @@ class ActionMenuComp extends Component {
             navigationURL: action.navigationURL,
             url: action.url,
             leftIcon: action.leftIcon,
-          })
+          });
         } else if (parts.length > 1) {
-          const firstPart = parts[0]
-          const childPath = path + "." + firstPart
+          const firstPart = parts[0];
+          const childPath = path + "." + firstPart;
           if (!submenuItems.some((item) => item.path === childPath)) {
             submenuItems.push({
               name: firstPart,
               path: childPath,
               displayName: firstPart,
               leftIcon: action.leftIcon,
-            })
+            });
           }
         }
       }
-    })
-    return submenuItems
-  }
+    });
+    return submenuItems;
+  };
 
   fetchLocales = () => {
-    const storedModuleList = getStoredModulesList() ? JSON.parse(getStoredModulesList()) : []
+    const storedModuleList = getStoredModulesList()
+      ? JSON.parse(getStoredModulesList())
+      : [];
     if (!storedModuleList.includes(getModuleName())) {
-      storedModuleList.push(getModuleName())
-      setStoredModulesList(JSON.stringify(storedModuleList))
-      setModule(getModuleName())
-      const tenantId = getTenantId()
-      this.props.fetchLocalizationLabel(getLocale(), tenantId, tenantId)
+      storedModuleList.push(getModuleName());
+      setStoredModulesList(JSON.stringify(storedModuleList));
+      setModule(getModuleName());
+      const tenantId = getTenantId();
+      this.props.fetchLocalizationLabel(getLocale(), tenantId, tenantId);
     }
-  }
+  };
 
   handleChange = (e) => {
-    const searchText = e.target.value
-    this.setState({ searchText })
+    const searchText = e.target.value;
+    this.setState({ searchText });
     if (searchText.length > 0) {
       const filtered = this.props.actionListArr.filter(
-        (action) => action.displayName && action.displayName.toLowerCase().includes(searchText.toLowerCase())
-      )
-      this.setState({ filteredActions: filtered })
+        (action) =>
+          action.displayName &&
+          action.displayName.toLowerCase().includes(searchText.toLowerCase())
+      );
+      this.setState({ filteredActions: filtered });
     } else {
-      this.setState({ filteredActions: null })
+      this.setState({ filteredActions: null });
     }
-  }
+  };
 
   toggleMobileSearch = () => {
     this.setState((prevState) => ({
       mobileSearchVisible: !prevState.mobileSearchVisible,
       searchText: prevState.mobileSearchVisible ? "" : prevState.searchText,
-      filteredActions: prevState.mobileSearchVisible ? null : prevState.filteredActions,
-    }))
-  }
+      filteredActions: prevState.mobileSearchVisible
+        ? null
+        : prevState.filteredActions,
+    }));
+  };
 
-  // Handles toggling for a multi-level accordion.
   handleToggleItem = (itemPath) => {
     this.setState((prevState) => {
       const currentExpanded = { ...prevState.expandedItems };
       const isCurrentlyExpanded = !!currentExpanded[itemPath];
-      
-      const pathParts = itemPath.split('.');
+      const pathParts = itemPath.split(".");
 
-      // Case 1: The clicked item is currently expanded.
-      // Action: Collapse this item and all its children.
       if (isCurrentlyExpanded) {
         const newExpanded = {};
         for (const key in currentExpanded) {
-          // Keep an item only if its path does NOT start with the clicked item's path.
           if (!key.startsWith(itemPath)) {
             newExpanded[key] = true;
           }
         }
         return { expandedItems: newExpanded };
-      }
-      
-      // Case 2: The clicked item is not expanded.
-      // Action: Expand it, keeping ancestors open but closing siblings.
-      else {
+      } else {
         const newExpanded = {};
-        
-        // If it's a top-level item, it becomes the only expanded item.
         if (pathParts.length === 1) {
           newExpanded[itemPath] = true;
-        } 
-        // If it's a sub-item:
-        else {
-          // Keep all ancestors of the clicked item expanded.
-          // An ancestor's path is a prefix of the clicked item's path.
+        } else {
           for (const key in currentExpanded) {
             if (itemPath.startsWith(key)) {
               newExpanded[key] = true;
             }
           }
-          // And, of course, expand the clicked item itself.
           newExpanded[itemPath] = true;
         }
-        
         return { expandedItems: newExpanded };
       }
     });
   };
 
-  renderLeftIcon(leftIcon, item) {
-    if (!leftIcon) return null
-    const iconParts = typeof leftIcon === "string" ? leftIcon.split(":") : []
-    if (iconParts.length >= 2) {
-      return (
-        <Icon
-          name={iconParts[1]}
-          action={iconParts[0]}
-          style={styles.fibreIconStyle}
-          className={`iconClassHover left-icon-color material-icons custom-style-for-${item.name}`}
-        />
-      )
-    }
-    return null
-  }
-
   renderAccordionItem = (item, level = 0) => {
-    const { expandedItems } = this.state
-    const isExpanded = !!expandedItems[item.path]
-    const hasChildren = this.hasChildren(item.path)
-    const itemStyle = { paddingLeft: `${15 + level * 20}px` }
-    const label = item.displayName ? `ACTION_TEST_${item.displayName.toUpperCase().replace(/[.:-\s/]/g, "_")}` : ""
+    const { expandedItems } = this.state;
+    const isExpanded = !!expandedItems[item.path];
+    const hasChildren = this.hasChildren(item.path);
+    const itemStyle = { paddingLeft: `${15 + level * 20}px` };
+    const label = item.displayName
+      ? `ACTION_TEST_${item.displayName
+          .toUpperCase()
+          .replace(/[.:-\s/]/g, "_")}`
+      : "";
 
     if (item.navigationURL && item.navigationURL !== "newTab") {
-      const url = item.navigationURL.startsWith("/") ? item.navigationURL : `/${item.navigationURL}`
+      const url = item.navigationURL.startsWith("/")
+        ? item.navigationURL
+        : "/" + item.navigationURL;
       return (
         <li className="nav-item" key={item.path}>
           <Link
@@ -247,22 +223,23 @@ class ActionMenuComp extends Component {
             style={itemStyle}
             to={url}
             onClick={(e) => {
-              if (item.navigationURL === "tradelicence/apply") this.props.setRequiredDocumentFlag()
-              document.title = item.displayName || item.name
-              if (item.navigationURL && item.navigationURL.includes("digit-ui")) {
-                window.location.href = item.navigationURL
-                e.preventDefault()
-                return
+              if (item.navigationURL === "tradelicence/apply")
+                this.props.setRequiredDocumentFlag();
+              document.title = item.displayName || item.name;
+              if (item.navigationURL.includes("digit-ui")) {
+                window.location.href = item.navigationURL;
+                e.preventDefault();
+                return;
               }
-              this.props.updateActiveRoute(item.path, item.displayName || item.name)
-              this.props.toggleDrawer && this.props.toggleDrawer()
+              this.props.updateActiveRoute(item.path, item.displayName || item.name);
+              this.props.toggleDrawer && this.props.toggleDrawer();
             }}
           >
             {this.renderLeftIcon(item.leftIcon, item)}
-            <Label label={label} />
+            <TranslationNode label={label} className="whiteColor" />
           </Link>
         </li>
-      )
+      );
     }
 
     if (item.url) {
@@ -275,15 +252,15 @@ class ActionMenuComp extends Component {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {
-              localStorageSet("menuPath", item.path)
-              document.title = item.displayName || item.name
+              localStorageSet("menuPath", item.path);
+              document.title = item.displayName || item.name;
             }}
           >
             {this.renderLeftIcon(item.leftIcon, item)}
-            <Label label={label} />
+            <TranslationNode label={label} className="whiteColor" />
           </a>
         </li>
-      )
+      );
     }
 
     if (hasChildren) {
@@ -296,92 +273,117 @@ class ActionMenuComp extends Component {
               onClick={() => this.handleToggleItem(item.path)}
             >
               {this.renderLeftIcon(item.leftIcon, item)}
-              <Label label={label} />
-              <span className={`menu-arrow ${isExpanded ? "expanded" : ""}`}>▶</span>
+              <TranslationNode label={label} className="whiteColor" />
+              <span className={`menu-arrow ${isExpanded ? "expanded" : ""}`}>
+                ▶
+              </span>
             </div>
           </li>
-          {isExpanded && (
-            <ul className="nav flex-column submenu-accordion" style={{ padding: 0, margin: 0, listStyle: "none" }}>
-              {this.getSubmenuItems(item.path).map((subItem) => this.renderAccordionItem(subItem, level + 1))}
-            </ul>
-          )}
+          <ul
+            className={`nav flex-column submenu-accordion ${isExpanded ? "open" : ""}`}
+            style={{ padding: 0, margin: 0, listStyle: "none" }}
+          >
+            {this.getSubmenuItems(item.path).map((subItem) =>
+              this.renderAccordionItem(subItem, level + 1)
+            )}
+          </ul>
         </React.Fragment>
-      )
+      );
     }
 
     return (
       <li className="nav-item" key={item.path}>
         <div className="nav-link disabled" style={itemStyle}>
           {this.renderLeftIcon(item.leftIcon, item)}
-          <Label label={label} />
+          <TranslationNode label={label} className="whiteColor" />
         </div>
       </li>
-    )
-  }
+    );
+  };
 
   renderSearchResults = () => {
-    const { filteredActions, searchText } = this.state
-    if (!filteredActions || searchText.length === 0) return null
+    const { filteredActions, searchText } = this.state;
+    if (!filteredActions || searchText.length === 0) return null;
     return (
       <div className="search-results-container">
         <ul className="nav flex-column">
-          {filteredActions.map((action, index) => {
-            if (action.navigationURL) {
-              const url = action.navigationURL.startsWith("/") ? action.navigationURL : `/${action.navigationURL}`
-              return (
-                <li className="nav-item" key={index}>
-                  <Link
-                    className="nav-link"
-                    to={url}
-                    onClick={(e) => {
-                      document.title = action.displayName
-                      if (action.navigationURL && action.navigationURL.includes("digit-ui")) {
-                        window.location.href = action.navigationURL
-                        e.preventDefault()
-                        return
-                      }
-                      this.props.updateActiveRoute(action.path, action.displayName)
-                      this.props.toggleDrawer && this.props.toggleDrawer()
-                    }}
-                  >
-                    {this.renderLeftIcon(action.leftIcon, action)}
-                    <Label
-                      label={
-                        action.displayName
-                          ? `ACTION_TEST_${action.displayName.toUpperCase().replace(/[.:-\s/]/g, "_")}`
-                          : ""
-                      }
-                    />
-                  </Link>
-                </li>
-              )
-            }
-            return null
-          })}
+          {filteredActions.map((action, index) =>
+            action.navigationURL ? (
+              <li className="nav-item" key={index}>
+                <Link
+                  className="nav-link"
+                  to={
+                    action.navigationURL.startsWith("/")
+                      ? action.navigationURL
+                      : "/" + action.navigationURL
+                  }
+                  onClick={(e) => {
+                    document.title = action.displayName;
+                    if (action.navigationURL.includes("digit-ui")) {
+                      window.location.href = action.navigationURL;
+                      e.preventDefault();
+                      return;
+                    }
+                    this.props.updateActiveRoute(action.path, action.displayName);
+                    this.props.toggleDrawer && this.props.toggleDrawer();
+                  }}
+                >
+                  {this.renderLeftIcon(action.leftIcon, action)}
+                  <TranslationNode
+                    label={
+                      action.displayName
+                        ? `ACTION_TEST_${action.displayName
+                            .toUpperCase()
+                            .replace(/[.:-\s/]/g, "_")}`
+                        : ""
+                    }
+                    className="whiteColor"
+                  />
+                </Link>
+              </li>
+            ) : null
+          )}
         </ul>
       </div>
-    )
+    );
+  };
+
+  renderLeftIcon(leftIcon, item) {
+    if (!leftIcon) return null;
+    const iconParts = typeof leftIcon === "string" ? leftIcon.split(":") : [];
+    if (iconParts.length >= 2) {
+      return (
+        <Icon
+          name={iconParts[1]}
+          action={iconParts[0]}
+          style={styles.fibreIconStyle}
+          className={`iconClassHover left-icon-color material-icons custom-style-for-${item.name}`}
+        />
+      );
+    }
+    return null;
   }
 
   render() {
-    const { actionListArr } = this.props
-    const { searchText, filteredActions, mobileSearchVisible } = this.state
+    const { actionListArr } = this.props;
+    const { searchText, filteredActions, mobileSearchVisible } = this.state;
 
-    if (!actionListArr) return null
+    if (!actionListArr) return null;
 
-    const topLevelItems = this.getTopLevelMenuItems(actionListArr)
+    const topLevelItems = this.getTopLevelMenuItems(actionListArr);
+    const allowedMenus = ["Finance"];
+    const filteredTopLevelItems = topLevelItems.filter((item) => allowedMenus.includes(item.displayName));
 
     return (
-      <div className="sidebar card py-2 mb-4"  style={{overflow:'auto'}}>
+      <div className="sidebar card py-2 mb-4" style={{ overflow: "auto" }}>
         <div className="mobile-search-toggle" onClick={this.toggleMobileSearch}>
           <Icon name="search" />
         </div>
-
-        {mobileSearchVisible && (
+        {mobileSearchVisible ? (
           <div className="mobile-search-container">
             <TextFieldIcon
               value={searchText}
-              hintText={<Label label="PT_SEARCH_BUTTON" className="menuStyle" />}
+              hintText={<TranslationNode label="PT_SEARCH_BUTTON" className="whiteColor" />}
               iconStyle={styles.inputIconStyle}
               inputStyle={{ ...styles.inputStyle, color: "black" }}
               textFieldStyle={styles.textFieldStyle}
@@ -390,16 +392,19 @@ class ActionMenuComp extends Component {
               autoFocus
             />
           </div>
-        )}
-
-        {!mobileSearchVisible && (
+        ) : (
           <div
             className="menu-search-container"
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: 10 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingRight: 10,
+            }}
           >
             <TextFieldIcon
               value={searchText}
-              hintText={<Label label="PT_SEARCH_BUTTON" className="menuStyle" />}
+              hintText={<TranslationNode label="PT_SEARCH_BUTTON" className="whiteColor" />}
               iconStyle={styles.inputIconStyle}
               inputStyle={styles.inputStyle}
               textFieldStyle={{ ...styles.textFieldStyle, flex: 1 }}
@@ -415,7 +420,6 @@ class ActionMenuComp extends Component {
               onClick={() => (window.location.href = "/digit-ui/employee")}
             />
           </div>
-
         )}
 
         <div className="menu-scroll-container">
@@ -423,16 +427,14 @@ class ActionMenuComp extends Component {
             this.renderSearchResults()
           ) : (
             <ul className="nav flex-column main-menu accordion-menu">
-              {topLevelItems.map((item) => this.renderAccordionItem(item, 0))}
+              {this.getSubmenuItems("Finance").map((child) =>
+                this.renderAccordionItem(child, 0)
+              )}
             </ul>
           )}
         </div>
       </div>
-    )
-  }
-
-  changeRoute = (route) => {
-    this.props.setRoute(route)
+    );
   }
 }
 
@@ -441,7 +443,8 @@ const mapDispatchToProps = (dispatch) => ({
   setRoute: (route) => dispatch({ type: "SET_ROUTE", route }),
   fetchLocalizationLabel: (locale, moduleName, tenantId) =>
     dispatch(fetchLocalizationLabel(locale, moduleName, tenantId)),
-  setRequiredDocumentFlag: () => dispatch(prepareFinalObject("isRequiredDocuments", true)),
-})
+  setRequiredDocumentFlag: () =>
+    dispatch(prepareFinalObject("isRequiredDocuments", true)),
+});
 
-export default connect(null, mapDispatchToProps)(ActionMenuComp)
+export default connect(null, mapDispatchToProps)(ActionMenuComp);

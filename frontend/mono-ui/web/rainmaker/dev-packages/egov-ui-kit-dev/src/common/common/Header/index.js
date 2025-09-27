@@ -174,7 +174,7 @@ class Header extends Component {
     const localeData = JSON.parse(sessionStorage.getItem("Digit.Employee.zone") || "{}");
     const zoneName = localeData && localeData.value ? localeData.value : "";
     const ulbLogo =
-      currentCity.length > 0 ? get(currentCity[0], "logoId") : "https://s3.ap-south-1.amazonaws.com/pb-egov-assets/pb.amritsar/logo.png";
+      currentCity.length > 0 ? get(currentCity[0], "logoId") : "https://mcd-asset.s3.ap-south-1.amazonaws.com/Logo.png";
     return (
       <div style={headerStyle}>
         <AppBar
