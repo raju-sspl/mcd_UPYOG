@@ -1,0 +1,2476 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Income - Old AccountCode Mpapping with New AccountCode</title>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+            margin: 0;
+            background: #fff;
+        }
+
+        .header {
+            background: #015296;
+            color: #fff;
+            padding: 20px 16px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header .sub {
+            opacity: .9;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        table.dataTable tbody tr:nth-child(even) {
+            background: #f6f9fc;
+        }
+
+        table.dataTable tbody tr:hover {
+            background: #e9f2fb;
+        }
+
+        .dt-buttons .dt-button {
+            background: #015296 !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: 10px;
+            padding: 8px 12px !important;
+        }
+
+        .dt-search input {
+            border: 1px solid #d0d7de;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #015296 !important;
+            color: #fff !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #e9f2fb !important;
+        }
+
+        table.dataTable thead th {
+            white-space: nowrap;
+            color: #015296;
+        }
+
+        /* Column sizing */
+        table.dataTable th:nth-child(1),
+        table.dataTable td:nth-child(1) {
+            width: 60px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(2),
+        table.dataTable td:nth-child(2) {
+            width: 60px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(3),
+        table.dataTable td:nth-child(3) {
+            width: 60px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(4),
+        table.dataTable td:nth-child(4) {
+            width: 120px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(5),
+        table.dataTable td:nth-child(5) {
+            width: 120px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(6),
+        table.dataTable td:nth-child(6) {
+            min-width: 520px;
+            max-width: 900px;
+        }
+
+        table.dataTable th:nth-child(7),
+        table.dataTable td:nth-child(7) {
+            width: 120px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(8),
+        table.dataTable td:nth-child(8) {
+            width: 120px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(9),
+        table.dataTable td:nth-child(9) {
+            width: 120px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(10),
+        table.dataTable td:nth-child(10) {
+            width: 120px;
+            text-align: center;
+        }
+
+        table.dataTable th:nth-child(11),
+        table.dataTable td:nth-child(11) {
+            width: 20px;
+        }
+
+        @media (max-width: 768px) {
+            table.dataTable th:nth-child(3),
+            table.dataTable td:nth-child(3),
+            table.dataTable th:nth-child(4),
+            table.dataTable td:nth-child(4),
+            table.dataTable th:nth-child(11),
+            table.dataTable td:nth-child(11) {
+                display: none;
+            }
+
+            table.dataTable th:nth-child(6),
+            table.dataTable td:nth-child(6) {
+                min-width: 360px;
+                max-width: unset;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="header">
+    <h1>Income - Old AccountCode Mpapping with New AccountCode</h1>
+    <div class="sub">Interactive table with export (CSV/Excel)</div>
+</div>
+<div class="container">
+    <div class="table-wrap">
+        <table id="data" class="display nowrap" style="width:100%">
+            <thead>
+            <tr class="group-row">
+                <th colspan="6" class="group" style="background:#75b2e3;color:#fff;text-align:center; text-align: left;">OLD</th>
+                <th colspan="4" class="group" style="background:#60b96c;color:#fff;text-align:center; text-align: left;">NEW</th>
+                <th rowspan="1"></th>
+            </tr>
+            <tr>
+                <th>Row #</th>
+                <th>Group</th>
+                <th>Dept.)</th>
+                <th>AccountHead)</th>
+                <th>Old AccoutCode</th>
+                <th>NOMENCLATURE</th>
+                <th>New Major</th>
+                <th>New Minor</th>
+                <th>New Detailed</th>
+                <th>New AccountCode</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>I</td>
+                <td>25</td>
+                <td>0115</td>
+                <td>I-25-0115</td>
+                <td>Income - Tax Share From GNCTD</td>
+                <td>160</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1601001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>II</td>
+                <td>15</td>
+                <td>0101</td>
+                <td>II-15-0101</td>
+                <td>Receipts - Property Taxes Current (Govt. Prop.)</td>
+                <td>110</td>
+                <td>01</td>
+                <td>01</td>
+                <td>1100101</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>II</td>
+                <td>15</td>
+                <td>0102</td>
+                <td>II-15-0102</td>
+                <td>Receipts - Property Taxes Current (Pvt)</td>
+                <td>110</td>
+                <td>01</td>
+                <td>02</td>
+                <td>1100102</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>II</td>
+                <td>15</td>
+                <td>0104</td>
+                <td>II-15-0104</td>
+                <td>Receipts - Property Taxes Arrears (Govt. Prop.)</td>
+                <td>110</td>
+                <td>01</td>
+                <td>04</td>
+                <td>1100104</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>II</td>
+                <td>15</td>
+                <td>0105</td>
+                <td>II-15-0105</td>
+                <td>Receipts - Property Taxes Arrears (Pvt)</td>
+                <td>110</td>
+                <td>01</td>
+                <td>05</td>
+                <td>1100105</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>II</td>
+                <td>15</td>
+                <td>0111</td>
+                <td>II-15-0111</td>
+                <td>Income - Duty on Property Transfer</td>
+                <td>120</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1201001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>II</td>
+                <td>15</td>
+                <td>3859</td>
+                <td>II-15-3859</td>
+                <td>Adjustment- Dishonoured cheques (-)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>II</td>
+                <td>16</td>
+                <td>0180</td>
+                <td>II-16-0180</td>
+                <td>Income - Theatre Tax</td>
+                <td>110</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1108001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td>II</td>
+                <td>16</td>
+                <td>3859</td>
+                <td>II-16-3859</td>
+                <td>Adjustment- Dishonoured cheques (-)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td>II</td>
+                <td>115</td>
+                <td>0112</td>
+                <td>II-115-0112</td>
+                <td>Income - Tax on Bldg Application</td>
+                <td>110</td>
+                <td>80</td>
+                <td>02</td>
+                <td>1108002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td>II</td>
+                <td>120</td>
+                <td>0106</td>
+                <td>II-120-0106</td>
+                <td>Income - Tax on Horse Drawn Vehicles</td>
+                <td>110</td>
+                <td>07</td>
+                <td>01</td>
+                <td>1100701</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>14</td>
+                <td>II</td>
+                <td>120</td>
+                <td>0107</td>
+                <td>II-120-0107</td>
+                <td>Income - Tax on on other vehicles</td>
+                <td>110</td>
+                <td>07</td>
+                <td>02</td>
+                <td>1100702</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>15</td>
+                <td>II</td>
+                <td>120</td>
+                <td>0108</td>
+                <td>II-120-0108</td>
+                <td>Income - Milch Tax</td>
+                <td>110</td>
+                <td>08</td>
+                <td>01</td>
+                <td>1100801</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>16</td>
+                <td>II</td>
+                <td>120</td>
+                <td>0109</td>
+                <td>II-120-0109</td>
+                <td>Income - Dog Tax</td>
+                <td>110</td>
+                <td>08</td>
+                <td>02</td>
+                <td>1100802</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>19</td>
+                <td>III</td>
+                <td>28</td>
+                <td>0114</td>
+                <td>III-28-0114</td>
+                <td>Income - Toll Tax</td>
+                <td>110</td>
+                <td>51</td>
+                <td>01</td>
+                <td>1105101</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>20</td>
+                <td>III</td>
+                <td>28</td>
+                <td>3859</td>
+                <td>III-28-3859</td>
+                <td>Adjustment- Dishonoured cheques(-)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>21</td>
+                <td>III</td>
+                <td>111</td>
+                <td>0113</td>
+                <td>III-111-0113</td>
+                <td>Income-Electricity Tax </td>
+                <td>110</td>
+                <td>09</td>
+                <td>01</td>
+                <td>1100901</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>22</td>
+                <td>III</td>
+                <td>111</td>
+                <td>0120</td>
+                <td>III-111-0120</td>
+                <td>Income -collection of untapped Electricity Tax</td>
+                <td>110</td>
+                <td>09</td>
+                <td>02</td>
+                <td>1100902</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>23</td>
+                <td>III</td>
+                <td>111</td>
+                <td>0121</td>
+                <td>III-111-0121</td>
+                <td>Electricity Tax (Other Then DISCOMS)</td>
+                <td>110</td>
+                <td>09</td>
+                <td>03</td>
+                <td>1100903</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>24</td>
+                <td>III</td>
+                <td>25</td>
+                <td>0116</td>
+                <td>III-25-0116</td>
+                <td>Income-Tax on Professions Trades, Calling And Employement</td>
+                <td>110</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1101001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>25</td>
+                <td>III</td>
+                <td>15</td>
+                <td>0229</td>
+                <td>III-15-0229</td>
+                <td>Income - Education Cess</td>
+                <td>110</td>
+                <td>52</td>
+                <td>01</td>
+                <td>1105201</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>28</td>
+                <td>IV</td>
+                <td>15</td>
+                <td>0126</td>
+                <td></td>
+                <td>Income - Mpl Taxation Tribunal</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>29</td>
+                <td>IV</td>
+                <td>15</td>
+                <td>0132</td>
+                <td>IV-15-0132</td>
+                <td>Income-E-Change of Name Fee</td>
+                <td>140</td>
+                <td>40</td>
+                <td>01</td>
+                <td>1404001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>30</td>
+                <td>IV</td>
+                <td>21</td>
+                <td>0190</td>
+                <td>IV-21-0190</td>
+                <td>Income - Law Receipts</td>
+                <td>140</td>
+                <td>40</td>
+                <td>02</td>
+                <td>1404002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>31</td>
+                <td>IV</td>
+                <td>23</td>
+                <td>0126</td>
+                <td>IV-23-0126</td>
+                <td>Income - Appellate Tribunal</td>
+                <td>140</td>
+                <td>40</td>
+                <td>03</td>
+                <td>1404003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>32</td>
+                <td>IV</td>
+                <td>25</td>
+                <td>0204</td>
+                <td>IV-25-0204</td>
+                <td>Income- CSB Transaction fee</td>
+                <td>140</td>
+                <td>40</td>
+                <td>04</td>
+                <td>1404004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>33</td>
+                <td>IV</td>
+                <td>40</td>
+                <td>0143</td>
+                <td>IV-40-0143</td>
+                <td>Income - Compounding Fee</td>
+                <td>140</td>
+                <td>40</td>
+                <td>05</td>
+                <td>1404005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>34</td>
+                <td>IV</td>
+                <td>40</td>
+                <td>0194</td>
+                <td>IV-40-0194</td>
+                <td>Income- Licensing of Rickshaw</td>
+                <td>140</td>
+                <td>11</td>
+                <td>01</td>
+                <td>1401101</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>35</td>
+                <td>IV</td>
+                <td>41</td>
+                <td>0142</td>
+                <td>IV-41-0142</td>
+                <td>Income - Fees Tehbazari</td>
+                <td>140</td>
+                <td>11</td>
+                <td>02</td>
+                <td>1401102</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>36</td>
+                <td>IV</td>
+                <td>41</td>
+                <td>0153</td>
+                <td>IV-41-0153</td>
+                <td>Income - Licence Fee (Other Trade)</td>
+                <td>140</td>
+                <td>11</td>
+                <td>03</td>
+                <td>1401103</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>37</td>
+                <td>IV</td>
+                <td>41</td>
+                <td>0162</td>
+                <td>IV-41-0162</td>
+                <td>Income - Rent Temporary Stalls</td>
+                <td>130</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1308001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>38</td>
+                <td>IV</td>
+                <td>41</td>
+                <td>0234</td>
+                <td>IV-41-0234</td>
+                <td> Income- shops in Un-authorised Colonies</td>
+                <td>140</td>
+                <td>11</td>
+                <td>04</td>
+                <td>1401104</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>39</td>
+                <td>IV</td>
+                <td>41</td>
+                <td>0235</td>
+                <td>IV-41-0235</td>
+                <td>Income - Registration Fee from weekly Bazars </td>
+                <td>140</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1401001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>40</td>
+                <td>IV</td>
+                <td>42</td>
+                <td>0152</td>
+                <td>IV-42-0152</td>
+                <td>Income - Licence Fees (Trade Factory)</td>
+                <td>140</td>
+                <td>11</td>
+                <td>05</td>
+                <td>1401105</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>41</td>
+                <td>IV</td>
+                <td>43</td>
+                <td>0155</td>
+                <td>IV-43-0155</td>
+                <td>Income - Licence Fee (Hawkers)</td>
+                <td>140</td>
+                <td>11</td>
+                <td>06</td>
+                <td>1401106</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>42</td>
+                <td>IV</td>
+                <td>43</td>
+                <td>0185</td>
+                <td>IV-43-0185</td>
+                <td>Income - Fines for Offences - MCD Inspectors</td>
+                <td>140</td>
+                <td>20</td>
+                <td>01</td>
+                <td>1402001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>43</td>
+                <td>IV</td>
+                <td>43</td>
+                <td>0186</td>
+                <td>IV-43-0186</td>
+                <td>Income - Fines by Municipal Magistrates</td>
+                <td>140</td>
+                <td>20</td>
+                <td>02</td>
+                <td>1402002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>44</td>
+                <td>IV</td>
+                <td>64</td>
+                <td>0148</td>
+                <td>IV-64-0148</td>
+                <td>Income-Rent from Centralised Kitchen</td>
+                <td>130</td>
+                <td>80</td>
+                <td>02</td>
+                <td>1308002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>45</td>
+                <td>IV</td>
+                <td>70</td>
+                <td>0133</td>
+                <td>IV-70-0133</td>
+                <td>आय - विश्लेषक शुल्क
+                    Income - Analyst Fees</td>
+                <td>140</td>
+                <td>50</td>
+                <td>01</td>
+                <td>1405001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>46</td>
+                <td>IV</td>
+                <td>70</td>
+                <td>0154</td>
+                <td>IV-70-0154</td>
+                <td>Income - Licence Fee Food &amp; Trade</td>
+                <td>140</td>
+                <td>11</td>
+                <td>07</td>
+                <td>1401107</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>47</td>
+                <td>IV</td>
+                <td>70</td>
+                <td>0185</td>
+                <td>IV-70-0185</td>
+                <td>Income- Fines for Offences- MCD Inspectors</td>
+                <td>140</td>
+                <td>20</td>
+                <td>03</td>
+                <td>1402003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>48</td>
+                <td>IV</td>
+                <td>70</td>
+                <td>0202</td>
+                <td>IV-70-0202</td>
+                <td>Income - Fine From use of Tobacco in public places</td>
+                <td>140</td>
+                <td>20</td>
+                <td>04</td>
+                <td>1402004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>49</td>
+                <td>IV</td>
+                <td>78</td>
+                <td>0139</td>
+                <td>IV-78-0139</td>
+                <td>Income - Fee From Hospitals</td>
+                <td>140</td>
+                <td>50</td>
+                <td>02</td>
+                <td>1405002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>50</td>
+                <td>IV</td>
+                <td>78</td>
+                <td>0215</td>
+                <td>IV-78-0215</td>
+                <td>Income-OPD Card &amp; Diet Charges</td>
+                <td>140</td>
+                <td>50</td>
+                <td>03</td>
+                <td>1405003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>51</td>
+                <td>IV</td>
+                <td>89</td>
+                <td>0231</td>
+                <td>IV-89-0231</td>
+                <td>Income - Fees - Medical Students</td>
+                <td>140</td>
+                <td>40</td>
+                <td>06</td>
+                <td>1404006</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>52</td>
+                <td>IV</td>
+                <td>94</td>
+                <td>0139</td>
+                <td>IV-94-0139</td>
+                <td>Income - Fee From Hospitals Under Ayush</td>
+                <td>140</td>
+                <td>50</td>
+                <td>04</td>
+                <td>1405004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>53</td>
+                <td>IV</td>
+                <td>94</td>
+                <td>0215</td>
+                <td>IV-94-0215</td>
+                <td>Income-OPD Card &amp; Diet Charges (Ayush)</td>
+                <td>140</td>
+                <td>50</td>
+                <td>05</td>
+                <td>1405005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>54</td>
+                <td>IV</td>
+                <td>100</td>
+                <td>0230</td>
+                <td>IV-100-0230</td>
+                <td>Income - Fine on Violation of Environmental Norms (Dust &amp; Air pollution, Burning of leaves, garbage
+                    &amp; plastic etc.)</td>
+                <td>140</td>
+                <td>20</td>
+                <td>05</td>
+                <td>1402005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>55</td>
+                <td>IV</td>
+                <td>100</td>
+                <td>0236</td>
+                <td>IV-100-0236</td>
+                <td>Fine related to use/storage/sale of plastic carry bags of less than 50 microns</td>
+                <td>140</td>
+                <td>20</td>
+                <td>06</td>
+                <td>1402006</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>56</td>
+                <td>IV</td>
+                <td>100</td>
+                <td>0237</td>
+                <td>IV-100-0237</td>
+                <td>Rent from unused / vacant Dalaos for Commercial purpose</td>
+                <td>130</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1301001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>57</td>
+                <td>IV</td>
+                <td>102</td>
+                <td>0209</td>
+                <td>IV-102-0209</td>
+                <td>Income- User charges &amp; fine for waste disposal</td>
+                <td>140</td>
+                <td>20</td>
+                <td>07</td>
+                <td>1402007</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>58</td>
+                <td>IV</td>
+                <td>103</td>
+                <td>0238</td>
+                <td>IV-103-0238</td>
+                <td>User Charges - Public Toilets in Market Places</td>
+                <td>140</td>
+                <td>50</td>
+                <td>06</td>
+                <td>1405006</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>59</td>
+                <td>IV</td>
+                <td>110</td>
+                <td>0239</td>
+                <td>IV-110-0239</td>
+                <td>Income-From Lease of C Block Civic Centre </td>
+                <td>130</td>
+                <td>20</td>
+                <td>01</td>
+                <td>1302001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>60</td>
+                <td>IV</td>
+                <td>111</td>
+                <td>0224</td>
+                <td>IV-111-0224</td>
+                <td>Income From Electric Poles</td>
+                <td>130</td>
+                <td>80</td>
+                <td>03</td>
+                <td>1308003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>61</td>
+                <td>IV</td>
+                <td>111</td>
+                <td>0240</td>
+                <td>IV-111-0240</td>
+                <td>Rent from Electricity Companies for installation of Transformers in Municipal Land</td>
+                <td>130</td>
+                <td>40</td>
+                <td>01</td>
+                <td>1304001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>62</td>
+                <td>IV</td>
+                <td>115</td>
+                <td>0151</td>
+                <td>IV-115-0151</td>
+                <td>Income - Fines From Buildings (previous head IV-0115-0242 merged)</td>
+                <td>140</td>
+                <td>20</td>
+                <td>08</td>
+                <td>1402008</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>63</td>
+                <td>IV</td>
+                <td>115</td>
+                <td>0198</td>
+                <td>IV-115-0198</td>
+                <td>Income - Fee from Mobile Towers</td>
+                <td>140</td>
+                <td>40</td>
+                <td>07</td>
+                <td>1404007</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>64</td>
+                <td>IV</td>
+                <td>115</td>
+                <td>0230</td>
+                <td>IV-115-0230</td>
+                <td>Income - Fine on Violation of Environmental Norms (85-229 of East &amp; 69-0259 of North merged</td>
+                <td>140</td>
+                <td>20</td>
+                <td>09</td>
+                <td>1402009</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>65</td>
+                <td>IV</td>
+                <td>115</td>
+                <td>0241</td>
+                <td>IV-115-0241</td>
+                <td>Regularisation / Registration of Warehouses</td>
+                <td>140</td>
+                <td>15</td>
+                <td>01</td>
+                <td>1401501</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>66</td>
+                <td></td>
+                <td>115</td>
+                <td>0242</td>
+                <td>-115-0242</td>
+                <td>Regularisation of unauthorised constructions</td>
+                <td>140</td>
+                <td>15</td>
+                <td>02</td>
+                <td>1401502</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>67</td>
+                <td>IV</td>
+                <td>115</td>
+                <td>0243</td>
+                <td>IV-115-0243</td>
+                <td>Income- Fine on Violation of Environmental Norms &amp; C&amp;D waste(previous head IV-115-0230 merged)
+                    (Monthly fee from Registered Farm Houses abolished by Deptt)</td>
+                <td>140</td>
+                <td>20</td>
+                <td>10</td>
+                <td>1402010</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>68</td>
+                <td></td>
+                <td>115</td>
+                <td>0244</td>
+                <td>-115-0244</td>
+                <td>Fee &amp; Rent from Mobile Towers on Municipal Buildings</td>
+                <td>130</td>
+                <td>20</td>
+                <td>02</td>
+                <td>1302002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>69</td>
+                <td>IV </td>
+                <td>120</td>
+                <td>0134</td>
+                <td>IV -120-0134</td>
+                <td>Income - Fines - Stray Cattle (incl feeding charges)</td>
+                <td>140</td>
+                <td>20</td>
+                <td>11</td>
+                <td>1402011</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>70</td>
+                <td>IV</td>
+                <td>120</td>
+                <td>0135</td>
+                <td>IV-120-0135</td>
+                <td>Income - Auction - Unclaimed Cattle</td>
+                <td>150</td>
+                <td>30</td>
+                <td>01</td>
+                <td>1503001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>71</td>
+                <td>IV</td>
+                <td>120</td>
+                <td>0143</td>
+                <td>IV-120-0143</td>
+                <td>Income - Compounding Fee</td>
+                <td>140</td>
+                <td>20</td>
+                <td>12</td>
+                <td>1402012</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>72</td>
+                <td>IV</td>
+                <td>120</td>
+                <td>0163</td>
+                <td>IV-120-0163</td>
+                <td>Income - Fine for illegal Slaughtering </td>
+                <td>140</td>
+                <td>20</td>
+                <td>13</td>
+                <td>1402013</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>73</td>
+                <td>IV</td>
+                <td>120</td>
+                <td>0276</td>
+                <td>IV-120-0276</td>
+                <td>Income Vetrinary trade licence</td>
+                <td>140</td>
+                <td>11</td>
+                <td>08</td>
+                <td>1401108</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>74</td>
+                <td>IV</td>
+                <td>124</td>
+                <td>0225</td>
+                <td>IV-124-0225</td>
+                <td>
+                    Income - Slaughter Fees</td>
+                <td>140</td>
+                <td>50</td>
+                <td>07</td>
+                <td>1405007</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>75</td>
+                <td>IV</td>
+                <td>130</td>
+                <td>0278</td>
+                <td>IV-130-0278</td>
+                <td>Kiosks for Diary Products in Parks</td>
+                <td>130</td>
+                <td>40</td>
+                <td>02</td>
+                <td>1304002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>76</td>
+                <td>IV</td>
+                <td>130</td>
+                <td>0246</td>
+                <td>IV-130-0246</td>
+                <td>Rent from for Private Plant Nurseries </td>
+                <td>130</td>
+                <td>40</td>
+                <td>03</td>
+                <td>1304003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>77</td>
+                <td>IV</td>
+                <td>140</td>
+                <td>0146</td>
+                <td>IV-140-0146</td>
+                <td>Income - Rent From Land &amp; Bldgs</td>
+                <td>130</td>
+                <td>10</td>
+                <td>02</td>
+                <td>1301002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>78</td>
+                <td>IV</td>
+                <td>140</td>
+                <td>0168</td>
+                <td>IV-140-0168</td>
+                <td>Income recovery house rent</td>
+                <td>130</td>
+                <td>80</td>
+                <td>04</td>
+                <td>1308004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>79</td>
+                <td>IV</td>
+                <td>140</td>
+                <td>0176</td>
+                <td>IV-140-0176</td>
+                <td>Income- Quarter H P from Safai Karamcharis</td>
+                <td>130</td>
+                <td>80</td>
+                <td>05</td>
+                <td>1308005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>80</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0147</td>
+                <td>IV-141-0147</td>
+                <td>Income - Car Parking Charges</td>
+                <td>140</td>
+                <td>50</td>
+                <td>08</td>
+                <td>1405008</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>81</td>
+                <td>IV </td>
+                <td>141</td>
+                <td>0150</td>
+                <td>IV -141-0150</td>
+                <td>Income - Swimming Pool</td>
+                <td>140</td>
+                <td>50</td>
+                <td>09</td>
+                <td>1405009</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>82</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0156</td>
+                <td>IV-141-0156</td>
+                <td>Income - One time charges on new vehicles</td>
+                <td>140</td>
+                <td>50</td>
+                <td>10</td>
+                <td>1405010</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>83</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0174</td>
+                <td>IV-141-0174</td>
+                <td>
+                    Income - License Fess Kiosks-</td>
+                <td>140</td>
+                <td>11</td>
+                <td>09</td>
+                <td>1401109</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>84</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0181</td>
+                <td>IV-141-0181</td>
+                <td>Income - Sanjay Gandhi Transport Nagar, Badli</td>
+                <td>130</td>
+                <td>10</td>
+                <td>03</td>
+                <td>1301003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>85</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0232</td>
+                <td>IV-141-0232</td>
+                <td>Income - Booking Charges - Kedar Nath Sahni Auditorium, Civic Centre ( Including Electricity Charges)
+                </td>
+                <td>130</td>
+                <td>20</td>
+                <td>03</td>
+                <td>1302003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>86</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0233</td>
+                <td>IV-141-0233</td>
+                <td>Naming of Municipal Building on Private Personalities</td>
+                <td>140</td>
+                <td>50</td>
+                <td>11</td>
+                <td>1405011</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>87</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0244</td>
+                <td>IV-141-0244</td>
+                <td>Rent from mobile Tower On Municipal Properties&amp; COW</td>
+                <td>130</td>
+                <td>20</td>
+                <td>04</td>
+                <td>1302004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>88</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0245</td>
+                <td>IV-141-0245</td>
+                <td>Rent from booking of Sites (like Ram Lila Ground, Mahila Haat &amp; Shehnai Banquet Hall etc)</td>
+                <td>130</td>
+                <td>10</td>
+                <td>04</td>
+                <td>1301004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>89</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>0278</td>
+                <td>IV-141-0278</td>
+                <td>Kiosks for Diary Products </td>
+                <td>130</td>
+                <td>80</td>
+                <td>06</td>
+                <td>1308006</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>90</td>
+                <td>IV</td>
+                <td>141</td>
+                <td>3859</td>
+                <td>IV-141-3859</td>
+                <td>Adjustment- Dishonoured cheques (-)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>93</td>
+                <td>V</td>
+                <td>15</td>
+                <td>0131</td>
+                <td>V-15-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>94</td>
+                <td>V</td>
+                <td>15</td>
+                <td>2619</td>
+                <td>V-15-2619</td>
+                <td>CL-UPIC Card Charges</td>
+                <td>140</td>
+                <td>40</td>
+                <td>08</td>
+                <td>1404008</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>95</td>
+                <td>V</td>
+                <td>16</td>
+                <td>0200</td>
+                <td>V-16-0200</td>
+                <td>Income - Advertisement</td>
+                <td>140</td>
+                <td>40</td>
+                <td>09</td>
+                <td>1404009</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>96</td>
+                <td>V</td>
+                <td>16</td>
+                <td>0246</td>
+                <td>V-16-0246</td>
+                <td>Income from Advertisement on Park Railings, Mahila Haat, &amp; Municipal Buildings</td>
+                <td>140</td>
+                <td>40</td>
+                <td>10</td>
+                <td>1404010</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>97</td>
+                <td>V</td>
+                <td>16</td>
+                <td>0247</td>
+                <td>V-16-0247</td>
+                <td>LED advertisement in North DMC&#x27;s Building walls, Car Parkings &amp; Hospitals</td>
+                <td>140</td>
+                <td>40</td>
+                <td>11</td>
+                <td>1404011</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>98</td>
+                <td>V</td>
+                <td>23</td>
+                <td>0248</td>
+                <td>V-23-0248</td>
+                <td>Advertisement on Mpl. Website</td>
+                <td>140</td>
+                <td>40</td>
+                <td>12</td>
+                <td>1404012</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>99</td>
+                <td>V</td>
+                <td>24</td>
+                <td>0249</td>
+                <td>V-24-0249</td>
+                <td>Income - Printing charges</td>
+                <td>140</td>
+                <td>50</td>
+                <td>12</td>
+                <td>1405012</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>100</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0127</td>
+                <td>V-25-0127</td>
+                <td>Income - Recovery Audit Charges</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>101</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0128</td>
+                <td>V-25-0128</td>
+                <td>Income - Superintendence Charges</td>
+                <td>140</td>
+                <td>70</td>
+                <td>01</td>
+                <td>1407001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0131</td>
+                <td>V-25-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>103</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0165</td>
+                <td>V-25-0165</td>
+                <td>Income - Reimbursement - Plan Administration</td>
+                <td>140</td>
+                <td>70</td>
+                <td>02</td>
+                <td>1407002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>104</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0187</td>
+                <td>V-25-0187</td>
+                <td>Income - Interest From Investments</td>
+                <td>170</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1701001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>105</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0191</td>
+                <td>V-25-0191</td>
+                <td>Income- under Right to Information Act</td>
+                <td>140</td>
+                <td>40</td>
+                <td>13</td>
+                <td>1404013</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>106</td>
+                <td>V</td>
+                <td>25</td>
+                <td>0216</td>
+                <td>V-25-0216</td>
+                <td>Non Payable deducition</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>107</td>
+                <td>V</td>
+                <td>25</td>
+                <td>3859</td>
+                <td>V-25-3859</td>
+                <td>Adjustment- Dishonoured cheques (-)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>108</td>
+                <td>V</td>
+                <td>41</td>
+                <td>0157</td>
+                <td>V-41-0157</td>
+                <td>
+                    Income - Spl. Registration of Shops</td>
+                <td>140</td>
+                <td>10</td>
+                <td>02</td>
+                <td>1401002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>109</td>
+                <td>V</td>
+                <td>42</td>
+                <td>0157</td>
+                <td>V-42-0157</td>
+                <td>आय - कारखानों का विशेष पंजीकरण
+                    Income - Spl. Registration of factory</td>
+                <td>140</td>
+                <td>10</td>
+                <td>03</td>
+                <td>1401003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>110</td>
+                <td>V</td>
+                <td>42</td>
+                <td>0131</td>
+                <td>V-42-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>111</td>
+                <td>V</td>
+                <td>43</td>
+                <td>0131</td>
+                <td>V-43-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>112</td>
+                <td>V</td>
+                <td>43</td>
+                <td>0156</td>
+                <td>V-43-0156</td>
+                <td>Income - Removal of Encroachments</td>
+                <td>140</td>
+                <td>20</td>
+                <td>14</td>
+                <td>1402014</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>113</td>
+                <td>V</td>
+                <td>50</td>
+                <td>0125</td>
+                <td>V-50-0125</td>
+                <td>Income - Barat Ghar / Community Centres</td>
+                <td>130</td>
+                <td>10</td>
+                <td>05</td>
+                <td>1301005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>114</td>
+                <td>V</td>
+                <td>50</td>
+                <td>3859</td>
+                <td>V-50-3859</td>
+                <td>Adjustment- Dishonoured cheques (-)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>115</td>
+                <td>V</td>
+                <td>50</td>
+                <td>0131</td>
+                <td>V-50-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>116</td>
+                <td>V</td>
+                <td>50</td>
+                <td>0250</td>
+                <td>V-50-0250</td>
+                <td>Outsourcing of Community centres</td>
+                <td>130</td>
+                <td>10</td>
+                <td>06</td>
+                <td>1301006</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>117</td>
+                <td>V</td>
+                <td>60</td>
+                <td>0131</td>
+                <td>V-60-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>118</td>
+                <td>V</td>
+                <td>70</td>
+                <td>0131</td>
+                <td>V-70-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>119</td>
+                <td>V</td>
+                <td>70</td>
+                <td>0228</td>
+                <td>V-70-0228</td>
+                <td>Income from Registration of Birth &amp; Death</td>
+                <td>140</td>
+                <td>13</td>
+                <td>01</td>
+                <td>1401301</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>120</td>
+                <td>V</td>
+                <td>70</td>
+                <td>0252</td>
+                <td>V-70-0252</td>
+                <td>Income from food Vans (Rent from earmarked areas in every Mpl. Wards)</td>
+                <td>130</td>
+                <td>80</td>
+                <td>07</td>
+                <td>1308007</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>121</td>
+                <td>V</td>
+                <td>70</td>
+                <td>0253</td>
+                <td>V-70-0253</td>
+                <td>Licence fee for Food Vans </td>
+                <td>140</td>
+                <td>11</td>
+                <td>10</td>
+                <td>1401110</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>122</td>
+                <td>V</td>
+                <td>76</td>
+                <td>0131</td>
+                <td>V-76-0131</td>
+                <td>आय - विविधि शुल्क और वसूलियां
+                    Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>123</td>
+                <td>V</td>
+                <td>76</td>
+                <td>0136</td>
+                <td>V-76-0136</td>
+                <td>Income - Fuel for Cremation</td>
+                <td>140</td>
+                <td>50</td>
+                <td>13</td>
+                <td>1405013</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>124</td>
+                <td>V</td>
+                <td>76</td>
+                <td>0137</td>
+                <td>V-76-0137</td>
+                <td>Income - Crematorium - CNG</td>
+                <td>140</td>
+                <td>50</td>
+                <td>14</td>
+                <td>1405014</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>125</td>
+                <td>V</td>
+                <td>76</td>
+                <td>0138</td>
+                <td>V-76-0138</td>
+                <td>Income - Crematorium - Electric</td>
+                <td>140</td>
+                <td>50</td>
+                <td>15</td>
+                <td>1405015</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>126</td>
+                <td>V</td>
+                <td>78</td>
+                <td>0131</td>
+                <td>V-78-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>127</td>
+                <td>V</td>
+                <td>78</td>
+                <td>0192</td>
+                <td>V-78-0192</td>
+                <td>Income- Contribution from Pensioners</td>
+                <td>340</td>
+                <td>40</td>
+                <td>01</td>
+                <td>3404001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>128</td>
+                <td></td>
+                <td>78</td>
+                <td>0217</td>
+                <td>-78-0217</td>
+                <td>आय-अंशदान चिकत्सकीय सुविधाएँ
+                    Income- subscription for medical facility Employees</td>
+                <td>340</td>
+                <td>40</td>
+                <td>01</td>
+                <td>3404001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>129</td>
+                <td>V</td>
+                <td>91</td>
+                <td>0131</td>
+                <td>V-91-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>130</td>
+                <td>V</td>
+                <td>98</td>
+                <td>0131</td>
+                <td>V-98-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>131</td>
+                <td>V</td>
+                <td>100</td>
+                <td>0131</td>
+                <td>V-100-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>132</td>
+                <td>V</td>
+                <td>100</td>
+                <td>0141</td>
+                <td>V-100-0141</td>
+                <td>Income - Private Refuse Removal Charges</td>
+                <td>140</td>
+                <td>50</td>
+                <td>16</td>
+                <td>1405016</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>133</td>
+                <td>V</td>
+                <td>100</td>
+                <td>0254</td>
+                <td>V-100-0254</td>
+                <td>Income - Escrow Account for monthly License Fee for toilets to be constructed under BOT basis</td>
+                <td>140</td>
+                <td>11</td>
+                <td>11</td>
+                <td>1401111</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>134</td>
+                <td></td>
+                <td>100</td>
+                <td>0255</td>
+                <td>-100-0255</td>
+                <td>Sweeping Charges for 60&quot; ROW Roads transferred to GNCTD</td>
+                <td>160</td>
+                <td>20</td>
+                <td>01</td>
+                <td>1602001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>135</td>
+                <td>V</td>
+                <td>100</td>
+                <td>0256</td>
+                <td>V-100-0256</td>
+                <td>Income from Waste to Energy ( Sale of Electricity)</td>
+                <td>150</td>
+                <td>10</td>
+                <td>01</td>
+                <td>1501001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>136</td>
+                <td>V</td>
+                <td>104</td>
+                <td>0131</td>
+                <td>V-104-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>137</td>
+                <td>V </td>
+                <td>110</td>
+                <td>0122</td>
+                <td>V -110-0122</td>
+                <td>Income - Civic Centre including Maintenance Charges of Civic Centre from Income Tax Department</td>
+                <td>140</td>
+                <td>50</td>
+                <td>17</td>
+                <td>1405017</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>138</td>
+                <td>V</td>
+                <td>110</td>
+                <td>0131</td>
+                <td>V-110-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>139</td>
+                <td>V</td>
+                <td>110</td>
+                <td>0166</td>
+                <td>V-110-0166</td>
+                <td>आय - दि . वि . प्रा से विकास प्रभार
+                    Income - Devlp. Chg DDA </td>
+                <td>140</td>
+                <td>14</td>
+                <td>01</td>
+                <td>1401401</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>140</td>
+                <td>V</td>
+                <td>110</td>
+                <td>0196</td>
+                <td>V-110-0196</td>
+                <td>Income - Deficiency Charges (DDA)</td>
+                <td>140</td>
+                <td>14</td>
+                <td>02</td>
+                <td>1401402</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>141</td>
+                <td>V</td>
+                <td>110</td>
+                <td>0223</td>
+                <td>V-110-0223</td>
+                <td>Income - Way Leave Charges/Usage charges</td>
+                <td>140</td>
+                <td>50</td>
+                <td>18</td>
+                <td>1405018</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>142</td>
+                <td>V</td>
+                <td>110</td>
+                <td>2561</td>
+                <td>V-110-2561</td>
+                <td>Road Restoration Receipts </td>
+                <td>140</td>
+                <td>40</td>
+                <td>14</td>
+                <td>1404014</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>143</td>
+                <td>V</td>
+                <td>111</td>
+                <td>0131</td>
+                <td>V-111-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>144</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0131</td>
+                <td>V-115-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>145</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0160</td>
+                <td>V-115-0160</td>
+                <td>Income- Social Function charges from Hotel/Motel, Farm houses, Vatika &amp; others</td>
+                <td>140</td>
+                <td>40</td>
+                <td>15</td>
+                <td>1404015</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>146</td>
+                <td>V</td>
+                <td>115</td>
+                <td>166</td>
+                <td>V-115-166</td>
+                <td>Income- Devlopment charges from private parties</td>
+                <td>140</td>
+                <td>14</td>
+                <td>04</td>
+                <td>1401404</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>147</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0167</td>
+                <td>V-115-0167</td>
+                <td>Income-Escrow account of Conversion &amp; Registration Charges.</td>
+                <td>140</td>
+                <td>15</td>
+                <td>03</td>
+                <td>1401503</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>148</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0177</td>
+                <td>V-115-0177</td>
+                <td>Escrow - Parking Charges under Conversion Scheme</td>
+                <td>140</td>
+                <td>15</td>
+                <td>04</td>
+                <td>1401504</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>149</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0178</td>
+                <td>V-115-0178</td>
+                <td>Income- Levy of Additional FAR and Betterment</td>
+                <td>140</td>
+                <td>12</td>
+                <td>01</td>
+                <td>1401201</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>150</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0218</td>
+                <td>V-115-0218</td>
+                <td>Income- Regularisation of Farm House</td>
+                <td>140</td>
+                <td>15</td>
+                <td>05</td>
+                <td>1401505</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>151</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0219</td>
+                <td>V-115-0219</td>
+                <td>Income Under LDRA Policy</td>
+                <td>130</td>
+                <td>10</td>
+                <td>07</td>
+                <td>1301007</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>152</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0257</td>
+                <td>V-115-0257</td>
+                <td>Provisional License fee from Vatika/ Farm houses in Un-authorised Colonies</td>
+                <td>140</td>
+                <td>40</td>
+                <td>16</td>
+                <td>1404016</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>153</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0258</td>
+                <td>V-115-0258</td>
+                <td>Registration of Paying Guest accommodations</td>
+                <td>140</td>
+                <td>10</td>
+                <td>04</td>
+                <td>1401004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>154</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0259</td>
+                <td>V-115-0259</td>
+                <td>Income on account of Levy of Compensatory / Regulatory charges at the time of Sanction of Building Plan
+                </td>
+                <td>140</td>
+                <td>15</td>
+                <td>06</td>
+                <td>1401506</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>155</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0260</td>
+                <td>V-115-0260</td>
+                <td>Infrastructure UP-gradation Charges in the existing Industrial Areas</td>
+                <td>140</td>
+                <td>14</td>
+                <td>05</td>
+                <td>1401405</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>156</td>
+                <td>V</td>
+                <td>115</td>
+                <td>0261</td>
+                <td>V-115-0261</td>
+                <td>Income-IT Admin charges</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>157</td>
+                <td>V</td>
+                <td>116</td>
+                <td>0262</td>
+                <td>V-116-0262</td>
+                <td>Amalgamation of Plots</td>
+                <td>140</td>
+                <td>12</td>
+                <td>02</td>
+                <td>1401202</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>158</td>
+                <td>V</td>
+                <td>120</td>
+                <td>0131</td>
+                <td>V-120-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>159</td>
+                <td>V</td>
+                <td>130</td>
+                <td>0131</td>
+                <td>V-130-0131</td>
+                <td>Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>160</td>
+                <td>V</td>
+                <td>130</td>
+                <td>0158</td>
+                <td>V-130-0158</td>
+                <td>Income - Gardens &amp; Roadside Trees</td>
+                <td>150</td>
+                <td>10</td>
+                <td>02</td>
+                <td>1501002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>161</td>
+                <td>V</td>
+                <td>130</td>
+                <td>0247</td>
+                <td>V-130-0247</td>
+                <td>LEDAdvertisements in Municipal Parks</td>
+                <td>140</td>
+                <td>40</td>
+                <td>17</td>
+                <td>1404017</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>162</td>
+                <td>V</td>
+                <td>130</td>
+                <td>0263</td>
+                <td>V-130-0263</td>
+                <td>Income from Booking of Parks</td>
+                <td>130</td>
+                <td>20</td>
+                <td>05</td>
+                <td>1302005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>163</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0124</td>
+                <td>V-140-0124</td>
+                <td>Income Transfer of Markets from L&amp;DA</td>
+                <td>130</td>
+                <td>10</td>
+                <td>08</td>
+                <td>1301008</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>164</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0145</td>
+                <td>V-140-0145</td>
+                <td>Income - Sale of Land &amp; Bldgs/ Conversion to free hold </td>
+                <td>150</td>
+                <td>50</td>
+                <td>01</td>
+                <td>1505001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>165</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0264</td>
+                <td>V-140-0264</td>
+                <td>Free hold charges Lajpat Rai Market</td>
+                <td>150</td>
+                <td>50</td>
+                <td>02</td>
+                <td>1505002</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>166</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0265</td>
+                <td>V-140-0265</td>
+                <td>Conversion of Municipal Flats / Plots</td>
+                <td>150</td>
+                <td>50</td>
+                <td>03</td>
+                <td>1505003</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>167</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0266</td>
+                <td>V-140-0266</td>
+                <td>Conversion of Municipal Commercial Complex</td>
+                <td>150</td>
+                <td>50</td>
+                <td>04</td>
+                <td>1505004</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>168</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0267</td>
+                <td>V-140-0267</td>
+                <td>Provision of land to DMRC</td>
+                <td>130</td>
+                <td>40</td>
+                <td>05</td>
+                <td>1304005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>169</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0268</td>
+                <td>V-140-0268</td>
+                <td>Free hold of thara</td>
+                <td>150</td>
+                <td>50</td>
+                <td>05</td>
+                <td>1505005</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>170</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0269</td>
+                <td>V-140-0269</td>
+                <td>User charges from IGL for laying pipe</td>
+                <td>140</td>
+                <td>50</td>
+                <td>19</td>
+                <td>1405019</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>171</td>
+                <td>V</td>
+                <td>140</td>
+                <td>0270</td>
+                <td>V-140-0270</td>
+                <td>User charges from DJB for laying pipe</td>
+                <td>140</td>
+                <td>50</td>
+                <td>20</td>
+                <td>1405020</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>172</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0131</td>
+                <td>V-141-0131</td>
+                <td>आय - विविधि शुल्क और वसूलिया
+                    Income - Misc. Receipts</td>
+                <td>180</td>
+                <td>80</td>
+                <td>01</td>
+                <td>1808001</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>173</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0145</td>
+                <td>V-141-0145</td>
+                <td>Revenue Related Projects - Lease / Sale of Land &amp; Bldgs </td>
+                <td>130</td>
+                <td>40</td>
+                <td>07</td>
+                <td>1304007</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>174</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0271</td>
+                <td>V-141-0271</td>
+                <td>EV-Charging Staion</td>
+                <td>130</td>
+                <td>40</td>
+                <td>06</td>
+                <td>1304006</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>175</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0272</td>
+                <td>V-141-0272</td>
+                <td>Auction of Cars at Parking Sites</td>
+                <td>140</td>
+                <td>50</td>
+                <td>08</td>
+                <td>1405008</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>176</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0273</td>
+                <td>V-141-0273</td>
+                <td>Income from shops at old age home Shalimar Bagh</td>
+                <td>130</td>
+                <td>10</td>
+                <td>09</td>
+                <td>1301009</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>177</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0274</td>
+                <td>V-141-0274</td>
+                <td>Revenue Related Projects</td>
+                <td>140</td>
+                <td>50</td>
+                <td>21</td>
+                <td>1405021</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>178</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0275</td>
+                <td>V-141-0275</td>
+                <td>Income from shops at Delite Cinema Parking </td>
+                <td>130</td>
+                <td>10</td>
+                <td>10</td>
+                <td>1301010</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>179</td>
+                <td>V</td>
+                <td>141</td>
+                <td>0279</td>
+                <td>V-141-0279</td>
+                <td>E-bike/e-cycle/Cycle Stands</td>
+                <td>140</td>
+                <td>50</td>
+                <td>22</td>
+                <td>1405022</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>182</td>
+                <td>VI</td>
+                <td>160</td>
+                <td>2014</td>
+                <td>VI-160-2014</td>
+                <td>Loan from GNCTD (Ways and means)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script th:inline="none">
+    $(document).ready(function () {
+        var table = $('#data').DataTable({
+            dom: 'Blfrtip',
+            buttons: [
+                { extend: 'csvHtml5', title: 'Income - Old AccountCode Mpapping with New AccountCode' },
+                { extend: 'excelHtml5', title: 'Income - Old AccountCode Mpapping with New AccountCode' }
+            ],
+            pageLength: 20,
+            lengthMenu: [[20,50,75,100,150,-1],[25,50,75,100,150,'All']],
+            deferRender: true,
+            scrollX: true,
+            autoWidth: false,
+            order: [],
+            stripeClasses: []
+        });
+        //new $.fn.dataTable.FixedHeader(table);
+    });
+</script>
+</body>
+
+</html>

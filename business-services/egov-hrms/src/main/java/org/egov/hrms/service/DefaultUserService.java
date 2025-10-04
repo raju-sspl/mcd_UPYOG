@@ -92,7 +92,7 @@ public class DefaultUserService implements UserService {
 
 	private String internalMicroserviceRoleUuid = null;
 
-	@PostConstruct
+	//@PostConstruct
 	void initalizeSystemuser(){
 		log.info("initialising system user");
 		RequestInfo requestInfo = new RequestInfo();

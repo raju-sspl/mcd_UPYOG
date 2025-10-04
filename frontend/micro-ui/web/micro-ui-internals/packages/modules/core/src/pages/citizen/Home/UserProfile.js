@@ -153,12 +153,29 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     }
   }
   
+  //const setUserEmailAddress = (value) => {
+   // setEmail(value);
+    //const emailPattern=/^[a-zA-Z0-9._%+-]+@[a-z.-]+\.(com|org|in)$/
+    //if(value.length && !emailPattern.test(value)){
+      //setErrors({...errors, emailAddress: {type: "pattern", message: t("CORE_COMMON_PROFILE_EMAIL_INVALID")}})
+    //}else{
+      //setEmail(value);
+      //setErrors({ ...errors, emailAddress: null });
+    //}
+  //};
   const setUserEmailAddress = (value) => {
     setEmail(value);
-    const emailPattern=/^[a-zA-Z0-9._%+-]+@[a-z.-]+\.(com|org|in)$/
-    if(value.length && !emailPattern.test(value)){
-      setErrors({...errors, emailAddress: {type: "pattern", message: t("CORE_COMMON_PROFILE_EMAIL_INVALID")}})
-    }else{
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
+
+    if (value.length && !emailPattern.test(value)) {
+      setErrors({
+        ...errors,
+        emailAddress: {
+          type: "pattern",
+          message: t("CORE_COMMON_PROFILE_EMAIL_INVALID"),
+        },
+      });
+    } else {
       setEmail(value);
       setErrors({ ...errors, emailAddress: null });
     }
@@ -254,7 +271,10 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
         throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_MOBILE_NUMBER_INVALID") });
       }
 
-      if (email.length && !/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+      //if (email.length && !/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+        //throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_EMAIL_INVALID") });
+      //}
+      if (email.length && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/.test(email)) {
         throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_EMAIL_INVALID") });
       }
 
