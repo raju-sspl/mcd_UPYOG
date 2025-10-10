@@ -7,6 +7,16 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const [inactiveJurisdictions, setInactiveJurisdictions] = useState([]);
   const { data: data = {}, isLoading } = Digit.Hooks.hrms.useHrmsMDMS(tenantId, "egov-hrms", "HRMSRolesandDesignation") || {};
+
+  // Get the default Admin hierarchy
+  const getDefaultHierarchy = () => {
+    if (data?.MdmsRes?.["egov-location"]["TenantBoundary"]) {
+      const adminHierarchy = data.MdmsRes["egov-location"]["TenantBoundary"].map((ele) => ele.hierarchyType).find((h) => h.code === "ADMIN");
+      return adminHierarchy || null;
+    }
+    return null;
+  };
+
   const [jurisdictions, setjurisdictions] = useState(
     formData?.Jurisdictions || [
       {
@@ -20,6 +30,16 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
       },
     ]
   );
+
+  // Set default hierarchy to Admin when data is loaded
+  useEffect(() => {
+    if (data?.MdmsRes && jurisdictions.length > 0) {
+      const defaultHierarchy = getDefaultHierarchy();
+      if (defaultHierarchy && !jurisdictions[0].hierarchy) {
+        setjurisdictions((prev) => prev.map((item, idx) => (idx === 0 && !item.hierarchy ? { ...item, hierarchy: defaultHierarchy } : item)));
+      }
+    }
+  }, [data?.MdmsRes]);
 
   useEffect(() => {
     const jurisdictionsData = jurisdictions?.map((jurisdiction) => {
@@ -53,11 +73,12 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddUnit = () => {
+    const defaultHierarchy = getDefaultHierarchy();
     setjurisdictions((prev) => [
       ...prev,
       {
         key: prev.length + 1,
-        hierarchy: null,
+        hierarchy: defaultHierarchy,
         boundaryType: null,
         boundary: null,
         zone: null,
@@ -288,7 +309,7 @@ function Jurisdiction({
           <Dropdown
             className="form-field"
             selected={jurisdiction?.hierarchy}
-            disable={false}
+            disable={true}
             isMandatory={true}
             option={gethierarchylistdata(hierarchylist) || []}
             select={selectHierarchy}

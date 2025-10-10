@@ -30,7 +30,7 @@
     "@nudmcdgnpm/upyog-ui-module-ptr": "1.2.11",
     "@nudmcdgnpm/upyog-ui-module-cm": "1.2.2",
     "@nudmcdgnpm/upyog-ui-module-vendor": "1.2.1",
-    "@mcd89/digit-ui-module-hrms": "1.2.10",
+    "@mcd89/digit-ui-module-hrms": "1.2.12",
     "@mcd89/digit-ui-module-finance": "1.0.7",
     "http-proxy-middleware": "1.0.5",
     "react": "17.0.2",

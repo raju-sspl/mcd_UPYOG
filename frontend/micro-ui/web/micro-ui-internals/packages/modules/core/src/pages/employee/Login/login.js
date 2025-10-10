@@ -1,6 +1,6 @@
 import { BackButton, Dropdown, FormComposer, Loader, Toast } from "@nudmcdgnpm/digit-ui-react-components";
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import Background from "../../../components/Background";
 import Header from "../../../components/Header";
@@ -32,6 +32,10 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
   // const getUserType = () => "EMPLOYEE" || Digit.UserService.getType();
   let sourceUrl = "https://s3.ap-south-1.amazonaws.com/egov-qa-assets";
   const pdfUrl = "https://pg-egov-assets.s3.ap-south-1.amazonaws.com/Upyog+Code+and+Copyright+License_v1.pdf";
+
+  const defaultCity = useMemo(() => {
+    return cities?.find((c) => c.code === "dl.mcd") || null;
+  }, [cities]);
 
   useEffect(() => {
     if (!user) {
@@ -71,14 +75,16 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     const requestData = {
       ...data,
       userType: "EMPLOYEE",
+      tenantId: data.city.code,
     };
-    requestData.tenantId = data.city.code;
     delete requestData.city;
+
     try {
       const { UserRequest: info, ...tokens } = await Digit.UserService.authenticate(requestData);
       Digit.SessionStorage.set("Employee.tenantId", info?.tenantId);
       setUser({ info, ...tokens });
       Digit.UserService.setUser({ info, ...tokens });
+
       const hrmsResponse = await HrmsService.search(info?.tenantId, { codes: info?.userName });
       const employee = hrmsResponse?.Employees?.[0];
       const zone = employee?.jurisdictions?.[0]?.zone;
@@ -86,7 +92,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
         Digit.SessionStorage.set("Employee.zone", zone);
       }
       const zon = Digit.SessionStorage.get("Employee.zone");
-      console.log("=> ",zone);
+      console.log("=> ", zone);
     } catch (err) {
       setShowToast(err?.response?.data?.error_description || "Invalid login credentials!");
       setTimeout(closeToast, 5000);
@@ -104,6 +110,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
   };
 
   const [userId, password, city] = propsConfig.inputs;
+
   const config = [
     {
       body: [
@@ -131,12 +138,13 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
             customProps: {},
             component: (props, customProps) => (
               <Dropdown
+                disable
                 option={cities}
+                defaultProps={{ name: "i18nKey", value: "code" }}
                 className="login-city-dd"
                 optionKey="i18nKey"
-                select={(d) => {
-                  props.onChange(d);
-                }}
+                selected={props.value || defaultCity} // ✅ ensures pre-selected
+                select={(d) => props.onChange(d)}
                 t={t}
                 {...customProps}
               />
@@ -163,6 +171,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
         inline
         submitInForm
         config={config}
+        defaultValues={{ city: defaultCity }} // ✅ pre-fill city for form
         label={propsConfig.texts.submitButtonLabel}
         secondaryActionLabel={propsConfig.texts.secondaryButtonLabel}
         onSecondayActionClick={onForgotPassword}

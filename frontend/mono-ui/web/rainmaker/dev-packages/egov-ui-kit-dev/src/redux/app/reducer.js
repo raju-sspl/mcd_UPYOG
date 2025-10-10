@@ -3,11 +3,13 @@ import { initLocalizationLabels } from "./utils";
 import { stat } from "fs";
 import { transformById } from "egov-ui-kit/utils/commons";
 import { getLocale, localStorageSet } from "egov-ui-kit/utils/localStorageUtils";
+import { SET_SESSION_TTL } from "./actions";
 
 const locale = getLocale() || "en_IN";
 const localizationLabels = initLocalizationLabels(locale);
 
 const initialState = {
+  sessionTTL: null,
   name: "Mseva",
   showMenu: false,
   showActionMenu: true,
@@ -56,6 +58,8 @@ const initialState = {
 
 const appReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_SESSION_TTL:
+      return { ...state, sessionTTL: action.payload };
     case actionTypes.ADD_LOCALIZATION:
       return {
         ...state,

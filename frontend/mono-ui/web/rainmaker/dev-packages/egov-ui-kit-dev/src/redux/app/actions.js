@@ -14,6 +14,14 @@ export const updateActiveRoute = (routePath, menuName) => {
   return { type: actionTypes.UPDATE_ACTIVE_ROUTE_PATH, routePath };
 };
 
+export const SET_SESSION_TTL = "SET_SESSION_TTL";
+
+export const setSessionTTL = (ttl) => ({
+  type: SET_SESSION_TTL,
+  payload: ttl,
+});
+
+
 export const setRoute = (route) => {
   return { type: actionTypes.SET_ROUTE, route };
 };
