@@ -129,6 +129,18 @@ class ActionMenuComp extends Component {
         }
       }
     });
+    // Keep Dashboard first, Inboxes second, everything else as-is
+    submenuItems.sort((a, b) => {
+      // Always keep Dashboard on top
+      if (a.name === "Dashboard") return -1;
+      if (b.name === "Dashboard") return 1;
+
+      // Keep Inboxes second
+      if (a.name === "Inboxes") return -1;
+      if (b.name === "Inboxes") return 1;
+      return 0;
+    });
+
     return submenuItems;
   };
 

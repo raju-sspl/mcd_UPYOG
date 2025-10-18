@@ -118,19 +118,27 @@ class Header extends Component {
   };
 
   _handleItemClick = (item, toggleMenu) => {
-    const { route } = item;
-    // close the navigation bar
-    toggleMenu && this._handleToggleMenu();
-    //updating route poth in reducerxxxx
+    const route = item && (item.route || item.path || "");
+
+    // Close the navigation bar if needed
+    if (toggleMenu) {
+      this._handleToggleMenu();
+    }
+
+    // Update active route path in store (if exists)
     if (item.path) {
       this.props.updateActiveRoute(item.path, item.path);
     }
-    // this logic is a bit shaky!! might break in future
-    switch (route.slice(1)) {
+
+    if (!route) return;
+
+    // Normalize route (remove leading '/')
+    const normalizedRoute = route.startsWith("/") ? route.slice(1) : route;
+
+    // Handle routing actions
+    switch (normalizedRoute) {
       case "logout":
-        this.setState({
-          logoutPopupOpen: true,
-        });
+        this.setState({ logoutPopupOpen: true });
         break;
       case "language-selection":
         break;

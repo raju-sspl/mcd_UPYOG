@@ -257,6 +257,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
         emailId: email,
         altContactNumber: altMobileNumber,
         photo: profilePic,
+        correspondenceAddress:city
       };
 
       if (!new RegExp(/^([a-zA-Z ])*$/).test(name) || name === "" || name.length > 50 || name.length < 1) {
@@ -309,6 +310,7 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
               emailId: email,
               permanentCity: city,
               photo: profileImg,
+              correspondenceAddress:city,
             },
           });
         }

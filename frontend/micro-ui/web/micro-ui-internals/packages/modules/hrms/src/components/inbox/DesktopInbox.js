@@ -21,7 +21,7 @@ const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
   const [FilterComponent, setComp] = useState(() => Digit.ComponentRegistryService?.getComponent(filterComponent));
 
   // Apply client-side zone filtering
-  const filteredData = useMemo(() => {
+  const data = useMemo(() => {
     const rawData = props?.data?.Employees;
 
     // If no data, return empty array
@@ -131,7 +131,7 @@ const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
   let result;
   if (props.isLoading) {
     result = <Loader />;
-  } else if (filteredData?.length === 0) {
+  } else if (data?.length === 0) {
     result = (
       <Card style={{ marginTop: 20 }}>
         {t("COMMON_TABLE_NO_RECORD_FOUND")
@@ -143,11 +143,11 @@ const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
           ))}
       </Card>
     );
-  } else if (filteredData?.length > 0) {
+  } else if (data?.length > 0) {
     result = (
       <ApplicationTable
         t={t}
-        data={filteredData}
+        data={data}
         columns={columns}
         getCellProps={(cellInfo) => {
           return {
@@ -168,7 +168,7 @@ const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
         disableSort={props.disableSort}
         onPageSizeChange={props.onPageSizeChange}
         sortParams={props.sortParams}
-        totalRecords={filteredData.length}
+        totalRecords={props.length}
       />
     );
   }
