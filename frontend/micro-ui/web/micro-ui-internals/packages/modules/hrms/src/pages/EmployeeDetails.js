@@ -64,7 +64,7 @@ const Details = () => {
 
   return (
     <React.Fragment>
-      <div style={isMobile ? {marginLeft: "-12px", fontFamily: "calibri", color: "#FF0000"} :{ marginLeft: "15px", fontFamily: "calibri", color: "#FF0000" }}>
+      <div style={isMobile ? { marginLeft: "-12px", fontFamily: "calibri", color: "#FF0000" } : { marginLeft: "15px", fontFamily: "calibri", color: "#FF0000" }}>
         <Header>{t("HR_NEW_EMPLOYEE_FORM_HEADER")}</Header>
       </div>
       {!isLoading && data?.Employees.length > 0 ? (
@@ -112,13 +112,13 @@ const Details = () => {
                       .reasonForDeactivation) || "NA"
                   }
                 />
-                  <Row
+                <Row
                   label={t("HR_REMARKS")}
                   text={
-                   data?.Employees?.[0]?.deactivationDetails?.sort((a, b) => new Date(a.effectiveFrom) - new Date(b.effectiveFrom))[0].remarks || "NA"
+                    data?.Employees?.[0]?.deactivationDetails?.sort((a, b) => new Date(a.effectiveFrom) - new Date(b.effectiveFrom))[0].remarks || "NA"
                   }
                 />
-                
+
                 <Row
                   label={t("HR_ORDER_NO")}
                   text={data?.Employees?.[0]?.deactivationDetails?.sort((a, b) => new Date(a.effectiveFrom) - new Date(b.effectiveFrom))[0]?.orderNo || "NA"}
@@ -189,9 +189,28 @@ const Details = () => {
                   marginBottom: "2rem",
                 }}
               >
-                <div style={{ paddingBottom: "2rem" }}>
-                  {t("HR_ASSIGNMENT")} {index + 1}
+                <div
+                  style={{
+                    paddingBottom: "2rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    {t("HR_ASSIGNMENT")} {index + 1}
+                  </div>
+
+                  <div>
+                    {element?.isCurrentAssignment ? (
+                      <span style={{ color: "green", fontWeight: "bold" }}>Active</span>
+                    ) : (
+                      <span style={{ color: "red", fontWeight: "bold" }}>Inactive</span>
+                    )}
+                  </div>
                 </div>
+
+
                 <Row label={t("HR_ASMT_FROM_DATE_LABEL")} text={convertEpochFormateToDate(element?.fromDate)} textStyle={{ whiteSpace: "pre" }} />
                 <Row
                   label={t("HR_ASMT_TO_DATE_LABEL")}

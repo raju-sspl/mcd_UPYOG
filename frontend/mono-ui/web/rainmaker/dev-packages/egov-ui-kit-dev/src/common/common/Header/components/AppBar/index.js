@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AppBar, Icon } from "components";
 import Label from "egov-ui-kit/utils/translationNode";
 import UserSettings from "../UserSettings";
@@ -50,15 +50,32 @@ const EgovAppBar = ({
   logoImage,
   ...rest
 }) => {
+
+  useEffect(() => {
+    const header = document.querySelector(".rainmaker-header");
+    if (header) {
+      header.style.setProperty("padding-left", "0px", "important");
+    }
+  }, []);
+
   return (
     <div>
       <AppBar
         // className={isHomeScreen && role === "citizen" ? "home-screen-appbar" : className || "header-with-drawer"}
         className={className || "header-with-drawer"}
         title={
-          <div className="citizen-header-logo-label">
+          <div
+            className="citizen-header-logo-label"
+            style={{ display: "flex", alignItems: "center" }}
+          >
             <div className="citizen-header-logo">
-              <img src={pbLogo} onError={(event) => event.target.setAttribute("src", pbLogo)} />
+              <img
+                src={pbLogo}
+                style={{ marginLeft: "27px", marginRight: "20px" }}
+                onError={(event) =>
+                  event.target.setAttribute("src", pbLogo)
+                }
+              />
             </div>
             <Label containerStyle={{ marginLeft: "0px" }} className="screenHeaderLabelStyle appbar-title-label" label={title} />
             {titleAddon && (

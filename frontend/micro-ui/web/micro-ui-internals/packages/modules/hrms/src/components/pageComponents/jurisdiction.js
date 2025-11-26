@@ -126,10 +126,23 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
     return [];
   }
 
+  // function getroledata() {
+  //   return data?.MdmsRes?.["ACCESSCONTROL-ROLES"].roles.map((role) => {
+  //     return { code: role.code, name: role?.name ? role?.name : " ", labelKey: "ACCESSCONTROL_ROLES_ROLES_" + role.code };
+  //   });
+  // }
+
+
   function getroledata() {
-    return data?.MdmsRes?.["ACCESSCONTROL-ROLES"].roles.map((role) => {
-      return { code: role.code, name: role?.name ? role?.name : " ", labelKey: "ACCESSCONTROL_ROLES_ROLES_" + role.code };
-    });
+    return data?.MdmsRes?.["ACCESSCONTROL-ROLES"].roles
+      ?.filter((role) => role.code !== "SUPERUSER") // ✅ SUPERUSER remove here
+      .map((role) => {
+        return {
+          code: role.code,
+          name: role?.name ? role?.name : " ",
+          labelKey: "ACCESSCONTROL_ROLES_ROLES_" + role.code,
+        };
+      });
   }
 
   if (isLoading) {

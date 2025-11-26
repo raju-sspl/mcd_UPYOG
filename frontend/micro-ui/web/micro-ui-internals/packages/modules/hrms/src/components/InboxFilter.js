@@ -232,10 +232,10 @@ const Filter = ({ searchParams, onFilterChange, onSearch, removeParam, ...props 
             </div>
 
             {/* 🔹 Fixed Zone filter */}
-            <div>
+            {/* <div>
               <div className="filter-label">{t("HR_ZONE_LABEL")}</div>
               <Dropdown option={zoneMdmsData || []} selected={zones} select={setZones} optionKey={"i18text"} t={t} />
-            </div>
+            </div> */}
 
             <div>
               <div>

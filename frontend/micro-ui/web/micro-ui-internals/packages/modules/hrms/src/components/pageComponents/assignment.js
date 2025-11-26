@@ -85,33 +85,28 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
       // Zone changed - reset divisions for all assignments
       setassignments((prev) =>
         prev.map((item) => {
-          if (item.department) {
-            const divisions = getDivisionData(item.department, item.key);
-            const autoDivision = divisions.length === 1 ? divisions[0] : null;
-            return { ...item, division: autoDivision };
+          if (item.department && (item.division === null || item.division === undefined)) {
+            // Do not auto select even if only one division
+            return { ...item, division: null };
           }
-          return { ...item, division: null }; // Clear division if no department
+          return { ...item, division: null };
         })
       );
     } else if (selectedZone && previousZone === null) {
-      // Initial load - only auto-select division if no division is already set
       setassignments((prev) =>
         prev.map((item) => {
           if (item.department && (item.division === null || item.division === undefined)) {
-            const divisions = getDivisionData(item.department, item.key);
-            const autoDivision = divisions.length === 1 ? divisions[0] : null;
-            return { ...item, division: autoDivision };
+            // Do not auto select even if only one division
+            return { ...item, division: null };
           }
-          return item; // Keep existing division if it's already set
+          return item;
         })
       );
     }
 
-    // Update previous zone
     setPreviousZone(currentZoneCode);
   }, [formData?.Jurisdictions?.[0]?.zone]);
 
-  // Make sure the cleanup function sends data in the format expected by backend
   useEffect(() => {
     var promises = assignments?.map((assignment) => {
       return assignment
@@ -221,9 +216,9 @@ function Assignment({
     setassignments((pre) =>
       pre.map((item) => {
         if (item.key === assignment.key) {
-          return { ...item, department: value, division: autoDivision };
+          // ❌ remove auto-selection of division
+          return { ...item, department: value, division: null };
         }
-        // Preserve existing assignments without modification
         return item;
       })
     );

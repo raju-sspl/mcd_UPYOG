@@ -112,46 +112,22 @@ class UserSettings extends Component {
    */
   componentDidUpdate(prevProps) {
     const { sessionTTL } = this.props;
-    const { sessionRefreshInProgress } = this.state;
 
-    // Run only when TTL changes
-    if (sessionTTL !== prevProps.sessionTTL) {
-      // Ignore updates during refresh
-      if (sessionRefreshInProgress) return;
+    // Show popup when TTL <= 300 and > 0
+    if (sessionTTL <= 300 && sessionTTL > 0 && !this.state.showSessionPopup) {
+      this.setState({ showSessionPopup: true });
+    }
 
-      // If less than 5 minutes (300 sec), show popup with countdown
-      if (sessionTTL <= 300 && sessionTTL > 0 && !this.state.showSessionPopup) {
-        this.setState({ showSessionPopup: true, popupTimer: sessionTTL }, () => {
-          this.startPopupCountdown();
-        });
-      }
+    // Close popup if TTL refreshed above 5 min
+    if (sessionTTL > 300 && this.state.showSessionPopup) {
+      this.setState({ showSessionPopup: false });
+    }
 
-      // If TTL refreshed and now > 5 minutes, close popup
-      if (sessionTTL > 300 && this.state.showSessionPopup) {
-        this.setState({ showSessionPopup: false, popupTimer: 0 });
-        if (this.popupInterval) {
-          clearInterval(this.popupInterval);
-          this.popupInterval = null;
-        }
-      }
+    // Auto-logout when TTL hits 0
+    if (sessionTTL === 0) {
+      this.handleLogout();
     }
   }
-
-  startPopupCountdown = () => {
-    if (this.popupInterval) clearInterval(this.popupInterval);
-
-    this.popupInterval = setInterval(() => {
-      const { popupTimer } = this.state;
-
-      if (popupTimer <= 1) {
-        clearInterval(this.popupInterval);
-        this.popupInterval = null;
-        this.handleLogout(); // Auto logout when countdown ends
-      } else {
-        this.setState({ popupTimer: popupTimer - 1 });
-      }
-    }, 1000);
-  };
 
   async componentDidMount() {
     const userInfo = JSON.parse(getUserInfo());
@@ -281,7 +257,7 @@ class UserSettings extends Component {
 
     // ==================== Dynamic User Menu ====================
 
-    // 🧾 BMID
+    // BMID
     const bmid = (userInfo && (userInfo.userName || userInfo.bmid)) || "Not Available";
 
     // 👥 Build role list
@@ -492,7 +468,7 @@ class UserSettings extends Component {
           />
         )} */}
         {process.env.REACT_APP_NAME === "Employee" && isUserSetting && (
-          <div style={{ display: "flex", alignItems: "center", gap: "15px", marginRight: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {/* Role Dropdown */}
             {/* <DropDown
               onChange={(event, index, value) => {
@@ -505,22 +481,53 @@ class UserSettings extends Component {
               value={this.state.roleSelected}
               underlineStyle={{ borderBottom: "none" }}
             /> */}
-
-            {/* Language Dropdown */}
-            {hasLocalisation && (
-              <DropDown
-                onChange={this.onLanguageChange}
-                listStyle={style.listStyle}
-                style={style.baseStyle}
-                labelStyle={style.label}
-                dropDownData={languages}
-                value={languageSelected}
-                className="appbar-municipal-label"
-                underlineStyle={{ borderBottom: "none" }}
-              />
+            {/* TTL Timer */}
+            {sessionTTL !== null && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "60px",
+                  fontFamily: "'Inter', 'Roboto', sans-serif",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  color: "#475569",
+                  letterSpacing: "0.3px",
+                }}
+              >
+                <span style={{ marginRight: "10px", opacity: 0.8 }}>Session Time:</span>
+                <span
+                  style={{
+                    backgroundColor:
+                      safeTTL < 60
+                        ? "rgba(255, 77, 79, 0.15)" // light red
+                        : safeTTL < 300
+                          ? "rgba(234, 179, 8, 0.15)" // light yellow
+                          : "rgba(22, 163, 74, 0.15)", // light green
+                    color:
+                      safeTTL < 60
+                        ? "#ff4d4f" // red text
+                        : safeTTL < 300
+                          ? "#b45309" // amber text
+                          : "#15803d", // green text
+                    fontSize: "15px",
+                    fontWeight: "700",
+                    padding: "5px 12px",
+                    borderRadius: "6px",
+                    transition: "all 0.4s ease",
+                    minWidth: "75px",
+                    textAlign: "center",
+                    display: "inline-block",
+                  }}
+                >
+                  {formattedTTL}
+                </span>
+                {/* Divider Line */}
+                <div style={{ width: "2px", height: "28px", marginLeft: "20px", backgroundColor: "#cbd5e1" }} />
+              </div>
             )}
-            {/* Divider Line */}
-            <div style={{ width: "2px", height: "28px", backgroundColor: "#cbd5e1" }} />
+
             {/* Zone Label */}
             {this.state.zone && (
               <div
@@ -547,52 +554,24 @@ class UserSettings extends Component {
             )}
             {/* Divider Line */}
             <div style={{ width: "2px", height: "28px", backgroundColor: "#cbd5e1" }} />
-            {/* TTL Timer */}
-            {sessionTTL !== null && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "60px",
-                  fontFamily: "'Inter', 'Roboto', sans-serif",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                  color: "#475569",
-                  letterSpacing: "0.3px",
-                }}
-              >
-                <span style={{ marginRight: "10px", opacity: 0.8 }}>Session Time:</span>
-                <span
-                  style={{
-                    backgroundColor:
-                      safeTTL < 60
-                        ? "rgba(255, 77, 79, 0.15)" // light red
-                        : safeTTL < 300
-                        ? "rgba(234, 179, 8, 0.15)" // light yellow
-                        : "rgba(22, 163, 74, 0.15)", // light green
-                    color:
-                      safeTTL < 60
-                        ? "#ff4d4f" // red text
-                        : safeTTL < 300
-                        ? "#b45309" // amber text
-                        : "#15803d", // green text
-                    fontSize: "15px",
-                    fontWeight: "700",
-                    padding: "5px 12px",
-                    borderRadius: "6px",
-                    transition: "all 0.4s ease",
-                    minWidth: "75px",
-                    textAlign: "center",
-                    display: "inline-block",
-                  }}
-                >
-                  {formattedTTL}
-                </span>
-                {/* Divider Line */}
-                <div style={{ width: "2px", height: "28px", marginLeft: "20px", backgroundColor: "#cbd5e1" }} />
-              </div>
+            {/* Language Dropdown */}
+            {hasLocalisation && (
+              <DropDown
+                onChange={this.onLanguageChange}
+                listStyle={style.listStyle}
+                style={style.baseStyle}
+                labelStyle={style.label}
+                dropDownData={languages}
+                value={languageSelected}
+                className="appbar-municipal-label"
+                underlineStyle={{ borderBottom: "none" }}
+              />
             )}
+
+
+            {/* Divider Line */}
+            <div style={{ width: "2px", height: "28px", backgroundColor: "#cbd5e1" }} />
+
 
             {/* End of TTL Timer */}
           </div>
@@ -697,7 +676,7 @@ class UserSettings extends Component {
 
         <Dialog
           open={this.state.showSessionPopup}
-          onClose={() => {}}
+          onClose={() => { }}
           disableBackdropClick
           disableEscapeKeyDown
           aria-labelledby="session-expiry-dialog"
@@ -710,7 +689,7 @@ class UserSettings extends Component {
             <DialogContentText style={{ fontSize: "15px", color: "#444" }}>
               Your session will expire in less than 5 minutes. Do you want to continue or logout now?
               <br />
-              <strong>Auto logout in: {`${Math.floor(this.state.popupTimer / 60)}:${String(this.state.popupTimer % 60).padStart(2, "0")}`}</strong>
+              <strong>Auto logout in: {Math.floor(sessionTTL / 60)}:{String(sessionTTL % 60).padStart(2, "0")}</strong>
             </DialogContentText>
           </DialogContent>
 
@@ -732,7 +711,7 @@ class UserSettings extends Component {
               onClick={this.handleContinueSession}
               style={{
                 color: "#fff",
-                backgroundColor: "#22c55e",
+                backgroundColor: "#1f9249ff",
                 fontWeight: "600",
                 borderRadius: "8px",
                 padding: "6px 16px",

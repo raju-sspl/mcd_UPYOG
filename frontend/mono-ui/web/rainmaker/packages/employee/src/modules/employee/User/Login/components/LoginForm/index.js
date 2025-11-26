@@ -15,16 +15,28 @@ const LoginForm = ({ handleFieldChange, form, onForgotPasswdCLick, logoUrl }) =>
       className="user-screens-card col-lg-offset-4 col-lg-4 col-md-offset-4 col-md-4 col-sm-offset-4 col-sm-4"
       textChildren={
         <div>
-          <div className="rainmaker-displayInline" style={{ justifyContent: "center" ,alignItems:"center",marginBottom: "24px"}}>
-            <div style={{  }}>
-              <Image className="mseva-logo" source={logoUrl?logoUrl:`${logo}`} />
-            </div >
-          <div style={{marginLeft:"7px"}}>
-          <Label bold={true}  fontSize= "23px" label="|" />
-          </div>
-           <div style={{marginLeft:"7px" }}>
-              <Label bold={true} color="black" fontSize= "24px" label="STATE_LABEL" />
-           </div>
+          <div
+            className="rainmaker-displayInline"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "24px",
+            }}
+          >
+            <div>
+              <Image
+                className="mseva-logo"
+                source={logoUrl ? logoUrl : `${logo}`}
+                style={{ height: "60px", width: "auto" }}
+              />
+            </div>
+            <div style={{ margin: "0 10px" }}>
+              <Label bold={true} fontSize="24px" label="|" />
+            </div>
+            <div>
+              <Label bold={true} color="black" fontSize="24px" label="STATE_LABEL" />
+            </div>
           </div>
           <Label style={{ marginBottom: "12px" }} className="text-center" bold={true} dark={true} fontSize={16} label="CORE_COMMON_LOGIN" />
           <TextField onChange={(e, value) => handleFieldChange("username", value)} {...fields.username} />

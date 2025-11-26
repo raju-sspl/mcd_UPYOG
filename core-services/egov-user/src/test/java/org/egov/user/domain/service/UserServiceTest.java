@@ -442,7 +442,11 @@ public class UserServiceTest {
                 .otpReference("123456")
                 .build();
         when(otpRepository.isOtpValidationComplete(any())).thenReturn(true);
-        final User domainUser = User.builder().type(UserType.SYSTEM).build();
+        final User domainUser = User.builder()
+                .type(UserType.SYSTEM)
+                .id(123L)                    
+                .uuid("test-uuid-123")
+                .build();
         when(userRepository.findAll(any(UserSearchCriteria.class))).thenReturn(Collections.singletonList(domainUser));
         when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
         when(encryptionDecryptionUtil.decryptObject(domainUser, "User", User.class, getValidRequestInfo())).thenReturn(domainUser);

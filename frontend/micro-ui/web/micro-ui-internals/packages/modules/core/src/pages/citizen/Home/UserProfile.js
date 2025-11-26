@@ -82,12 +82,15 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setisEdit] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const [designationName, setDesignationName] = React.useState(Digit.SessionStorage.get("Employee.designation"));
+  const [departmentName, setDepartmentName] = React.useState(Digit.SessionStorage.get("Employee.department"));
+
   /*
- * Fetches the user's address details using the `Digit.UserService.userSearchNewV2` API.
- * - Retrieves the user's UUID from `userInfo`.
- * - Calls the API with the tenant ID and UUID to fetch user data.
- * - Updates the `userAddresses` state with the fetched address list if available.
- */
+   * Fetches the user's address details using the `Digit.UserService.userSearchNewV2` API.
+   * - Retrieves the user's UUID from `userInfo`.
+   * - Calls the API with the tenant ID and UUID to fetch user data.
+   * - Updates the `userAddresses` state with the fetched address list if available.
+   */
   const userSearchNewV2 = async () => {
     const uuid = userInfo?.uuid;
     if (uuid) {
@@ -394,6 +397,27 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     className="check-page-link-button" onClick={onClick} />;
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const storedDesignation = Digit.SessionStorage.get("Employee.designation");
+      const storedDepartment = Digit.SessionStorage.get("Employee.department");
+
+      if ((storedDesignation && storedDesignation !== designationName) || (storedDepartment && storedDepartment !== departmentName)) {
+        if (storedDesignation && storedDesignation !== designationName) {
+          setDesignationName(storedDesignation);
+        }
+
+        if (storedDepartment && storedDepartment !== departmentName) {
+          setDepartmentName(storedDepartment);
+        }
+
+        clearInterval(interval);
+      }
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div>
       <section style={{ margin: userType === "citizen" ? "8px" : "24px", position: "relative" }}>
@@ -667,6 +691,47 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
             ) : null
           ) : (
             <React.Fragment>
+              <LabelFieldPair style={{ display: "flex" }}>
+                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>
+                  {t("HR_EMP_ID_LABEL")}
+                </CardLabel>
+                <div style={{ width: "100%" }}>
+                  <TextInput t={t} type={"text"} isMandatory={false} name="code" value={userInfo?.userName} disable />
+                </div>
+              </LabelFieldPair>
+
+              <LabelFieldPair style={{ display: "flex" }}>
+                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>
+                  {t("HR_DESG_LABEL")}
+                </CardLabel>
+                <div style={{ width: "100%" }}>
+                  <TextInput
+                    t={t}
+                    type={"text"}
+                    isMandatory={false}
+                    name="code"
+                    value={`${t(`COMMON_MASTERS_DESIGNATION_${designationName}`)}`}
+                    disable
+                  />
+                </div>
+              </LabelFieldPair>
+
+              <LabelFieldPair style={{ display: "flex" }}>
+                <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>
+                  {t("HR_DEPT_LABEL")}
+                </CardLabel>
+                <div style={{ width: "100%" }}>
+                  <TextInput
+                    t={t}
+                    type={"text"}
+                    isMandatory={false}
+                    name="code"
+                    value={`${t(`COMMON_MASTERS_DEPARTMENT_${departmentName}`)}`}
+                    disable
+                  />
+                </div>
+              </LabelFieldPair>
+
               <LabelFieldPair style={{ display: "flex" }}>
                 <CardLabel className="profile-label-margin" style={editScreen ? { color: "#B1B4B6", width: "300px" } : { width: "300px" }}>
                   {`${t("CORE_COMMON_PROFILE_NAME")}`}*

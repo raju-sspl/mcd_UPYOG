@@ -1,6 +1,6 @@
 {
     "name": "@mcd89/digit-ui-module-finance",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Digit Finance Module",
     "license": "MIT",
     "main": "dist/index.js",

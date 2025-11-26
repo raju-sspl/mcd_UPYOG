@@ -4,29 +4,18 @@ RUN apk update && apk upgrade
 RUN apk add --no-cache git>2.30.0
 RUN yarn add @nudmcdgnpm/digit-ui-libraries
 RUN yarn add @upyog/digit-ui-module-fsm
-RUN yarn add @upyog/digit-ui-module-pt
-RUN yarn add @upyog/digit-ui-module-tl
-RUN yarn add @upyog/digit-ui-module-obps
-RUN yarn add @upyog/digit-ui-module-ws
 RUN yarn add @upyog/digit-ui-module-dss
 RUN yarn add @upyog/digit-ui-module-mcollect
-RUN yarn add @nudmcdgnpm/digit-ui-module-pgr
-RUN yarn add @upyog/digit-ui-module-noc
 RUN yarn add @upyog/digit-ui-module-engagement
 RUN yarn add @mcd89/digit-ui-module-hrms
 RUN yarn add @upyog/digit-ui-module-core
 RUN yarn add @upyog/digit-ui-module-common
 RUN yarn add @upyog/digit-ui-module-commonpt
 RUN yarn add @upyog/digit-ui-module-bills
-RUN yarn add @nudmcdgnpm/upyog-ui-module-ptr
 RUN yarn add @nudmcdgnpm/upyog-ui-module-cm
-RUN yarn add @nudmcdgnpm/upyog-ui-module-ads
-RUN yarn add @nudmcdgnpm/upyog-ui-module-chb
-RUN yarn add @nudmcdgnpm/upyog-ui-module-sv
 RUN yarn add @nudmcdgnpm/upyog-ui-module-asset
-RUN yarn add @nudmcdgnpm/upyog-ui-module-ew
 RUN yarn add @nudmcdgnpm/upyog-ui-module-vendor
-RUN yarn add @nudmcdgnpm/upyog-ui-module-wt
+RUN yarn add @nudmcdgnpm/digit-ui-module-pgr
 
 ARG WORK_DIR
 WORKDIR /app

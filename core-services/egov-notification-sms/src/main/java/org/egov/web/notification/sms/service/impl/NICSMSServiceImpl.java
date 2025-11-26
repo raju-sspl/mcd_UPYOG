@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -13,6 +15,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.net.ssl.HttpsURLConnection;
@@ -24,6 +29,8 @@ import javax.net.ssl.X509TrustManager;
 import org.egov.web.notification.sms.config.SMSProperties;
 import org.egov.web.notification.sms.models.Sms;
 import org.egov.web.notification.sms.service.BaseSMSService;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -106,68 +113,75 @@ public class NICSMSServiceImpl extends BaseSMSService {
 	}
 
 	protected void submitToExternalSmsService(Sms sms) {
-		log.info("submitToExternalSmsService() start");
-		try {
+	    log.info("submitToExternalSmsService() start");
+	    try {
+	        // === Prepare basic auth credentials ===
+	        String username = smsProperties.getUsername();
+	        String password = smsProperties.getPassword();
+	        String auth = username + ":" + password;
+	        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+	        String authHeaderValue = "Basic " + encodedAuth;
 
-			String final_data = "";
-			final_data += "username=" + smsProperties.getUsername();
-			final_data += "&pin=" + smsProperties.getPassword();
+	        // === Build JSON Payload ===
+	        String mobileNumber = "91" + sms.getMobileNumber();
+	        String message = sms.getMessage();
 
-			String smsBody = sms.getMessage();
+	        // Extract OTP (assuming OTP is a 6-digit number within the message)
+	        String otp = "";
+	        Matcher matcher = Pattern.compile("\\b\\d{4,8}\\b").matcher(message);
+	        if (matcher.find()) {
+	            otp = matcher.group();
+	        }
 
-			if (smsBody.split("#").length > 1) {
-				String templateId = smsBody.split("#")[1];
+	        JSONObject recipient = new JSONObject();
+	        recipient.put("mobiles", mobileNumber);
+	        recipient.put("otp", otp);
+	        recipient.put("app", "Double Accounting");
+	        recipient.put("min", "3");
 
-				sms.setTemplateId(templateId);
-				smsBody = smsBody.split("#")[0];
+	        JSONObject payload = new JSONObject();
+	        payload.put("recipients", new JSONArray().put(recipient));
 
-			} else if (StringUtils.isEmpty(sms.getTemplateId())) {
-				log.info("No template Id, Message Not sent" + smsBody);
-				return;
-			}
+	        log.info("SMS Request Payload: " + payload.toString());
 
-			String message = "" + smsBody;
-			message = URLEncoder.encode(message, "UTF-8");
+	        // === Send POST Request ===
+	        URL url = new URL(smsProperties.getUrl());
+	        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+	        conn.setSSLSocketFactory(sslContext.getSocketFactory());
+	        conn.setRequestMethod("POST");
+	        conn.setRequestProperty("Authorization", authHeaderValue);
+	        conn.setRequestProperty("Content-Type", "application/json");
+	        conn.setDoOutput(true);
 
-			final_data += "&message=" + message;
-			final_data += "&mnumber=91" + sms.getMobileNumber();
-			final_data += "&signature=" + smsProperties.getSenderid();
-			final_data += "&dlt_entity_id=" + smsProperties.getSmsEntityId();
-			if (null == sms.getTemplateId()) {
-				final_data += "&dlt_template_id=" + smsProperties.getSmsDefaultTmplid();
-			} else
-				final_data += "&dlt_template_id=" + sms.getTemplateId();
+	        try (OutputStream os = conn.getOutputStream()) {
+	            byte[] input = payload.toString().getBytes(StandardCharsets.UTF_8);
+	            os.write(input, 0, input.length);
+	        }
 
-			if (smsProperties.isSmsEnabled()) {
-				HttpsURLConnection conn = (HttpsURLConnection) new URL(smsProperties.getUrl() + "?" + final_data)
-						.openConnection();
-				conn.setSSLSocketFactory(sslContext.getSocketFactory());
-				conn.setDoOutput(true);
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.connect();
-				final BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				final StringBuffer stringBuffer = new StringBuffer();
-				String line;
-				while ((line = rd.readLine()) != null) {
-					stringBuffer.append(line);
-				}
-				log.info("conn: " + conn.toString());
-				if (smsProperties.isDebugMsggateway()) {
-					log.info("sms api url : " + smsProperties.getUrl());
-					log.info("sms response: " + stringBuffer.toString());
-					log.info("sms data: " + final_data);
-				}
-				rd.close();
-				conn.disconnect();
-			} else {
-				log.info("SMS Data: " + final_data);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.error("Error occurred while sending SMS to : " + sms.getMobileNumber(), e);
-		}
+	        int responseCode = conn.getResponseCode();
+	        log.info("SMS API Response Code: " + responseCode);
+
+	        BufferedReader br = new BufferedReader(new InputStreamReader(
+	                responseCode >= 200 && responseCode < 300
+	                        ? conn.getInputStream()
+	                        : conn.getErrorStream()
+	        ));
+
+	        StringBuilder response = new StringBuilder();
+	        String responseLine;
+	        while ((responseLine = br.readLine()) != null) {
+	            response.append(responseLine.trim());
+	        }
+
+	        log.info("SMS API Response: " + response.toString());
+
+	        conn.disconnect();
+
+	    } catch (Exception e) {
+	        log.error("Error occurred while sending SMS to: " + sms.getMobileNumber(), e);
+	    }
 	}
+
 
 	private boolean textIsInEnglish(String text) {
 		ArrayList<Character.UnicodeBlock> english = new ArrayList<>();
