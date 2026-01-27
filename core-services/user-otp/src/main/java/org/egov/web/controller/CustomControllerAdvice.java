@@ -5,7 +5,10 @@ import org.egov.domain.exception.UserAlreadyExistInSystemException;
 import org.egov.domain.exception.UserMobileNumberNotFoundException;
 import org.egov.domain.exception.UserNotExistingInSystemException;
 import org.egov.domain.exception.UserNotFoundException;
+import org.egov.tracer.model.CustomException;
 import org.egov.web.contract.ErrorResponse;
+import org.egov.web.error.OtpAlreadySentErrorAdapter;
+import org.egov.web.error.OtpLimitExceededErrorAdapter;
 import org.egov.web.error.OtpRequestErrorAdapter;
 import org.egov.web.error.UserAlreadyExistErrorAdapter;
 import org.egov.web.error.UserMobileNumberNotFoundErrorAdapter;
@@ -62,4 +65,26 @@ public class CustomControllerAdvice {
         return ex.getMessage();
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CustomException.class)
+    public ErrorResponse handleCustomException(CustomException ex) {
+
+        logger.info("Business exception occurred: {}", ex.getMessage());
+
+        if ("OTP_ALREADY_SENT".equals(ex.getCode())) {
+            return new OtpAlreadySentErrorAdapter().adapt();
+        }
+
+        if ("OTP_LIMIT_EXCEEDED".equals(ex.getCode())) {
+            return new OtpLimitExceededErrorAdapter().adapt();
+        }
+
+        throw ex;
+    }
+
+
+
+
+
+    
 }

@@ -35,6 +35,7 @@ public class Token {
     @Setter
     private boolean validated;
     private Date createdDate;
+    
 
     public boolean isExpired(LocalDateTime now) {
         return now.isAfter(expiryDateTime);

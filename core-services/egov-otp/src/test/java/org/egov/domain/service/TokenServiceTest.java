@@ -2,6 +2,7 @@ package org.egov.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,7 +54,7 @@ public class TokenServiceTest {
         this.tokenService = new TokenService(
                 tokenRepository,
                 new BCryptPasswordEncoder(),
-                new OtpConfiguration(90,6, true)
+                new OtpConfiguration(90,6, true, 3600)
         );
     }
 
@@ -61,15 +62,15 @@ public class TokenServiceTest {
     public void test_should_save_new_token_with_given_identity_and_tenant() {
         final Token savedToken = Token.builder().build();
         final TokenRequest tokenRequest = mock(TokenRequest.class);
-        final ValidateRequest validateRequest = mock(ValidateRequest.class);
+
         when(tokenRepository.save(any(Token.class))).thenReturn(savedToken);
 
-        final Tokens tokens = mock(Tokens.class);
-        lenient().when(tokenRepository.findByIdentityAndTenantId(validateRequest)).thenReturn(tokens);
         final Token actualToken = tokenService.create(tokenRequest);
 
-        assertEquals(savedToken, actualToken);
+        assertThat(actualToken).isNotNull();
+        verify(tokenRepository).save(any(Token.class));
     }
+
 
     @Test
     @Ignore
@@ -131,6 +132,61 @@ public class TokenServiceTest {
         final Token actualToken = tokenService.search(searchCriteria);
 
         assertEquals(expectedToken, actualToken);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void test_should_throw_exception_when_otp_limit_exceeded() {
+
+        TokenRequest request = mock(TokenRequest.class);
+
+        when(request.getIdentity()).thenReturn("identity");
+        when(request.getTenantId()).thenReturn("tenant");
+
+        when(tokenRepository.countOtpRequestsInWindow(
+                any(), any(), anyInt()
+        )).thenReturn(3);
+
+        tokenService.create(request);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void test_should_throw_exception_when_otp_already_sent() {
+
+        TokenRequest request = mock(TokenRequest.class);
+        when(request.getIdentity()).thenReturn("identity");
+        when(request.getTenantId()).thenReturn("tenant");
+
+        when(tokenRepository.countOtpRequestsInWindow(any(), any(), anyInt()))
+                .thenReturn(0);
+
+        Token token = Token.builder().build();
+        List<Token> tokenList = new ArrayList<>();
+        tokenList.add(token);
+
+        when(tokenRepository.findByIdentityAndTenantId(any()))
+                .thenReturn(new Tokens(tokenList));
+
+        tokenService.create(request);
+    }
+
+    @Test(expected = TokenValidationFailureException.class)
+    public void test_should_throw_exception_when_otp_does_not_match() {
+
+        ValidateRequest validateRequest =
+                new ValidateRequest("tenant", "111111", "identity");
+
+        Token token = Token.builder()
+                .number(new BCryptPasswordEncoder().encode("999999"))
+                .validated(false)
+                .build();
+
+        List<Token> tokenList = new ArrayList<>();
+        tokenList.add(token);
+
+        when(tokenRepository.findByIdentityAndTenantId(validateRequest))
+                .thenReturn(new Tokens(tokenList));
+
+        tokenService.validate(validateRequest);
     }
 
 

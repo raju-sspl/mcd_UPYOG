@@ -52,7 +52,7 @@ async fetchTTL() {
     const protocol = parsedURL.protocol; 
 
     // Construct URL dynamically based on tenant and environment
-    const TtlUrl = `${protocol}//${cityCode}-${domain}/services/EGF/session/ttl`; 
+    const TtlUrl = `${protocol}//${domain}/services/EGF/session/ttl`; 
     // const localhost = "http://mcd.localhost:9090/services/EGF/session/ttl"; // for local dev only
     const response = await fetch(TtlUrl, { credentials: "include" });
     if (!response.ok) {
@@ -79,7 +79,7 @@ async fetchTTL() {
     clearInterval(this.countdownInterval);
 
     // Show alert or toast
-    // alert("Your session has expired. Please log in again.");
+    alert("Your session has expired. Please log in again.");
 
     try {
     // Attempt Redux logout (await ensures it completes)
@@ -130,8 +130,11 @@ async fetchTTL() {
     // Reading environment name (ex: dev, qa, uat, fin-uat etc) from the globalconfigs if exists else reading from the .env file
     finEnv = this.globalConfigExists() ? window.globalConfigs.getConfig("FIN_ENV") : process.env.REACT_APP_FIN_ENV;
     // Preparing finance subdomain url using the above environment name and the domain url
-    subdomainurl = !!(finEnv) ? "-" + finEnv + "." + domainurl : "." + domainurl;
-    erp_url = loc.protocol + "//" + getTenantId().split(".")[1] + subdomainurl + menuUrl;
+
+    // Construct subdomain dynamically
+    subdomainurl = finEnv ? `${finEnv}.${domainurl}` : `.${domainurl}`;
+
+    erp_url = loc.protocol + "//" + subdomainurl + menuUrl;
     console.log("Finance Iframe URL:", erp_url);
     return (
       <div style={{ position: "relative", minHeight: winheight }}>
@@ -242,17 +245,17 @@ async fetchTTL() {
     const finEnv = this.globalConfigExists() ? window.globalConfigs.getConfig("FIN_ENV") : process.env.REACT_APP_FIN_ENV;
 
     // Construct subdomain dynamically
-    const subdomainurl = finEnv ? `-${finEnv}.${domainurl}` : `.${domainurl}`;
+    const subdomainurl = finEnv ? `${finEnv}.${domainurl}` : `.${domainurl}`;
 
     const erp_url =
-      loc.protocol + "//" + getTenantId().split(".")[1] + subdomainurl + menuUrl;
-
+      loc.protocol + "//" + subdomainurl + menuUrl;
+    
     this.setState({ isLoading: true, lastUrl: menuUrl }, () => {
       const form = document.getElementById("erp_form");
       if (form) form.action = erp_url;
       this.submitIframeForm();
     });
-    // console.log("Loading Finance Iframe URL:", erp_url);
+    console.log("Loading Finance Iframe URL:", erp_url);
   }
   onMessage = (event) => {
     if (event.data != "close") return;

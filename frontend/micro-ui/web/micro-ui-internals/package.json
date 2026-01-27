@@ -76,6 +76,7 @@
     "*.{js,css,md}": "prettier --write"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "lodash": "4.17.21",
     "microbundle-crl": "^0.13.11"
   },

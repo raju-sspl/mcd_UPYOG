@@ -2,7 +2,10 @@ package org.egov.web.controller;
 
 import org.egov.common.contract.response.ErrorResponse;
 import org.egov.domain.exception.*;
+import org.egov.tracer.model.CustomException;
 import org.egov.web.adapter.error.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @ControllerAdvice
 @RestController
 public class CustomControllerAdvice {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidTokenRequestException.class)
@@ -47,6 +52,23 @@ public class CustomControllerAdvice {
     @ExceptionHandler(TokenAlreadyUsedException.class)
     public ErrorResponse handleTokenTokenAlreadyUsedException() {
         return new TokenAlreadyUsedFailureAdapter().adapt(null);
+    }    
+    
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CustomException.class)
+    public ErrorResponse handleCustomException(CustomException ex) {
+
+        logger.info("Business exception occurred: {}", ex.getMessage());
+
+        if ("OTP_ALREADY_SENT".equals(ex.getCode())) {
+            return new OtpAlreadySentErrorAdapter().adapt();
+        }
+
+        if ("OTP_LIMIT_EXCEEDED".equals(ex.getCode())) {
+            return new OtpLimitExceededErrorAdapter().adapt();
+        }
+
+        throw ex; // fallback
     }
 
 }

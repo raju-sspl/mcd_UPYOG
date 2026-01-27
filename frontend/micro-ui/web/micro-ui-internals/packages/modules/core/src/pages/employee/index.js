@@ -80,9 +80,9 @@ const EmployeeApp = ({
                 </div>
                 </div>
               <picture>
-                <source id="backgroung-login" media="(min-width: 950px)" srcset="https://mcd-asset.s3.ap-south-1.amazonaws.com/bannerImage.jpg" style={{"position":"absolute","height":"100%","width":"100%"}} />
-                  <source media="(min-width: 250px)" srcset="https://mcd-asset.s3.ap-south-1.amazonaws.com/bannerImageMobileView.jpg" />
-                    <img src="https://mcd-asset.s3.ap-south-1.amazonaws.com/bannerImage.jpg" alt="imagealttext" style={{"position":"absolute","height":"100%","width":"100%","zIndex":"1","display":window.location.href.includes("user/profile")?"none":""}}/>
+                <source id="backgroung-login" media="(min-width: 950px)" srcset="https://abdeas-dev-asset.s3.ap-south-1.amazonaws.com/bannerImage.jpg" style={{"position":"absolute","height":"100%","width":"100%"}} />
+                  <source media="(min-width: 250px)" srcset="https://abdeas-dev-asset.s3.ap-south-1.amazonaws.com/bannerImageMobileView.jpg" />
+                    <img src="https://abdeas-dev-asset.s3.ap-south-1.amazonaws.com/bannerImage.jpg" alt="imagealttext" style={{"position":"absolute","height":"100%","width":"100%","zIndex":"1","display":window.location.href.includes("user/profile")?"none":""}}/>
                     </picture>
               {/* <img class="image" id="main-img" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/employee-login.png" /> */}
               {/* <img class="image" id="main-img" src="https://i.postimg.cc/9Q7jT6Dd/Banner-Image-2.png" /> */}

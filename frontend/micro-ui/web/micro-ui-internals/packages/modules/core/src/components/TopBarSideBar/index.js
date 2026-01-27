@@ -4,6 +4,8 @@ import TopBar from "./TopBar";
 import { useHistory } from "react-router-dom";
 import SideBar from "./SideBar";
 import LogoutDialog from "../Dialog/LogoutDialog";
+import { logoutV2 } from "./ApiCall";
+
 const TopBarSideBar = ({
   t,
   stateInfo,
@@ -29,15 +31,15 @@ const TopBarSideBar = ({
     const sessionData = Digit.SessionStorage.get("User");
     const userInfo = sessionData?.info;
     const roles = userInfo?.roles || [];
-    
+
     const formattedRoles = roles.map((role) => ({
       name: role.name,
       code: role.code,
       tenantId: role.tenantId,
     }));
-    
+
     setRoleOptions(formattedRoles);
-    
+
     const selectedRoleCode = userInfo?.roles?.[0]?.code;
     const currentRole = formattedRoles.find((r) => r.code === selectedRoleCode);
     setSelectedRole(currentRole);
@@ -50,8 +52,10 @@ const TopBarSideBar = ({
 
   const handleOnSubmit = () => {
     Digit.UserService.logout();
+    logoutV2();
     setShowDialog(false);
   };
+
 
   const handleOnCancel = () => {
     setShowDialog(false);

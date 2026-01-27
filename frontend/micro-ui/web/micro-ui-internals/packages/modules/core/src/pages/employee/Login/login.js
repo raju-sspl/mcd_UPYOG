@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import Background from "../../../components/Background";
 import Header from "../../../components/Header";
 import HrmsService from "../../../../../../libraries/src/services/elements/HRMS";
+import { encryptAES } from "./aes";
 
 /* set employee details to enable backward compatiable */
 const setEmployeeDetail = (userObject, token) => {
@@ -27,98 +28,41 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
   const [user, setUser] = useState(null);
   const [showToast, setShowToast] = useState(null);
   const [disable, setDisable] = useState(false);
-  const [captchaText, setCaptchaText] = useState(() => generateCaptchaText());
-  const [captchaInput, setCaptchaInput] = useState("");
-  const [captchaError, setCaptchaError] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [recaptchaError, setRecaptchaError] = useState("");
 
   const history = useHistory();
-  // const getUserType = () => "EMPLOYEE" || Digit.UserService.getType();
-  let sourceUrl = "https://s3.ap-south-1.amazonaws.com/egov-qa-assets";
-  const pdfUrl = "https://pg-egov-assets.s3.ap-south-1.amazonaws.com/Upyog+Code+and+Copyright+License_v1.pdf";
+  const RECAPTCHA_SITE_KEY = "6LcSfi8sAAAAAJL0BhtL6Yg0WBI3z8KRpoLvvo9F"; // Your site key
 
-  function generateCaptchaText() {
-    const chars = '0123456789';
-    let captchaText = '';
-    for (let i = 0; i < 6; i++) {
-      captchaText += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return captchaText;
-  }
+  // Load reCAPTCHA script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.google.com/recaptcha/api.js";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
-  // ... [other captcha functions remain unchanged]
-  function getCharStyles(index) {
-    return {
-      fontSize: `${Math.floor(Math.random() * 10) + 18}px`,
-      fontFamily: index % 2 === 0 ? 'Arial' : 'Verdana',
-      fontWeight: index % 2 === 0 ? 'bold' : 'normal',
-      x: 30 + (index * 25),
-      y: 30,
-      rotation: Math.floor(Math.random() * 40) - 20,
-      translateY: Math.floor(Math.random() * 10) - 5
+    return () => {
+      // Clean up script when component unmounts
+      const scripts = document.querySelectorAll('script[src*="recaptcha"]');
+      scripts.forEach(s => s.remove());
     };
-  }
+  }, []);
 
-  function generateNoiseLines() {
-    const lines = [];
-    for (let i = 0; i < 4; i++) {
-      lines.push({
-        x1: Math.floor(Math.random() * 200),
-        y1: Math.floor(Math.random() * 50),
-        x2: Math.floor(Math.random() * 200),
-        y2: Math.floor(Math.random() * 50),
-        // stroke: `rgb(${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)})`,
-        // strokeWidth: Math.floor(Math.random() * 2) + 1,
-      });
-    }
-    return lines;
-  }
-
-  function generateNoiseDots() {
-    const dots = [];
-    for (let i = 0; i < 30; i++) {
-      dots.push({
-        // cx: Math.floor(Math.random() * 200),
-        // cy: Math.floor(Math.random() * 50),
-        // r: Math.floor(Math.random() * 2) + 1,
-        // fill: `rgb(${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)}, ${Math.floor(Math.random() * 200)})`,
-      });
-    }
-    return dots;
-  }
-
-  const noiseLines = useMemo(() => generateNoiseLines(), [captchaText]);
-  const noiseDots = useMemo(() => generateNoiseDots(), [captchaText]);
-  const charStyles = useMemo(() =>
-    captchaText.split('').map((_, index) => getCharStyles(index)),
-    [captchaText]
-  );
-
-  const refreshCaptcha = () => {
-    setCaptchaText(generateCaptchaText());
-    setCaptchaInput("");
-    setCaptchaError("");
+  const handleRecaptchaChange = (token) => {
+    setRecaptchaToken(token);
+    setRecaptchaError("");
   };
 
-  const validateCaptcha = () => {
-    if (!captchaInput) {
-      setCaptchaError("Please enter the captcha");
+  const validateRecaptcha = () => {
+    if (!captchaVerified || !recaptchaToken) {
+      setRecaptchaError("Please complete CAPTCHA verification");
       return false;
     }
-
-    if (captchaInput !== captchaText) {
-      setCaptchaError("Invalid captcha. Please try again");
-
-      // Delay refreshing the captcha to allow error message to show
-      setTimeout(() => {
-        refreshCaptcha();
-      }, 2000);
-
-      return false;
-    }
-
-    setCaptchaError(""); // Clear error if captcha is correct
+    setRecaptchaError("");
     return true;
-  }
+  };
 
   const defaultCity = useMemo(() => {
     return cities?.find((c) => c.code === "dl.mcd") || null;
@@ -158,16 +102,22 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
       return;
     }
 
-    if (!validateCaptcha()) {
+    if (!validateRecaptcha()) {
       return;
     }
+
     setDisable(true);
+
+    const encryptedPassword = encryptAES(data.password);
 
     const requestData = {
       ...data,
+      password: encryptedPassword,
       userType: "EMPLOYEE",
       tenantId: data.city.code,
+      recaptchaToken,
     };
+
     delete requestData.city;
 
     try {
@@ -194,10 +144,14 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
       const zon = Digit.SessionStorage.get("Employee.zone");
       console.log("=> ", zone);
     } catch (err) {
-      setShowToast(err?.response?.data?.error_description || "Invalid login credentials!");
+      setShowToast(
+        err?.response?.data?.error_description || "Invalid login credentials!");
       setTimeout(closeToast, 5000);
-      refreshCaptcha();
+      if (window.grecaptcha) window.grecaptcha.reset();
+      setCaptchaVerified(false);
+      setRecaptchaToken(null);
     }
+
     setDisable(false);
   };
 
@@ -208,12 +162,6 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
   const onForgotPassword = () => {
     sessionStorage.getItem("User") && sessionStorage.removeItem("User");
     history.push("/digit-ui/employee/user/forgot-password");
-  };
-
-  const handleCaptchaInputChange = (e) => {
-    const value = e.target.value;
-    setCaptchaInput(value);
-    if (captchaError) setCaptchaError("");
   };
 
   const [userId, password, city] = propsConfig.inputs;
@@ -250,7 +198,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
                 defaultProps={{ name: "i18nKey", value: "code" }}
                 className="login-city-dd"
                 optionKey="i18nKey"
-              style={{ display:"none" }}
+                style={{ display: "none" }}
                 selected={props.value || defaultCity} // ✅ ensures pre-selected
                 select={(d) => props.onChange(d)}
                 t={t}
@@ -258,88 +206,67 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
               />
             ),
           },
-          // isMandatory: true,
         },
         {
-          label: t("Captcha Verification"),
+          label: t("CAPTCHA Verification"),
           type: "custom",
           populators: {
-            name: "captcha",
-            customProps: {},
+            name: "recaptcha",
             component: () => (
               <div>
-                <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                  <div style={{ border: "1px solid #ccc", marginRight: "10px" }}>
-                    <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg" style={{ backgroundColor: '#f0f0f0' }}>
-                      {noiseLines.map((line, index) => (
-                        <line key={`line-${index}`} {...line} />
-                      ))}
-                      {noiseDots.map((dot, index) => (
-                        <circle key={`dot-${index}`} {...dot} />
-                      ))}
-                      {captchaText.split('').map((char, index) => {
-                        const charStyle = charStyles[index];
-                        return (
-                          <g key={index} transform={`translate(${charStyle.x}, ${charStyle.y}) rotate(${charStyle.rotation})`}>
-                            <text
-                              x="0"
-                              y="0"
-                              fill={`rgb(${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 100)})`}
-                              style={{ fontSize: charStyle.fontSize, fontFamily: charStyle.fontFamily, fontWeight: charStyle.fontWeight }}
-                            >
-                              {char}
-                            </text>
-                          </g>
-                        );
-                      })}
-                    </svg>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={refreshCaptcha}
+                <div
+                  style={{
+                    transform: "scale(0.85)",
+                    transformOrigin: "0 0",
+                    width: "fit-content"
+                  }}
+                >
+                  <div
+                    className="g-recaptcha"
+                    data-sitekey={RECAPTCHA_SITE_KEY}
+                    data-callback="onRecaptchaSuccess"
+                  ></div>
+                </div>
+
+                {recaptchaError && (
+                  <div
                     style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: "#882636",
-                      fontSize: "20px",
-                      outline: "none"
+                      color: "red",
+                      fontSize: "14px",
+                      marginTop: "5px"
                     }}
-                    title="Refresh Captcha"
                   >
-                    ↻
-                  </button>
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    value={captchaInput}
-                    onChange={handleCaptchaInputChange}
-                    placeholder={t("Enter captcha text")}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: captchaError ? "1px solid red" : "1px solid #ccc",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      outline: "none",
-
-                    }}
-                  />
-                  {captchaError && (
-                    <div style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>
-                      {captchaError}
-                    </div>
-                  )}
-
-                </div>
+                    {recaptchaError}
+                  </div>
+                )}
               </div>
             ),
           },
-        },
+        }
+
+
       ],
     },
   ];
+
+  // Set up global callback for reCAPTCHA
+  useEffect(() => {
+    window.onRecaptchaSuccess = (token) => {
+      if (!token) {
+        setCaptchaVerified(false);
+        setRecaptchaToken(null);
+        return;
+      }
+      setRecaptchaToken(token);
+      setCaptchaVerified(true);
+      setRecaptchaError("");
+    };
+
+    return () => {
+      delete window.onRecaptchaSuccess;
+    };
+  }, []);
+
 
   return isLoading || isStoreLoading ? (
     <Loader />
@@ -351,7 +278,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
 
       <FormComposer
         onSubmit={onLogin}
-        isDisabled={isDisabled || disable}
+        isDisabled={isDisabled || disable || !captchaVerified}
         noBoxShadow
         inline
         submitInForm
@@ -371,8 +298,6 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
       {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
       <div style={{ width: "100%", position: "fixed", bottom: 0, backgroundColor: "white", textAlign: "center" }}>
         <div style={{ display: "flex", justifyContent: "center", color: "black" }}>
-          {/* <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://www.digit.org/', '_blank').focus();}} >Powered by DIGIT</span>
-          <span style={{ margin: "0 10px" ,fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px"}}>|</span> */}
           <a
             style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "12px" : "12px", fontWeight: "400" }}
             href="#"
@@ -405,8 +330,6 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
           >
             Designed & Developed By NITCON Ltd
           </span>
-
-          {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
         </div>
         <div className="upyog-copyright-footer-web">
           <span

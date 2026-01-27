@@ -2,7 +2,6 @@ package org.egov.web.util;
 
 import lombok.*;
 import org.egov.tracer.config.*;
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.security.crypto.bcrypt.*;
@@ -25,5 +24,8 @@ public class OtpConfiguration {
 
     @Value("${egov.otp.encrypt}")
     private boolean encryptOTP;
+    
+    @Value("${otp.rate.limit.window.seconds:3600}")
+    private int rateLimitWindowSeconds;
 
 }

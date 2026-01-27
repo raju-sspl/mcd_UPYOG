@@ -9,8 +9,10 @@ import org.egov.user.domain.exception.UserNotFoundException;
 import org.egov.user.domain.model.SecureUser;
 import org.egov.user.domain.model.User;
 import org.egov.user.domain.model.enums.UserType;
+import org.egov.user.domain.service.AuthAuditLogService;
 import org.egov.user.domain.service.UserService;
 import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.domain.service.utils.PasswordCryptoUtil;
 import org.egov.user.web.contract.auth.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +49,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private EncryptionDecryptionUtil encryptionDecryptionUtil;
+    
+    @Autowired
+    private PasswordCryptoUtil passwordCryptoUtil;
 
     @Value("${citizen.login.password.otp.enabled}")
     private boolean citizenLoginPasswordOtpEnabled;
@@ -59,10 +64,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${citizen.login.password.otp.fixed.enabled}")
     private boolean fixedOTPEnabled;
+    
+    @Value("${password.encryption.enabled}")
+    private boolean passwordEncryptionEnabled;
 
     @Autowired
     private HttpServletRequest request;
 
+    @Autowired
+    private AuthAuditLogService authAuditLogService;
 
     public CustomAuthenticationProvider(UserService userService) {
         this.userService = userService;
@@ -71,7 +81,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) {
         String userName = authentication.getName();
-        String password = authentication.getCredentials().toString();
+        String encryptedPassword = authentication.getCredentials().toString();
+        String password = passwordCryptoUtil.decrypt(encryptedPassword);
 
         final LinkedHashMap<String, String> details = (LinkedHashMap<String, String>) authentication.getDetails();
 
@@ -103,9 +114,30 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             log.info(user.getUuid());
         } catch (UserNotFoundException e) {
             log.error("User not found", e);
+            authAuditLogService.log(
+                    null,                        // no user UUID
+                    userName,                    // attempted username
+                    request.getRemoteAddr(),
+                    request.getHeader("User-Agent"),
+                    request.getSession(false) != null ? request.getSession(false).getId() : null,
+                    "LOGIN",
+                    "FAILURE",
+                    request.getRequestURI()
+                );
+
             throw new OAuth2Exception("Invalid login credentials");
         } catch (DuplicateUserNameException e) {
             log.error("Fatal error, user conflict, more than one user found", e);
+            authAuditLogService.log(
+                    null,
+                    userName,
+                    request.getRemoteAddr(),
+                    request.getHeader("User-Agent"),
+                    null,
+                    "LOGIN",
+                    "FAILURE",
+                    request.getRequestURI()
+                );
             throw new OAuth2Exception("Invalid login credentials");
 
         }
@@ -170,10 +202,31 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                     token.isAuthenticated(),
                     token.getPrincipal() != null ? token.getPrincipal().getClass().getName() : "null"
             );
+            authAuditLogService.log(
+            	    user.getUuid(),
+            	    userName,
+            	    request.getRemoteAddr(),
+            	    request.getHeader("User-Agent"),
+            	    request.getSession().getId(),
+            	    "LOGIN",
+            	    "SUCCESS",
+            	    request.getRequestURI()
+            	);
+
             // Return
             return token;
         } else {
             // Handle failed login attempt
+        	authAuditLogService.log(
+            	    user.getUuid(),
+            	    userName,
+            	    request.getRemoteAddr(),
+            	    request.getHeader("User-Agent"),
+            	    request.getSession(false) != null ? request.getSession(false).getId() : null,
+            	    "LOGIN",
+            	    "FAILURE",
+            	    request.getRequestURI()
+            	);
             // Fetch Real IP after being forwarded by reverse proxy
             userService.handleFailedLogin(user, request.getHeader(IP_HEADER_NAME), requestInfo);
 
@@ -263,5 +316,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         return updatedUser;
     }
+    
+    private boolean isCryptoJsEncrypted(String value) {
+        return value != null && value.startsWith("U2FsdGVkX1");
+    }
+
 
 }

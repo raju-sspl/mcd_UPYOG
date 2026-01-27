@@ -11,9 +11,9 @@ import org.egov.domain.model.TokenSearchCriteria;
 import org.egov.domain.model.Tokens;
 import org.egov.domain.model.ValidateRequest;
 import org.egov.persistence.repository.TokenRepository;
-import org.egov.web.util.*;
+import org.egov.tracer.model.CustomException;
+import org.egov.web.util.OtpConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.Service;
 
@@ -37,22 +37,70 @@ public class TokenService {
     }
 
     public Token create(TokenRequest tokenRequest) {
+
         tokenRequest.validate();
 
+        /*
+         * RULE 1 — Abuse Protection (1 hour window)
+         */
+        int hourlyOtpCount =
+                tokenRepository.countOtpRequestsInWindow(
+                        tokenRequest.getIdentity(),
+                        tokenRequest.getTenantId(),
+                        otpConfiguration.getRateLimitWindowSeconds()
+                );
+
+        if (hourlyOtpCount >= 3) {
+            throw new CustomException(
+                    "OTP_LIMIT_EXCEEDED",
+                    "You have exceeded OTP request limit. Please try again after 1 hour."
+            );
+        }
+
+        /*
+         * RULE 2 — Active OTP protection (3 minutes)
+         */
+        ValidateRequest validateRequest = ValidateRequest.builder()
+                .identity(tokenRequest.getIdentity())
+                .tenantId(tokenRequest.getTenantId())
+                .build();
+
+        Tokens activeTokens =
+                tokenRepository.findByIdentityAndTenantId(validateRequest);
+
+        if (activeTokens != null && !activeTokens.getTokens().isEmpty()) {
+            throw new CustomException(
+                    "OTP_ALREADY_SENT",
+                    "OTP already sent. Please wait for 3 minutes."
+            );
+        }
+
+        /*
+         * RULE 3 — Generate OTP
+         */
         String originalOtp = randomNumeric(otpConfiguration.getOtpLength());
         String encryptedOtp = originalOtp;
 
-        if (otpConfiguration.isEncryptOTP()){
+        if (otpConfiguration.isEncryptOTP()) {
             encryptedOtp = passwordEncoder.encode(originalOtp);
         }
 
-        Token token = Token.builder().uuid(UUID.randomUUID().toString()).tenantId(tokenRequest.getTenantId())
-                .identity(tokenRequest.getIdentity()).number(encryptedOtp)
-                .timeToLiveInSeconds(otpConfiguration.getTtl()).build();
-        token = tokenRepository.save(token);
+        Token token = Token.builder()
+                .uuid(UUID.randomUUID().toString())
+                .tenantId(tokenRequest.getTenantId())
+                .identity(tokenRequest.getIdentity())
+                .number(encryptedOtp)
+                .timeToLiveInSeconds(otpConfiguration.getTtl()) // 180 sec
+                .build();
+
+        tokenRepository.save(token);
+
         token.setNumber(originalOtp);
         return token;
     }
+
+
+
 
     public Token validate(ValidateRequest validateRequest) {
         validateRequest.validate();
@@ -65,7 +113,7 @@ public class TokenService {
         for (Token t: tokens.getTokens()) {
 
             if (!otpConfiguration.isEncryptOTP() && validateRequest.getOtp().equalsIgnoreCase(t.getNumber())
-             || (otpConfiguration.isEncryptOTP()  && passwordEncoder.matches(validateRequest.getOtp(), t.getNumber()))) {
+             || otpConfiguration.isEncryptOTP()  && passwordEncoder.matches(validateRequest.getOtp(), t.getNumber())) {
                 tokenRepository.markAsValidated(t);
                 return t;
             }

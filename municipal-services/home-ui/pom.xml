@@ -5,12 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.gis</groupId>
+    <groupId>com.egov</groupId>
     <artifactId>home-ui</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>GIS Properties</name>
+    <name>home-ui</name>
     <description>Spring Boot GIS Properties (Java 8 Compatible)</description>
 
     <parent>

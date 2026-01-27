@@ -101,4 +101,30 @@ public class TokenRepository {
         tokenInputs.put("ttl", otpConfiguration.getTtl());
         return namedParameterJdbcTemplate.update(UPDATETOKEN_TLL_BYID, tokenInputs);
     }
+    
+    public int countOtpRequestsInWindow(
+            String identity,
+            String tenantId,
+            int windowSeconds) {
+
+        String sql =
+            "SELECT COUNT(*) FROM eg_token " +
+            "WHERE tokenidentity = :identity " +
+            "AND tenantid = :tenantId " +
+            "AND (extract(epoch from now()) * 1000 - createddatenew) <= (:windowSeconds * 1000)";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("identity", identity);
+        params.put("tenantId", tenantId);
+        params.put("windowSeconds", windowSeconds);
+
+        Integer count = namedParameterJdbcTemplate.queryForObject(
+                sql, params, Integer.class
+        );
+
+        return count == null ? 0 : count;
+    }
+
+
+
 }

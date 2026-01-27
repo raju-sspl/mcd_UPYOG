@@ -15,6 +15,19 @@ import store from "ui-redux/store";
 import { getLocaleLabels } from "egov-ui-framework/ui-utils/commons";
 import { addQueryArg, hasTokenExpired, prepareForm } from "./commons";
 import { setUserObj } from "./localStorageUtils";
+import CryptoJS from "crypto-js";
+
+const SECRET_KEY = "MySuperSecretEncryptionKe123456!";
+
+export const encryptAES = (plainText) => {
+  const encrypted = CryptoJS.AES.encrypt(plainText, SECRET_KEY).toString();
+  return encodeURIComponent(encrypted);
+};
+
+export const decryptAES = (cipherText) => {
+  const bytes = CryptoJS.AES.decrypt(cipherText, SECRET_KEY);
+  return bytes.toString(CryptoJS.enc.Utf8);
+};
 
 axios.interceptors.response.use(
   (response) => {
@@ -233,7 +246,10 @@ export const loginRequest = async (username = null, password = null, refreshToke
   let apiError = "Api Error";
   var params = new URLSearchParams();
   username && params.append("username", username);
-  password && params.append("password", password);
+  if (password) {
+    const encryptedPassword = encryptAES(password);
+    params.append("password", encryptedPassword);
+  }
   refreshToken && params.append("refresh_token", refreshToken);
   params.append("grant_type", grantType);
   params.append("scope", "read");
