@@ -12,11 +12,15 @@ const Main = ({ routes, hasLocalisation, defaultUrl }) => {
             return <Employee match={props.match} routes={routes.employee} />;
           }}
         />
-
-        <Redirect from="/" to={hasLocalisation ? "/language-selection" : defaultUrl.employee} />
+        {window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? (
+          <Redirect from="/" to={hasLocalisation ? "/language-selection" : defaultUrl.employee} />
+        ) : (
+          <Redirect from="/" to="/digit-ui/" />
+        )}
       </Switch>
     </main>
   );
 };
 
 export default Main;
+

@@ -112,6 +112,7 @@ const CreateEmployee = () => {
       formData?.SelectEmployeeName?.employeeName &&
       formData?.SelectEmployeeType?.code &&
       formData?.SelectEmployeePhoneNumber?.mobileNumber &&
+      formData?.SelectEmployeeId?.code &&
       checkfield &&
       setassigncheck &&
       phonecheck &&

@@ -13,5 +13,20 @@ public class RoleQueryBuilder {
 
     public static final String DELETE_USER_ROLES = "delete from eg_userrole_v1 where user_id=:user_id and " +
             "user_tenantid=:user_tenantid";
+
+    public static final String GET_ROLES_BY_USER_IDENTIFIER =
+    	    "select ur.role_code, ur.role_tenantid " +
+    	    "from eg_user u " +
+    	    "join eg_userrole_v1 ur " +
+    	    "on u.id = ur.user_id " +
+    	    "and u.tenantid = ur.user_tenantid " +
+    	    "where u.tenantid = :tenantId " +
+    	    "and ( " +
+    	    "     u.id = :userId " +
+    	    "  or u.username = :username " +
+    	    "  or u.mobilenumber = :mobileNumber " +
+    	    "  or u.uuid = :uuid " +
+    	    ")";
+
 }
 

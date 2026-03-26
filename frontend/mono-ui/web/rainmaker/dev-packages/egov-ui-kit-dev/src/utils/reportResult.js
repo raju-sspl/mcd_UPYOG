@@ -1,6 +1,6 @@
 import commonConfig from "config/common.js";
-import "datatables";
-import "datatables-buttons";
+// import "datatables";
+// import "datatables-buttons";
 import "datatables.net";
 import "datatables.net-buttons";
 import "datatables.net-buttons-bs";

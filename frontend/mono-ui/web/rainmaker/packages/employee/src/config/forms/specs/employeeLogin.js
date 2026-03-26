@@ -21,7 +21,7 @@ const formConfig = {
       hintText: "CORE_LOGIN_PASSWORD_PLACEHOLDER",
       pattern: "^([a-zA-Z0-9@#$%])+$",
       value: "",
-      style:{},
+      style: {},
     },
     city: {
       id: "person-city",
@@ -30,6 +30,19 @@ const formConfig = {
       floatingLabelText: "CORE_COMMON_CITY",
       hintText: "CORE_COMMON_CITY_PLACEHOLDER",
     },
+    captcha: {
+      id: "employee-captcha",
+      jsonPath: "employee.captcha",
+      required: true,
+      floatingLabelText: "Enter Captcha",
+      hintText: "Enter captcha text",
+      value: ""
+    },
+    captchaId: {
+      jsonPath: "employee.captchaId",
+      value: ""
+    }
+
   },
   submit: {
     label: "CORE_COMMON_LOGIN",

@@ -13,7 +13,7 @@ export const UserService = {
       url: Urls.Authenticate,
       data,
       headers: {
-        authorization: `Basic ${window?.globalConfigs?.getConfig("JWT_TOKEN")||"ZWdvdi11c2VyLWNsaWVudDo="}`,
+        authorization: `Basic ${window?.globalConfigs?.getConfig("JWT_TOKEN") || "ZWdvdi11c2VyLWNsaWVudDo="}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
@@ -38,15 +38,42 @@ export const UserService = {
     Storage.set("user_type", userType);
   },
   getUser: () => {
-    return Digit.SessionStorage.get("User");
+    let user = Storage.get("User");
+    if (!user || Object.keys(user).length === 0) {
+      const token = window.localStorage.getItem("token") || window.localStorage.getItem("Employee.token");
+      const userInfoStr = window.localStorage.getItem("user-info") || window.localStorage.getItem("Employee.user-info");
+      const tenantId = window.localStorage.getItem("Employee.tenant-id") || window.localStorage.getItem("tenant-id");
+
+      if (token && userInfoStr) {
+        try {
+          const info = JSON.parse(userInfoStr);
+          user = { access_token: token, info };
+          Storage.set("User", user);
+          const userType = info?.type === "EMPLOYEE" ? "employee" : "citizen";
+          Storage.set("userType", userType);
+          Storage.set("user_type", userType);
+          if (tenantId) {
+            Storage.set("Employee.tenantId", tenantId);
+          }
+          const designation = window.localStorage.getItem("Employee.designation");
+          const department = window.localStorage.getItem("Employee.department");
+          const zone = window.localStorage.getItem("Employee.zone");
+          if (designation) Storage.set("Employee.designation", designation);
+          if (department) Storage.set("Employee.department", department);
+          if (zone) Storage.set("Employee.zone", zone);
+        } catch (e) {
+          console.error("Error parsing user info from local storage", e);
+        }
+      }
+    }
+    return user;
   },
   logout: async () => {
     const userType = UserService.getType();
     try {
       await UserService.logoutUser();
     } catch (e) {
-    }
-    finally{
+    } finally {
       window.localStorage.clear();
       window.sessionStorage.clear();
       if (userType === "citizen") {
@@ -93,19 +120,19 @@ export const UserService = {
       },
       params: { tenantId: stateCode },
     }),
-   
-    //create address for user
-      createAddressV2: async (details, stateCode, userUuid) =>
-        ServiceRequest({
-          serviceName: "createAddress",
-          url: Urls.UserCreateAddressV2,
-          auth: true,
-          data: {
-            address: details,
-            userUuid: userUuid,
-          },
-          params: { tenantId: stateCode },
-        }),
+
+  //create address for user
+  createAddressV2: async (details, stateCode, userUuid) =>
+    ServiceRequest({
+      serviceName: "createAddress",
+      url: Urls.UserCreateAddressV2,
+      auth: true,
+      data: {
+        address: details,
+        userUuid: userUuid,
+      },
+      params: { tenantId: stateCode },
+    }),
   hasAccess: (accessTo) => {
     const user = Digit.UserService.getUser();
     if (!user || !user.info) return false;
@@ -129,6 +156,13 @@ export const UserService = {
       url: Urls.EmployeeSearch,
       params: { tenantId, ...filters },
       auth: true,
+    });
+  },
+  //GET captcha for user
+  userCaptchaSearch: async (tenantId, data) => {
+    return Request({
+      url: Urls.UserCaptcha,
+      method: "GET",
     });
   },
   userSearch: async (tenantId, data, filters) => {
@@ -159,9 +193,8 @@ export const UserService = {
       url: Urls.UserUpdateAddressV2,
       auth: true,
       data: {
-        address: details
+        address: details,
       },
       params: { tenantId: stateCode },
     }),
-
 };

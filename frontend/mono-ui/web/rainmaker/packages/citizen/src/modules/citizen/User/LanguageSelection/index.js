@@ -20,7 +20,12 @@ class LanguageSelection extends Component {
   };
 
   onLanguageSelect = () => {
-    this.props.history.push("/user/register");
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) {
+      this.props.history.push("/user/register");
+    } else {
+      window.location.href = "/digit-ui/";
+    }
   };
 
   render() {

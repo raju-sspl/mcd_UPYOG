@@ -79,12 +79,14 @@ export const submitForm = (formKey, saveUrl) => {
             "",
             "password",
             formData.employee.tenantId,
-            "EMPLOYEE"
+            "EMPLOYEE",
+            formData.employee.captcha,
+            formData.employee.captchaId
           );
         } else {
           formResponse = await httpRequest(saveUrl, action, [], formData);
         }
-        if(saveUrl=="/user/citizen/_create"&&formResponse&&formResponse.hasOwnProperty("UserRequest")){
+        if (saveUrl == "/user/citizen/_create" && formResponse && formResponse.hasOwnProperty("UserRequest")) {
           setUserObj(JSON.stringify(formResponse.UserRequest));
         }
         dispatch(submitFormComplete(formKey, formResponse, saveUrl));

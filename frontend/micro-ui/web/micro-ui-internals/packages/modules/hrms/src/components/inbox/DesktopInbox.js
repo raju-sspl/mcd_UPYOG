@@ -5,7 +5,7 @@ import { Card, Loader } from "@nudmcdgnpm/digit-ui-react-components";
 import InboxLinks from "../inbox/ApplicationLinks";
 import SearchApplication from "./search";
 import { Link } from "react-router-dom";
-import XLSX from "xlsx";
+import * as XLSX from "xlsx";
 
 const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
   const { t } = useTranslation();
@@ -164,8 +164,67 @@ const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
     ];
   }, [t]);
 
-  const downloadXLS = () => {
-    if (!data || data.length === 0) {
+  const downloadXLS = async () => {
+    let downloadData = [];
+
+    // Ensure search criteria matches Inbox search (including default zone)
+    const finalSearchCriteria = {
+      ...props.searchParams,
+      zone: props.searchParams?.zone || loggedInZoneCode,
+    };
+
+    try {
+      const tenantId = Digit.ULBService.getCurrentTenantId();
+      let offset = 0;
+      const limit = 100;
+      let hasMore = true;
+
+      console.log("Starting full data download fetch...", finalSearchCriteria);
+
+      while (hasMore) {
+        const paginationParams = {
+          limit,
+          offset,
+          sortOrder: props.sortParams?.[0]?.desc ? "DESC" : "ASC",
+        };
+
+        const response = await Digit.HRMSService.search(tenantId, paginationParams, finalSearchCriteria);
+
+        if (response && response.Employees && response.Employees.length > 0) {
+          downloadData = [...downloadData, ...response.Employees];
+          offset += limit;
+
+          // If we got fewer records than requested, we've reached the end
+          if (response.Employees.length < limit) {
+            hasMore = false;
+          }
+        } else {
+          hasMore = false;
+        }
+
+        // Safety break for extremely large datasets (e.g., 5000+ records)
+        if (downloadData.length >= 5000) {
+          console.warn("Reached safety limit of 5000 records for download.");
+          break;
+        }
+      }
+
+      // Apply client-side zone filter if necessary (though server-side should handle it)
+      const searchedZone = finalSearchCriteria.zone;
+      if (searchedZone) {
+        downloadData = downloadData.filter((employee) => {
+          const employeeZone = employee?.jurisdictions?.[0]?.zone;
+          return employeeZone === searchedZone;
+        });
+      }
+
+    } catch (error) {
+      console.error("Error fetching full data for download:", error);
+      // Fallback to currently loaded data if fetch fails
+      downloadData = data;
+    }
+
+    if (!downloadData || downloadData.length === 0) {
       alert("No data available to download.");
       return;
     }
@@ -180,7 +239,7 @@ const DesktopInbox = ({ tableConfig, filterComponent, ...props }) => {
         "Status",
       ];
 
-      const tableRows = data.map((emp) => {
+      const tableRows = downloadData.map((emp) => {
         const firstAssignment = emp?.assignments?.sort(
           (a, b) => new Date(a.fromDate) - new Date(b.fromDate)
         )[0];

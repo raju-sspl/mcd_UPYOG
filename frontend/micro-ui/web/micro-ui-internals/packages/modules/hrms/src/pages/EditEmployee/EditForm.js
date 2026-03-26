@@ -162,6 +162,7 @@ const EditForm = ({ tenantId, data }) => {
       formData?.SelectEmployeeGender?.gender.code &&
       formData?.SelectEmployeeName?.employeeName &&
       formData?.SelectEmployeePhoneNumber?.mobileNumber &&
+      formData?.SelectEmployeeId?.code &&
       checkfield &&
       setassigncheck &&
       phonecheck &&

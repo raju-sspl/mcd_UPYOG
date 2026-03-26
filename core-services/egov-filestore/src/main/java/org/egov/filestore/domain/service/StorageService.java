@@ -86,64 +86,161 @@ public class StorageService {
 		return this.artifactRepository.save(artifacts, requestInfo);
 	}
 
+	/*
+	 * private List<Artifact> mapFilesToArtifact(List<MultipartFile> files, String
+	 * module, String tag, String tenantId) {
+	 * 
+	 * final String folderName = getFolderName(module, tenantId); String
+	 * inputStreamAsString = null; List<Artifact> artifacts = new ArrayList<>();
+	 * Artifact artifact = null; for (MultipartFile file : files) { String
+	 * randomString = RandomStringUtils.random(filenameLength, useLetters,
+	 * useNumbers); String orignalFileName = file.getOriginalFilename(); String
+	 * imagetype = FilenameUtils.getExtension(orignalFileName); String fileName =
+	 * folderName + System.currentTimeMillis() + randomString + "." +imagetype;
+	 * String id = this.idGeneratorService.getId(); FileLocation fileLocation = new
+	 * FileLocation(id, module, tag, tenantId, fileName, null); try {
+	 * inputStreamAsString = IOUtils.toString(file.getInputStream(),
+	 * fileStoreConfig.getImageCharsetType()); artifact =
+	 * Artifact.builder().fileContentInString(inputStreamAsString).multipartFile(
+	 * file) .fileLocation(fileLocation).build(); artifacts.add(artifact);
+	 * 
+	 * } catch (IOException e) { // TODO Auto-generated catch block
+	 * log.error("IO Exception while mapping files to artifact: " + e.getMessage());
+	 * } storageValidator.validate(artifact);
+	 * 
+	 * if (fileStoreConfig.getImageFormats().contains(FilenameUtils.getExtension(
+	 * artifact.getMultipartFile().getOriginalFilename())))
+	 * setThumbnailImages(artifact); }
+	 * 
+	 * return artifacts; }
+	 * 
+	 * private void setThumbnailImages(Artifact artifact) {
+	 * 
+	 * String completeName = artifact.getFileLocation().getFileName(); int index =
+	 * completeName.indexOf('/'); String fileNameWithPath =
+	 * completeName.substring(index + 1, completeName.length());
+	 * 
+	 * try {
+	 * 
+	 * String imagetype =
+	 * FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename())
+	 * ; String inputStreamAsString = artifact.getFileContentInString(); if
+	 * (fileStoreConfig.getImageFormats().contains(imagetype)) {
+	 * 
+	 * InputStream ipStreamForImg = IOUtils.toInputStream(inputStreamAsString,
+	 * configs.getImageCharsetType()); Map<String, BufferedImage>
+	 * mapOfImagesAndPaths = util.createVersionsOfImage(ipStreamForImg,
+	 * fileNameWithPath); artifact.setThumbnailImages(mapOfImagesAndPaths); }
+	 * 
+	 * } catch (IOException e) { // TODO Auto-generated catch block
+	 * log.error("EG_FILESTORE_INPUT_ERROR", e); throw new
+	 * CustomException("EG_FILESTORE_INPUT_ERROR",
+	 * "Failed to read input stream from multipart file"); }
+	 * 
+	 * }
+	 */
+
 	private List<Artifact> mapFilesToArtifact(List<MultipartFile> files, String module, String tag, String tenantId) {
 
-		final String folderName = getFolderName(module, tenantId);
-		String inputStreamAsString = null;
-		List<Artifact> artifacts = new ArrayList<>();
-		Artifact artifact = null;
-		for (MultipartFile file : files) {
-			String randomString = RandomStringUtils.random(filenameLength, useLetters, useNumbers);
-			String orignalFileName = file.getOriginalFilename();
-			String imagetype = FilenameUtils.getExtension(orignalFileName);
-			String fileName = folderName + System.currentTimeMillis() + randomString + "." +imagetype;
-			String id = this.idGeneratorService.getId();
-			FileLocation fileLocation = new FileLocation(id, module, tag, tenantId, fileName, null);
-			try {
-				inputStreamAsString = IOUtils.toString(file.getInputStream(), fileStoreConfig.getImageCharsetType());
-				artifact = Artifact.builder().fileContentInString(inputStreamAsString).multipartFile(file)
-						.fileLocation(fileLocation).build();
-				artifacts.add(artifact);
+	    final String folderName = getFolderName(module, tenantId);
 
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				log.error("IO Exception while mapping files to artifact: " + e.getMessage());
-			}
-			storageValidator.validate(artifact);
-			
-			if (fileStoreConfig.getImageFormats().contains(FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename())))
-				setThumbnailImages(artifact);
-		}
+	    List<Artifact> artifacts = new ArrayList<>();
 
-		return artifacts;
+	    if (files == null || files.isEmpty()) {
+	        throw new CustomException("INVALID_FILE", "No file uploaded");
+	    }
+
+	    if (files.size() > 10) {
+	        throw new CustomException("INVALID_FILE", "Maximum 10 files allowed");
+	    }
+
+	    for (MultipartFile file : files) {
+
+	        String originalFileName = file.getOriginalFilename();
+
+	        String extension = FilenameUtils
+	                .getExtension(originalFileName)
+	                .toLowerCase();
+
+	        String randomString = RandomStringUtils.random(
+	                filenameLength,
+	                useLetters,
+	                useNumbers
+	        );
+
+	        String fileName =
+	                folderName +
+	                System.currentTimeMillis() +
+	                randomString +
+	                "." + extension;
+
+	        String id = idGeneratorService.getId();
+
+	        FileLocation fileLocation = new FileLocation(
+	                id,
+	                module,
+	                tag,
+	                tenantId,
+	                fileName,
+	                null
+	        );
+
+	        Artifact artifact = Artifact.builder()
+	                .multipartFile(file)
+	                .fileLocation(fileLocation)
+	                .build();
+
+	        // 🔒 security validation
+	        storageValidator.validate(artifact);
+
+	        artifacts.add(artifact);
+
+	        if (fileStoreConfig.getImageFormats().contains(extension)) {
+	            setThumbnailImages(artifact);
+	        }
+	    }
+
+	    return artifacts;
 	}
-
 	private void setThumbnailImages(Artifact artifact) {
-		
-		String completeName = artifact.getFileLocation().getFileName();
-		int index = completeName.indexOf('/');
-		String fileNameWithPath = completeName.substring(index + 1, completeName.length());
 
-		try {
+	    String completeName = artifact.getFileLocation().getFileName();
 
-			String imagetype = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
-			String inputStreamAsString = artifact.getFileContentInString();
-			if (fileStoreConfig.getImageFormats().contains(imagetype)) {
+	    int index = completeName.indexOf('/');
 
-				InputStream ipStreamForImg = IOUtils.toInputStream(inputStreamAsString, configs.getImageCharsetType());
-				Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(ipStreamForImg,
-						fileNameWithPath);
-				artifact.setThumbnailImages(mapOfImagesAndPaths);
-			}
+	    String fileNameWithPath = completeName.substring(index + 1);
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			log.error("EG_FILESTORE_INPUT_ERROR", e);
-			throw new CustomException("EG_FILESTORE_INPUT_ERROR", "Failed to read input stream from multipart file");
-		}
+	    try {
 
+	        String imageType = FilenameUtils.getExtension(
+	                artifact.getMultipartFile().getOriginalFilename()
+	        );
+
+	        if (fileStoreConfig.getImageFormats().contains(imageType)) {
+
+	            InputStream ipStreamForImg =
+	                    artifact.getMultipartFile().getInputStream();
+
+	            Map<String, BufferedImage> mapOfImagesAndPaths =
+	                    util.createVersionsOfImage(
+	                            ipStreamForImg,
+	                            fileNameWithPath
+	                    );
+
+	            artifact.setThumbnailImages(mapOfImagesAndPaths);
+	        }
+
+	    } catch (IOException e) {
+
+	        log.error("EG_FILESTORE_INPUT_ERROR", e);
+
+	        throw new CustomException(
+	                "EG_FILESTORE_INPUT_ERROR",
+	                "Failed to read input stream from multipart file"
+	        );
+	    }
 	}
-
+	
 	private String getFolderName(String module, String tenantId) {
 
 		Calendar calendar = Calendar.getInstance();

@@ -91,40 +91,95 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
    * - Calls the API with the tenant ID and UUID to fetch user data.
    * - Updates the `userAddresses` state with the fetched address list if available.
    */
-
-  const getUserInfo = async () => {
+  const getUserInfo = async (isMounted) => {
     const uuid = userInfo?.uuid;
     if (uuid) {
-      const usersResponse = await Digit.UserService.userSearch(tenant, { uuid: [uuid] }, {});
-      if (usersResponse && usersResponse.user && usersResponse.user.length) {
-        setUserDetails(usersResponse.user[0]);
+      try {
+        const usersResponse = await Digit.UserService.userSearch(tenant, { uuid: [uuid] }, {});
+        if (usersResponse && usersResponse.user && usersResponse.user.length && isMounted.current) {
+          setUserDetails(usersResponse.user[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     }
   };
 
+  // Window resize listener with cleanup
   React.useEffect(() => {
-    window.addEventListener("resize", () => setWindowWidth(window.innerWidth));
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      window.removeEventListener("resize", () => setWindowWidth(window.innerWidth));
+      window.removeEventListener("resize", handleResize);
     };
-  });
+  }, []);
 
+  // Fetch user info on mount with cleanup tracking
   useEffect(() => {
+    const isMounted = { current: true };
+
     setLoading(true);
+    getUserInfo(isMounted);
 
-    getUserInfo();
+    return () => {
+      isMounted.current = false;
+      setLoading(false);
+    };
+  }, []);
 
-    setGender({
-      i18nKey: undefined,
-      code: userDetails?.gender,
-      value: userDetails?.gender,
-    });
+  // Update derived states when userDetails changes
+  useEffect(() => {
+    if (userDetails) {
+      setGender({
+        i18nKey: undefined,
+        code: userDetails.gender,
+        value: userDetails.gender,
+      });
 
     const thumbs = userDetails?.photo?.split(",");
     setProfileImg(thumbs?.at(0));
 
-    setLoading(false);
-  }, [userDetails !== null]);
+      setLoading(false);
+    }
+  }, [userDetails]);
+
+  // Session storage polling with proper cleanup and dependencies
+  useEffect(() => {
+    let interval = null;
+    let isActive = true;
+
+    interval = setInterval(() => {
+      if (!isActive) return;
+
+      const storedDesignation = Digit.SessionStorage.get("Employee.designation");
+      const storedDepartment = Digit.SessionStorage.get("Employee.department");
+
+      if ((storedDesignation && storedDesignation !== designationName) || (storedDepartment && storedDepartment !== departmentName)) {
+        if (storedDesignation && storedDesignation !== designationName && isActive) {
+          setDesignationName(storedDesignation);
+        }
+
+        if (storedDepartment && storedDepartment !== departmentName && isActive) {
+          setDepartmentName(storedDepartment);
+        }
+
+        if (interval) {
+          clearInterval(interval);
+        }
+      }
+    }, 300);
+
+    return () => {
+      isActive = false;
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [designationName, departmentName]);
 
   let validation = {};
   const editScreen = false; // To-do: Deubug and make me dynamic or remove if not needed
@@ -212,9 +267,11 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
     setNewPassword(value);
 
     if (!new RegExp(/^([a-zA-Z0-9@#$%]{8,15})$/i).test(value)) {
-      setErrors({...errors, newPassword: {type: "pattern", message: t("CORE_COMMON_PROFILE_PASSWORD_INVALID")}})
-    }else{
-      setErrors({...errors, newPassword: null});
+      setErrors({ ...errors, newPassword: { type: "pattern", message: t("CORE_COMMON_PROFILE_PASSWORD_INVALID") } });
+    } else if (currentPassword && value === currentPassword) {
+      setErrors({ ...errors, newPassword: { type: "sameAsCurrent", message: t("CORE_COMMON_PROFILE_SAME_PASSWORD_ERROR") || "New password must be different from current password" } });
+    } else {
+      setErrors({ ...errors, newPassword: null });
     }
   }
 
@@ -274,12 +331,16 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
       }
 
       if (currentPassword.length || newPassword.length || confirmPassword.length) {
-        if (newPassword !== confirmPassword) {
-          throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_PASSWORD_MISMATCH") });
-        }
-
         if (!(currentPassword.length && newPassword.length && confirmPassword.length)) {
           throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_PASSWORD_INVALID") });
+        }
+
+        if (currentPassword === newPassword) {
+          throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_SAME_PASSWORD_ERROR") || "New password must be different from current password" });
+        }
+
+        if (newPassword !== confirmPassword) {
+          throw JSON.stringify({ type: "error", message: t("CORE_COMMON_PROFILE_PASSWORD_MISMATCH") });
         }
 
         if (!new RegExp(/^([a-zA-Z0-9@#$%]{8,15})$/i).test(newPassword) && !new RegExp(/^([a-zA-Z0-9@#$%]{8,15})$/i).test(confirmPassword)) {
@@ -383,31 +444,8 @@ const UserProfile = ({ stateCode, userType, cityDetails }) => {
 
   //function for edit button with edit icon and functioanality of redirecting to differnt URL's
   const ActionButton = ({ onClick }) => {
-    return <LinkButton 
-    label={<EditIcon style={{  float: "right" }} />}
-    className="check-page-link-button" onClick={onClick} />;
+    return <LinkButton label={<EditIcon style={{ float: "right" }} />} className="check-page-link-button" onClick={onClick} />;
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const storedDesignation = Digit.SessionStorage.get("Employee.designation");
-      const storedDepartment = Digit.SessionStorage.get("Employee.department");
-
-      if ((storedDesignation && storedDesignation !== designationName) || (storedDepartment && storedDepartment !== departmentName)) {
-        if (storedDesignation && storedDesignation !== designationName) {
-          setDesignationName(storedDesignation);
-        }
-
-        if (storedDepartment && storedDepartment !== departmentName) {
-          setDepartmentName(storedDepartment);
-        }
-
-        clearInterval(interval);
-      }
-    }, 300);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div>

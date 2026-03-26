@@ -8,11 +8,21 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.entity.Artifact;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.FileStoreJpaRepository;
+import org.egov.filestore.repository.impl.CloudFileMgrUtils;
 import org.egov.filestore.repository.impl.minio.MinioConfig;
+import org.egov.filestore.validator.FileContentValidator;
+import org.egov.filestore.validator.FileSignatureValidator;
 import org.egov.filestore.validator.StorageValidator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.mockito.Mockito;
+
+import java.util.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,23 +33,86 @@ import static org.mockito.Mockito.*;
 
 class StorageServiceTest {
 
+	private StorageService storageService;
+
+    private ArtifactRepository artifactRepository;
+    private IdGeneratorService idGeneratorService;
+    private FileStoreConfig fileStoreConfig;
+    private StorageValidator storageValidator;
+    private MinioConfig minioConfig;
+    private CloudFileMgrUtils util;
+    private FileSignatureValidator fileSignatureValidator;
+    private FileContentValidator fileContentValidator;
+
+    @BeforeEach
+    void setup() {
+
+        artifactRepository = mock(ArtifactRepository.class);
+        idGeneratorService = mock(IdGeneratorService.class);
+        minioConfig = mock(MinioConfig.class);
+        util = mock(CloudFileMgrUtils.class);
+        fileSignatureValidator = mock(FileSignatureValidator.class);
+        fileContentValidator = mock(FileContentValidator.class);
+
+        fileStoreConfig = new FileStoreConfig();
+
+        Map<String, List<String>> allowedFormatsMap = new HashMap<>();
+        allowedFormatsMap.put("txt", Arrays.asList("text/plain"));
+        allowedFormatsMap.put("png", Arrays.asList("image/png"));
+        allowedFormatsMap.put("jpg", Arrays.asList("image/jpeg", "image/jpg"));
+
+        ReflectionTestUtils.setField(fileStoreConfig, "allowedFormatsMap", allowedFormatsMap);
+        ReflectionTestUtils.setField(fileStoreConfig, "imageFormats", Arrays.asList("png","jpg"));
+        ReflectionTestUtils.setField(fileStoreConfig, "imageCharsetType", "UTF-8");
+
+        storageValidator = new StorageValidator(fileStoreConfig);
+        ReflectionTestUtils.setField(storageValidator,"fileSignatureValidator",fileSignatureValidator);
+        ReflectionTestUtils.setField(storageValidator,"fileContentValidator",fileContentValidator);
+        storageService = new StorageService(
+                artifactRepository,
+                idGeneratorService,
+                fileStoreConfig,
+                storageValidator,
+                fileStoreConfig,
+                minioConfig
+        );
+
+        ReflectionTestUtils.setField(storageService,"util",util);
+        ReflectionTestUtils.setField(storageService,"filenameLength",6);
+        ReflectionTestUtils.setField(storageService,"useLetters",true);
+        ReflectionTestUtils.setField(storageService,"useNumbers",true);
+
+        when(idGeneratorService.getId()).thenReturn("file-id-123");
+        when(minioConfig.getBucketName()).thenReturn("test-bucket");
+    }
+
     @Test
     void testSave() {
-        ArtifactRepository artifactRepository = mock(ArtifactRepository.class);
-        ArrayList<String> stringList = new ArrayList<>();
-        when(artifactRepository.save((List<org.egov.filestore.domain.model.Artifact>) any(), (RequestInfo) any()))
-                .thenReturn(stringList);
-        IdGeneratorService idGeneratorService = new IdGeneratorService();
-        FileStoreConfig fileStoreConfig = new FileStoreConfig();
-        StorageValidator storageValidator = new StorageValidator(new FileStoreConfig());
-        FileStoreConfig configs = new FileStoreConfig();
-        StorageService storageService = new StorageService(artifactRepository, idGeneratorService, fileStoreConfig,
-                storageValidator, configs, new MinioConfig());
-        ArrayList<MultipartFile> filesToStore = new ArrayList<>();
-        List<String> actualSaveResult = storageService.save(filesToStore, "Module", "Tag", "42", new RequestInfo());
-        assertSame(stringList, actualSaveResult);
-        assertTrue(actualSaveResult.isEmpty());
-        verify(artifactRepository).save((List<org.egov.filestore.domain.model.Artifact>) any(), (RequestInfo) any());
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.txt",
+                "text/plain",
+                "sample data".getBytes()
+        );
+
+        List<MultipartFile> files = Arrays.asList(file);
+
+        List<String> expected = Arrays.asList("file-id-123");
+
+        when(artifactRepository.save(any(), any())).thenReturn(expected);
+
+        List<String> result = storageService.save(
+                files,
+                "test-module",
+                "test-tag",
+                "tenant1",
+                new RequestInfo()
+        );
+
+        assertEquals(expected, result);
+
+        verify(artifactRepository, times(1)).save(any(), any());
     }
 
     @Test

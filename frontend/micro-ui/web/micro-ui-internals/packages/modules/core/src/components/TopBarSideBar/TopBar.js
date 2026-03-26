@@ -7,7 +7,6 @@ import ChangeLanguage from "../ChangeLanguage";
 import CustomUserDropdown from "./CustomUserDropdown";
 import FontIncrease from "./FontIncrease";
 
-
 const TextToImg = (props) => (
   <span className="user-img-txt" onClick={props.toggleMenu} title={props.name}>
     {props?.name?.[0]?.toUpperCase()}
@@ -32,31 +31,34 @@ const TopBar = ({
   showLanguageChange = true,
   setSideBarScrollTop,
 }) => {
+  const getStoredZone = () => Digit.SessionStorage.get("Employee.zone") || window.localStorage.getItem("Employee.zone");
+  const getStoredDesignation = () => Digit.SessionStorage.get("Employee.designation") || window.localStorage.getItem("Employee.designation");
+
   const [profilePic, setProfilePic] = React.useState(null);
-  const [zoneName, setZoneName] = React.useState(Digit.SessionStorage.get("Employee.zone"));
-  const [designationName, setDesignationName] = React.useState(Digit.SessionStorage.get("Employee.designation"));
+  const [zoneName, setZoneName] = React.useState(getStoredZone());
+  const [designationName, setDesignationName] = React.useState(getStoredDesignation());
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      const storedZone = Digit.SessionStorage.get("Employee.zone");
+      const storedZone = getStoredZone();
       if (storedZone && storedZone !== zoneName) {
         setZoneName(storedZone);
         clearInterval(interval);
       }
     }, 300);
     return () => clearInterval(interval);
-  }, []);
+  }, [zoneName]);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      const storedDesignation = Digit.SessionStorage.get("Employee.designation");
+      const storedDesignation = getStoredDesignation();
       if (storedDesignation && storedDesignation !== designationName) {
         setDesignationName(storedDesignation);
         clearInterval(interval);
       }
     }, 300);
     return () => clearInterval(interval);
-  }, []);
+  }, [designationName]);
 
   React.useEffect(async () => {
     const tenant = Digit.ULBService.getCurrentTenantId();
@@ -156,27 +158,27 @@ const TopBar = ({
                   style={
                     mobileView
                       ? {
-                        fontSize: "14px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "5px 12px",
-                        borderRadius: "6px",
-                        background: "rgba(59, 130, 246, 0.08)", // updated background
-                        color: "rgb(15, 23, 42)", // added color
-                        boxShadow: "rgba(59, 130, 246, 0.2) 0px 0px 3px inset", // added shadow
-                      }
+                          fontSize: "14px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "5px 12px",
+                          borderRadius: "6px",
+                          background: "rgba(59, 130, 246, 0.08)", // updated background
+                          color: "rgb(15, 23, 42)", // added color
+                          boxShadow: "rgba(59, 130, 246, 0.2) 0px 0px 3px inset", // added shadow
+                        }
                       : {
-                        fontSize: "14px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "5px 12px",
-                        borderRadius: "6px",
-                        background: "rgba(59, 130, 246, 0.08)", // updated background
-                        color: "rgb(15, 23, 42)", // added color
-                        boxShadow: "rgba(59, 130, 246, 0.2) 0px 0px 3px inset", // added shadow
-                      }
+                          fontSize: "14px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "5px 12px",
+                          borderRadius: "6px",
+                          background: "rgba(59, 130, 246, 0.08)", // updated background
+                          color: "rgb(15, 23, 42)", // added color
+                          boxShadow: "rgba(59, 130, 246, 0.2) 0px 0px 3px inset", // added shadow
+                        }
                   }
                 >
                   <LocationIcon styles={{ width: "10px", border: "none" }} className="fill-path-primary-main" />
@@ -192,7 +194,10 @@ const TopBar = ({
               )} */}
             </div>
             <div style={{ width: "2px", height: "28px", backgroundColor: "rgb(203, 213, 225" }}></div>
-            <div className="left"> <FontIncrease /></div>
+            <div className="left">
+              {" "}
+              <FontIncrease />
+            </div>
             <div style={{ width: "2px", height: "28px", backgroundColor: "rgb(203, 213, 225" }}></div>
             <div className="left">{showLanguageChange && <ChangeLanguage dropdown={true} />}</div>
             <div style={{ width: "2px", height: "28px", backgroundColor: "rgb(203, 213, 225" }}></div>

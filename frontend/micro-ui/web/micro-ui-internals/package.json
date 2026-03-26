@@ -86,6 +86,8 @@
     "**/@babel/preset-env": "7.14.0",
     "**/@babel/plugin-transform-modules-commonjs": "7.14.0",
     "glob": "7.2.3",
-    "minimatch": "3.1.2"
+    "minimatch": "3.1.2",
+    "**/@noble/hashes": "1.1.2",
+    "**/@noble/ciphers": "0.2.0"
   }
 }

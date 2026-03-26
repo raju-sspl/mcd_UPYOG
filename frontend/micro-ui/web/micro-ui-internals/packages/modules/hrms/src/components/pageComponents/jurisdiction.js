@@ -132,7 +132,6 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
   //   });
   // }
 
-
   function getroledata() {
     return data?.MdmsRes?.["ACCESSCONTROL-ROLES"].roles
       ?.filter((role) => role.code !== "SUPERUSER") // ✅ SUPERUSER remove here
@@ -171,9 +170,9 @@ const Jurisdictions = ({ t, config, onSelect, userType, formData }) => {
           handleRemoveUnit={handleRemoveUnit}
         />
       ))}
-      <label onClick={handleAddUnit} className="link-label" style={{ width: "12rem" }}>
+      {/* <label onClick={handleAddUnit} className="link-label" style={{ width: "12rem" }}>
         {t("HR_ADD_JURISDICTION")}
-      </label>
+      </label> */}
     </div>
   );
 };
@@ -192,6 +191,7 @@ function Jurisdiction({
 }) {
   const [BoundaryType, selectBoundaryType] = useState([]);
   const [Boundary, selectboundary] = useState([]);
+
   useEffect(() => {
     selectBoundaryType(
       data?.MdmsRes?.["egov-location"]["TenantBoundary"]
@@ -203,6 +203,16 @@ function Jurisdiction({
         })
     );
   }, [jurisdiction?.hierarchy, data?.MdmsRes]);
+
+  // Set default boundary type when BoundaryType options are loaded
+  useEffect(() => {
+    if (BoundaryType?.length > 0 && !jurisdiction?.boundaryType) {
+      // Set first boundary type as default
+      const defaultBoundaryType = BoundaryType[0];
+      setjurisdictions((pre) => pre.map((item) => (item.key === jurisdiction.key ? { ...item, boundaryType: defaultBoundaryType } : item)));
+    }
+  }, [BoundaryType]);
+
   const tenant = Digit.ULBService.getCurrentTenantId();
   useEffect(() => {
     selectboundary(
@@ -253,8 +263,8 @@ function Jurisdiction({
 
         return zones.map((zone) => ({
           code: zone.code,
-
           i18text: zone.name || zone.code,
+          value: zone.code,
         }));
       },
 
@@ -262,12 +272,47 @@ function Jurisdiction({
     }
   );
 
+  const sessionZoneObj = JSON.parse(sessionStorage.getItem("Digit.Employee.zone") || "{}");
+  const userZone = sessionZoneObj?.value;
+
   const zoneData = [];
+
+  const isHQUser = ["HQ", "HO", "HEAD", "HEADQUARTER"].includes(userZone);
 
   zoneMdmsData &&
     zoneMdmsData.map((data) => {
-      zoneData.push({ i18text: `TENANT_${data.code}`, code: `${data.code}`, value: `${data.code}` });
+      zoneData.push({
+        i18text: `TENANT_${data.code}`,
+        code: data.code,
+        value: data.code,
+      });
     });
+
+  useEffect(() => {
+    if (!isHQUser && userZone) {
+      setjurisdictions((prev) =>
+        prev.map((item) =>
+          item.key === jurisdiction.key
+            ? {
+                ...item,
+                zone: {
+                  code: userZone,
+                  value: userZone,
+                  i18text: `TENANT_${userZone}`,
+                },
+              }
+            : item
+        )
+      );
+    }
+  }, [isHQUser, userZone]);
+
+  useEffect(() => {
+    if (isHQUser && Boundary?.length > 0 && !jurisdiction?.boundary) {
+      const firstBoundary = Boundary[0];
+      setjurisdictions((prev) => prev.map((item) => (item.key === jurisdiction.key ? { ...item, boundary: firstBoundary } : item)));
+    }
+  }, [Boundary, isHQUser]);
 
   // ==========================================================end ===================
 
@@ -336,7 +381,7 @@ function Jurisdiction({
             className="form-field"
             isMandatory={true}
             selected={jurisdiction?.boundaryType}
-            disable={BoundaryType?.length === 0}
+            disable={true}
             option={BoundaryType}
             select={selectboundaryType}
             optionKey="i18text"
@@ -369,7 +414,7 @@ function Jurisdiction({
             className="form-field"
             isMandatory={true}
             selected={jurisdiction?.zone}
-            disable={zoneData.length === 0}
+            disable={!isHQUser}
             option={zoneData}
             select={(value) => setjurisdictions((prev) => prev.map((item) => (item.key === jurisdiction.key ? { ...item, zone: value } : item)))}
             optionKey="i18text"

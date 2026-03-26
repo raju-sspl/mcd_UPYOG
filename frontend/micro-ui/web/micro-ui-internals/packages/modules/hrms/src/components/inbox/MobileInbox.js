@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ApplicationCard } from "./ApplicationCard";
-import XLSX from "xlsx";
+import * as XLSX from "xlsx";
 
 const MobileInbox = ({
   data,

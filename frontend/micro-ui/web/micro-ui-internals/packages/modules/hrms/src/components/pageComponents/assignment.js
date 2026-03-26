@@ -9,7 +9,7 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
   const { data: data = {}, isLoading } = Digit.Hooks.hrms.useHrmsMDMS(tenantId, "egov-hrms", "HRMSRolesandDesignation") || {};
   const { data: commonData = {} } = Digit.Hooks.useCommonMDMS(tenant, "common-masters", ["ZoneDivisionMapping"]) || {};
 
-  const [currentassignemtDate, setCurrentAssiginmentDate] = useState(null);
+  // const [currentassignemtDate, setCurrentAssiginmentDate] = useState(null);
   const [previousZone, setPreviousZone] = useState(null); // Track previous zone
   const [assignments, setassignments] = useState(
     formData?.Assignments || [
@@ -134,11 +134,11 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
       );
     });
 
-    assignments.map((ele) => {
-      if (ele.isCurrentAssignment) {
-        setCurrentAssiginmentDate(ele.fromDate);
-      }
-    });
+    // assignments.map((ele) => {
+    //   if (ele.isCurrentAssignment) {
+    //     setCurrentAssiginmentDate(ele.fromDate);
+    //   }
+    // });
   }, [assignments]);
 
   let department = [];
@@ -180,8 +180,8 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
           getDivisionData={getDivisionData}
           assignments={assignments}
           handleRemoveUnit={handleRemoveUnit}
-          setCurrentAssiginmentDate={setCurrentAssiginmentDate}
-          currentassignemtDate={currentassignemtDate}
+          // setCurrentAssiginmentDate={setCurrentAssiginmentDate}
+          // currentassignemtDate={currentassignemtDate}
         />
       ))}
       <label onClick={handleAddUnit} className="link-label" style={{ width: "12rem" }}>
@@ -231,30 +231,22 @@ function Assignment({
   const selectDivision = (value) => {
     setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, division: value } : item)));
   };
+
   const onAssignmentChange = (value) => {
     setassignments((pre) =>
-      pre.map((item) => (item.key === assignment.key ? { ...item, isCurrentAssignment: value } : { ...item, isCurrentAssignment: false }))
-    );
-    if (value) {
-      setassignments((pre) =>
-        pre.map((item) =>
-          item.key === assignment.key
-            ? {
-                ...item,
-                toDate: null,
-              }
-            : item
-        )
-      );
-      assignments.map((ele) => {
-        if (ele.key == assignment.key) {
-          setCurrentAssiginmentDate(ele.fromDate);
+      pre.map((item) => {
+        if (item.key === assignment.key) {
+          return {
+            ...item,
+            isCurrentAssignment: value,
+            toDate: value ? null : item.toDate,
+          };
         }
-      });
-    } else {
-      setCurrentAssiginmentDate(null);
-    }
+        return item; // Keep other assignments' current status unchanged
+      })
+    );
   };
+
   const onIsHODchange = (value) => {
     setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, isHOD: value } : item)));
   };
@@ -287,15 +279,11 @@ function Assignment({
             <DatePicker
               type="date"
               name="fromDate"
-              max={currentassignemtDate ? currentassignemtDate : convertEpochToDate(new Date())}
-              min={formData?.SelectDateofEmployment?.dateOfAppointment}
-              disabled={assignment?.id ? true : false}
-              onChange={(e) => {
-                setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, fromDate: e } : item)));
-                setFocusIndex(index);
-              }}
               date={assignment?.fromDate}
               autoFocus={focusIndex === index}
+              min={formData?.SelectDateofEmployment?.dateOfAppointment}
+              max={convertEpochToDate(new Date())}
+              onChange={(e) => setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, fromDate: e } : item)))}
             />
           </div>
         </LabelFieldPair>
@@ -308,14 +296,11 @@ function Assignment({
             <DatePicker
               type="date"
               name="toDate"
-              min={assignment?.fromDate}
-              max={currentassignemtDate ? currentassignemtDate : convertEpochToDate(new Date())}
-              disabled={assignment?.isCurrentAssignment}
-              onChange={(e) => {
-                setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, toDate: e } : item)));
-                setFocusIndex(index);
-              }}
               date={assignment?.toDate}
+              min={assignment?.fromDate}
+              max={convertEpochToDate(new Date())}
+              disabled={assignment?.isCurrentAssignment}
+              onChange={(e) => setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, toDate: e } : item)))}
               autoFocus={focusIndex === index}
             />
           </div>

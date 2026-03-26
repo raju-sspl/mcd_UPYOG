@@ -11,7 +11,7 @@
     ],
     "scripts": {
       "start": "microbundle-crl watch --no-compress --format modern,cjs",
-      "build": "microbundle-crl --compress --no-sourcemap --format cjs",
+      "build": "microbundle-crl --compress --no-sourcemap --format modern,cjs",
       "prepublish": "yarn build"
     },
     "peerDependencies": {
@@ -19,7 +19,7 @@
       "react-router-dom": "5.3.0"
     },
     "dependencies": {
-      "@nudmcdgnpm/digit-ui-libraries": "1.2.1",
+      "@mcd89/digit-ui-libraries": "1.0.1",
       "@nudmcdgnpm/digit-ui-react-components": "1.2.13",
       "lodash.merge": "^4.6.2",
       "microbundle-crl": "^0.13.11",

@@ -131,6 +131,7 @@ const form = (state = initialState, action) => {
     case actionTypes.DISPLAY_FORM_ERRORS:
       return displayFieldErrors(state, formKey);
     case actionTypes.SUBMIT_FORM_PENDING:
+      state = setFormProperty(state, formKey, "error", false);
       return setFormProperty(state, formKey, "loading", true);
     case actionTypes.SUBMIT_FORM_COMPLETE:
       return setFormProperty(state, formKey, "loading", false);

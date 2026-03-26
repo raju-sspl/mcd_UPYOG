@@ -6,34 +6,93 @@ function UploadDrawer({ setProfilePic, closeDrawer, userType, removeProfilePic ,
   const [uploadedFile, setUploadedFile] = useState(null);
   const [file, setFile] = useState("");
   const [error, setError] = useState(null);
+  const [fileChecksum, setFileChecksum] = useState(null);
   const { t } = useTranslation();
-  const selectfile = (e) => setFile(e.target.files[0]);
-  const removeimg = () => {removeProfilePic(); closeDrawer()};
+
+  const selectfile = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const removeimg = () => {
+    removeProfilePic();
+    closeDrawer();
+  };
+
   const onOverlayBodyClick = () => closeDrawer();
+
+  // 🔐 SHA-256 checksum
+  const calculateChecksum = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const arrayBuffer = event.target.result;
+          const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+          resolve(hashHex);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
 
   useEffect(() => {
     (async () => {
+      if (!file) return;
+
       setError(null);
-      if (file) {
-        if (file.size >= 1000000) {
-          showToast("error", t("CORE_COMMON_PROFILE_MAXIMUM_UPLOAD_SIZE_EXCEEDED"))
-          setError(t("CORE_COMMON_PROFILE_MAXIMUM_UPLOAD_SIZE_EXCEEDED"));
+      setFileChecksum(null);
+
+      // Comprehensive File Validation using central utility
+      const validation = Digit.Utils.fileValidation.validateFile(file, {
+        type: "image",
+        maxSizeMB: 1,
+        sanitize: true
+      });
+
+      if (!validation.isValid) {
+        let errorMessage = "CORE_COMMON_PROFILE_INVALID_FILE_INPUT";
+        if (validation.error === "MAX_FILE_SIZE_EXCEEDED") errorMessage = "CORE_COMMON_PROFILE_MAXIMUM_UPLOAD_SIZE_EXCEEDED";
+        if (validation.error === "INVALID_FILE_EXTENSION") errorMessage = "CORE_COMMON_PROFILE_INVALID_FILE_EXTENSION";
+        if (validation.error === "MALICIOUS_FILENAME_DETECTED") errorMessage = "CORE_COMMON_PROFILE_INVALID_FILENAME";
+
+        showToast("error", t(errorMessage));
+        setError(t(errorMessage));
+        return;
+      }
+
+      const validFile = validation.file;
+
+      try {
+        const checksum = await calculateChecksum(validFile);
+        setFileChecksum(checksum);
+
+        const response = await Digit.UploadServices.Filestorage(
+          `${userType}-profile`,
+          validFile,
+          Digit.ULBService.getStateId(),
+          checksum
+        );
+
+        if (response?.data?.files?.length > 0) {
+          const fileStoreId = response.data.files[0].fileStoreId;
+          setUploadedFile(fileStoreId);
+          setProfilePic(fileStoreId);
+          closeDrawer();
         } else {
-          try {
-            const response = await Digit.UploadServices.Filestorage(`${userType}-profile`, file, Digit.ULBService.getStateId());
-            if (response?.data?.files?.length > 0) {
-              const fileStoreId = response?.data?.files[0]?.fileStoreId;
-              setUploadedFile(fileStoreId);
-              setProfilePic(fileStoreId);
-            } else {
-              showToast("error", t("CORE_COMMON_PROFILE_FILE_UPLOAD_ERROR"))
-              setError(t("CORE_COMMON_PROFILE_FILE_UPLOAD_ERROR"));
-            }
-          } catch (err) {
-            showToast("error",t("CORE_COMMON_PROFILE_INVALID_FILE_INPUT"))
-            // setError(t("PT_FILE_UPLOAD_ERROR"));
-          }
+          showToast("error", t("CORE_COMMON_PROFILE_FILE_UPLOAD_ERROR"));
+          setError(t("CORE_COMMON_PROFILE_FILE_UPLOAD_ERROR"));
         }
+      } catch (err) {
+        console.error("Upload error:", err);
+        showToast("error", t("CORE_COMMON_PROFILE_INVALID_FILE_INPUT"));
       }
     })();
   }, [file]);

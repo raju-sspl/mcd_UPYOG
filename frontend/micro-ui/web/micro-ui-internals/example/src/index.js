@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { initLibraries } from "@nudmcdgnpm/digit-ui-libraries";
+import { initLibraries } from "@mcd89/digit-ui-libraries";
 import { PGRReducers } from "@nudmcdgnpm/digit-ui-module-pgr";
 // import { PTModule, PTLinks, PTComponents } from "@upyog/digit-ui-module-pt";
 import { MCollectModule, MCollectLinks } from "@upyog/digit-ui-module-mcollect";
@@ -49,7 +49,7 @@ import { VENDORComponents, VENDORLinks, VENDORModule } from "@nudmcdgnpm/upyog-u
 
 // import * as comps from "@nudmcdgnpm/digit-ui-react-components";
 
-// import { subFormRegistry } from "@nudmcdgnpm/digit-ui-libraries";
+// import { subFormRegistry } from "@mcd89/digit-ui-libraries";
 
 import { pgrCustomizations, pgrComponents } from "./pgr";
 

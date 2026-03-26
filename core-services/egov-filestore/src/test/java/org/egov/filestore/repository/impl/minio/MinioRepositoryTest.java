@@ -26,8 +26,12 @@ class MinioRepositoryTest {
         MinioRepository minioRepository = new MinioRepository();
         FileLocation fileLocation = mock(FileLocation.class);
         when(fileLocation.getFileName()).thenReturn("foo.txt");
-        MockMultipartFile multipartFile = new MockMultipartFile("Name", "AAAAAAAA".getBytes("UTF-8"));
-
+        MockMultipartFile multipartFile = new MockMultipartFile(
+                "file",
+                "foo.txt",
+                "text/plain",
+                "AAAAAAAA".getBytes("UTF-8")
+        );
         FileLocation fileLocation1 = new FileLocation("42", "Module", "Tag", "42", "foo.txt", "File Source");
 
         org.egov.filestore.domain.model.Artifact artifact = new org.egov.filestore.domain.model.Artifact(

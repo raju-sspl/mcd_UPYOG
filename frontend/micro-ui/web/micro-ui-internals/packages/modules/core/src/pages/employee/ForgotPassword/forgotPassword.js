@@ -1,4 +1,4 @@
-import { BackButton, Dropdown, FormComposer, Loader, Toast, } from "@nudmcdgnpm/digit-ui-react-components";
+import { BackButton, Dropdown, FormComposer, Loader, Toast } from "@nudmcdgnpm/digit-ui-react-components";
 import PropTypes from "prop-types";
 import React, { useEffect, useState, useMemo } from "react";
 import { useHistory } from "react-router-dom";
@@ -13,7 +13,6 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
   const getUserType = () => Digit.UserService.getType();
   let sourceUrl = "https://s3.ap-south-1.amazonaws.com/egov-qa-assets";
   const pdfUrl = "https://pg-egov-assets.s3.ap-south-1.amazonaws.com/Upyog+Code+and+Copyright+License_v1.pdf";
-
 
   const defaultCity = useMemo(() => {
     return cities?.find((c) => c.code === "dl.mcd") || null;
@@ -87,7 +86,7 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
                 id={city.name}
                 selected={props.value || defaultCity}
                 className="login-city-dd"
-                style={{ display:"none" }}
+                style={{ display: "none" }}
                 select={(d) => {
                   props.onChange(d);
                 }}
@@ -107,9 +106,6 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
 
   return (
     <Background>
-      <div className="employeeBackbuttonAlign">
-        <BackButton variant="white" style={{ borderBottom: "none" }} />
-      </div>
       <FormComposer
         onSubmit={onForgotPassword}
         noBoxShadow
@@ -126,24 +122,49 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
         cardStyle={{ maxWidth: "408px", margin: "auto" }}
         className="employeeForgotPassword"
       >
+        <BackButton />
         <Header />
       </FormComposer>
+
       {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
 
-      <div style={{ width: '100%', position: 'fixed', bottom: 0, backgroundColor: "white", textAlign: "center" }}>
-        <div style={{ display: 'flex', justifyContent: 'center', color: "black" }}>
+      <div style={{ width: "100%", position: "fixed", bottom: 0, backgroundColor: "white", textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", color: "black" }}>
           {/* <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://www.digit.org/', '_blank').focus();}} >Powered by DIGIT</span>
           <span style={{ margin: "0 10px" ,fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px"}}>|</span> */}
-          <a style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "12px" : "12px", fontWeight: "400" }} href="#" target='_blank'>UPYOG License</a>
+          <a
+            style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "12px" : "12px", fontWeight: "400" }}
+            href="#"
+            target="_blank"
+          >
+            UPYOG License
+          </a>
 
-          <span className="upyog-copyright-footer" style={{ margin: "0 10px", fontSize: "12px" }} >|</span>
-          <span className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "12px" : "12px", fontWeight: "400" }} onClick={() => { window.open('https://niua.in/', '_blank').focus(); }} >Copyright © 2022 National Institute of Urban Affairs</span>
+          <span className="upyog-copyright-footer" style={{ margin: "0 10px", fontSize: "12px" }}>
+            |
+          </span>
+          <span
+            className="upyog-copyright-footer"
+            style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "12px" : "12px", fontWeight: "400" }}
+            onClick={() => {
+              window.open("https://niua.in/", "_blank").focus();
+            }}
+          >
+            Copyright © 2022 National Institute of Urban Affairs
+          </span>
 
           {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
-
         </div>
         <div className="upyog-copyright-footer-web">
-          <span className="" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "14px" : "16px", fontWeight: "400" }} onClick={() => { window.open('https://niua.in/', '_blank').focus(); }} >Copyright © 2022 National Institute of Urban Affairs</span>
+          <span
+            className=""
+            style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile() ? "14px" : "16px", fontWeight: "400" }}
+            onClick={() => {
+              window.open("https://niua.in/", "_blank").focus();
+            }}
+          >
+            Copyright © 2022 National Institute of Urban Affairs
+          </span>
         </div>
       </div>
     </Background>

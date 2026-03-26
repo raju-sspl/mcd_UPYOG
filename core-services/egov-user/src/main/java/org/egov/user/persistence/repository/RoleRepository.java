@@ -12,8 +12,11 @@ import org.egov.mdms.model.MdmsCriteriaReq;
 import org.egov.mdms.model.ModuleDetail;
 import org.egov.tracer.model.CustomException;
 import org.egov.user.domain.model.Role;
+import org.egov.user.domain.service.utils.EncryptionDecryptionUtil;
+import org.egov.user.persistence.dto.UserRoleDTO;
 import org.egov.user.repository.builder.RoleQueryBuilder;
 import org.egov.user.repository.rowmapper.RoleRowMapper;
+import org.egov.user.repository.rowmapper.UserRoleDTORowMapper;
 import org.egov.user.repository.rowmapper.UserRoleRowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -32,6 +35,9 @@ public class RoleRepository {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private RestTemplate restTemplate;
     private ObjectMapper objectMapper;
+    
+    private EncryptionDecryptionUtil encryptionDecryptionUtil;
+
 
     @Value("${mdms.roles.filter}")
     private String roleFilter;
@@ -49,10 +55,11 @@ public class RoleRepository {
     private String path;
 
     public RoleRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate, RestTemplate restTemplate,
-                          ObjectMapper objectMapper) {
+                          ObjectMapper objectMapper, EncryptionDecryptionUtil encryptionDecryptionUtil) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.encryptionDecryptionUtil = encryptionDecryptionUtil;
     }
 
     /**
@@ -168,4 +175,39 @@ public class RoleRepository {
 
         return roleFilter.replaceAll("\\$code", filter.toString());
     }
+    
+    
+    /**
+     * Get Roles By given parameter
+     * @param userId
+     * @param username
+     * @param uuid
+     * @param mobileNumber
+     * @param tenantId
+     * @return
+     */
+    public List<UserRoleDTO> fetchUserRoles(
+            Long userId,
+            String encryptedUsername,
+            String encryptedUuid,
+            String encryptedMobile,
+            String tenantId) {
+
+        Map<String, Object> params = new HashMap<>();
+
+        params.put("userId", userId);
+        params.put("username", encryptedUsername);
+        params.put("uuid", encryptedUuid);
+        params.put("mobileNumber", encryptedMobile);
+        params.put("tenantId", tenantId);
+
+        return namedParameterJdbcTemplate.query(
+                RoleQueryBuilder.GET_ROLES_BY_USER_IDENTIFIER,
+                params,
+                new UserRoleDTORowMapper()
+        );
+    }
+
+
+
 }

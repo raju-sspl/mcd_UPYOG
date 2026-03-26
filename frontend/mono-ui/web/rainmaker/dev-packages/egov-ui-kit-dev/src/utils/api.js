@@ -17,16 +17,68 @@ import { addQueryArg, hasTokenExpired, prepareForm } from "./commons";
 import { setUserObj } from "./localStorageUtils";
 import CryptoJS from "crypto-js";
 
-const SECRET_KEY = "MySuperSecretEncryptionKe123456!";
+const SECRET_KEY = process.env.REACT_APP_ENCRYPTION_SECRET;
 
 export const encryptAES = (plainText) => {
-  const encrypted = CryptoJS.AES.encrypt(plainText, SECRET_KEY).toString();
-  return encodeURIComponent(encrypted);
+  if (!plainText) return "";
+
+  // Generate 8-byte random salt
+  const salt = CryptoJS.lib.WordArray.random(8);
+
+  // Derive Key using PBKDF2 (Matches Backend SecretKeyFactory)
+  const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
+    keySize: 256 / 32,
+    iterations: 1000,
+    hasher: CryptoJS.algo.SHA256,
+  });
+
+  // 3. Generate 16-byte random IV
+  const iv = CryptoJS.lib.WordArray.random(16);
+
+  const encrypted = CryptoJS.AES.encrypt(plainText, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  const combined = CryptoJS.enc.Utf8.parse("Salted__")
+    .concat(salt)
+    .concat(iv)
+    .concat(encrypted.ciphertext);
+
+  // 6. Base64 + URL Encode for transport
+  return encodeURIComponent(CryptoJS.enc.Base64.stringify(combined));
 };
 
 export const decryptAES = (cipherText) => {
-  const bytes = CryptoJS.AES.decrypt(cipherText, SECRET_KEY);
-  return bytes.toString(CryptoJS.enc.Utf8);
+  if (!cipherText) return "";
+  try {
+    const decodedStr = decodeURIComponent(cipherText);
+    const combined = CryptoJS.enc.Base64.parse(decodedStr);
+
+    const salt = CryptoJS.lib.WordArray.create(combined.words.slice(2, 4));
+    const iv = CryptoJS.lib.WordArray.create(combined.words.slice(4, 8));
+    const encryptedData = CryptoJS.lib.WordArray.create(
+      combined.words.slice(8),
+      combined.sigBytes - 32
+    );
+
+    const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
+      keySize: 256 / 32,
+      iterations: 1000,
+      hasher: CryptoJS.algo.SHA256,
+    });
+
+    const decrypted = CryptoJS.AES.decrypt({ ciphertext: encryptedData }, key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  } catch (e) {
+    console.error("Decryption failed", e);
+    return "";
+  }
 };
 
 axios.interceptors.response.use(
@@ -233,7 +285,7 @@ export const uploadFile = async (endPoint, module, file, ulbLevel) => {
   }
 };
 
-export const loginRequest = async (username = null, password = null, refreshToken = "", grantType = "password", tenantId = "", userType) => {
+export const loginRequest = async (username = null, password = null, refreshToken = "", grantType = "password", tenantId = "", userType, captcha = "", captchaId = "") => {
   tenantId = tenantId ? tenantId : commonConfig.tenantId;
   const loginInstance = axios.create({
     baseURL: window.location.origin,
@@ -250,11 +302,20 @@ export const loginRequest = async (username = null, password = null, refreshToke
     const encryptedPassword = encryptAES(password);
     params.append("password", encryptedPassword);
   }
-  refreshToken && params.append("refresh_token", refreshToken);
-  params.append("grant_type", grantType);
-  params.append("scope", "read");
-  params.append("tenantId", tenantId);
+  if (captcha) {
+    const encryptedCaptcha = encryptAES(captcha);
+    params.append("captcha", encryptedCaptcha);
+  }
   userType && params.append("userType", userType);
+  params.append("tenantId", tenantId);
+  if (captchaId) {
+    // Reverting encryption for captchaId as it is likely a server-provided token
+    const encryptedCaptchaId = encryptAES(captchaId);
+    params.append("captchaId", encryptedCaptchaId);
+  }
+  params.append("scope", "read");
+  params.append("grant_type", grantType);
+  refreshToken && params.append("refresh_token", refreshToken);
 
   try {
     const response = await loginInstance.post("/user/oauth/token", params);
@@ -380,7 +441,7 @@ export const commonApiPost = (
           // _err=response.response.data.error.message?"a) "+extractErrorMsg(response.response.data.error, "message", "description")+" : ":"";
           // let fields=response.response.data.error.fields;
           if (response.response.data.Errors.length == 1) {
-            if(response.response.data.Errors[0].message.includes("InvalidAccessTokenException")){
+            if (response.response.data.Errors[0].message.includes("InvalidAccessTokenException")) {
               throw new Error(getLocaleLabels("InvalidAccessTokenException"));
             }
             _err += getLocaleLabels(response.response.data.Errors[0].message) + ".";
@@ -480,7 +541,7 @@ export const downloadPdfFile = async (
     responseType: "arraybuffer",
     headers: {
       "Content-Type": "application/json",
-      Accept: commonConfig.singleInstance ?"application/pdf,application/json":"application/pdf",
+      Accept: commonConfig.singleInstance ? "application/pdf,application/json" : "application/pdf",
     },
   });
 

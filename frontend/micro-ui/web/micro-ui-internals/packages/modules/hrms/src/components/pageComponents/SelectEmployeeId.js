@@ -8,9 +8,11 @@ const SelectEmployeeId = ({ t, config, onSelect, formData = {}, userType, regist
   const inputs = [
     {
       label: "HR_EMP_ID_LABEL",
+      isMandatory: true,
       type: "text",
       name: "code",
       validation: {
+        required: true,
         title: t("CORE_COMMON_APPLICANT_NAME_INVALID"),
       },
     },

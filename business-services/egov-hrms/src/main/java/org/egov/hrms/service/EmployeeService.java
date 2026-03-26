@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.hrms.config.PropertiesManager;
+import org.egov.hrms.model.Assignment;
 import org.egov.hrms.model.AuditDetails;
 import org.egov.hrms.model.Employee;
 import org.egov.hrms.model.enums.UserType;
@@ -414,18 +415,30 @@ public class EmployeeService {
 			}
 		});
 		employee.getAssignments().stream().forEach(assignment -> {
-			if(assignment.getId()==null) {
-				assignment.setId(UUID.randomUUID().toString());
-				assignment.setAuditDetails(auditDetails);
-			}else {
-				if(!existingEmpData.getAssignments().stream()
-						.filter(assignmentData -> assignmentData.getId().equals(assignment.getId()))
-						.findFirst().orElse(null)
-						.equals(assignment)){
-					assignment.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-					assignment.getAuditDetails().setLastModifiedDate(new Date().getTime());
-				}
-			}
+		    if (assignment.getId() == null) {
+		        // CASE 1: This is a BRAND NEW assignment added during update
+		        assignment.setId(UUID.randomUUID().toString());
+		        assignment.setAuditDetails(auditDetails);
+		        assignment.setPosition(getPosition()); // Assign a new position sequence
+		    } else {
+		        // CASE 2: This is an EXISTING assignment
+		        // Find the matching assignment in the database data
+		        Assignment existingAssignment = existingEmpData.getAssignments().stream()
+		                .filter(a -> a.getId().equals(assignment.getId()))
+		                .findFirst()
+		                .orElse(null);
+
+		        if (existingAssignment != null) {
+		            // CRITICAL FIX: Carry forward the existing position
+		            assignment.setPosition(existingAssignment.getPosition());
+		            
+		            // Check for changes to update audit details
+		            if (!existingAssignment.equals(assignment)) {
+		                assignment.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
+		                assignment.getAuditDetails().setLastModifiedDate(new Date().getTime());
+		            }
+		        }
+		    }
 		});
 
 		if(employee.getServiceHistory()!=null){

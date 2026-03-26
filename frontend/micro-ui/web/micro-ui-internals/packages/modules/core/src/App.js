@@ -17,6 +17,17 @@ export const DigitApp = ({ stateCode, modules, appTenants, logoUrl, initData }) 
   if (window.location.pathname.split("/").includes("employee")) CITIZEN = false;
 
   useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === null || e.key === "Digit.User" || e.key === "User") {
+        window.sessionStorage.clear();
+        window.location.reload();
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  useEffect(() => {
     if (!pathname?.includes("application-details")) {
       if (!pathname?.includes("inbox")) {
         Digit.SessionStorage.del("fsm/inbox/searchParams");

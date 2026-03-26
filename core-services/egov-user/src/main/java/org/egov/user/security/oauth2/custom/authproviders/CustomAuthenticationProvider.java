@@ -16,6 +16,7 @@ import org.egov.user.domain.service.utils.PasswordCryptoUtil;
 import org.egov.user.web.contract.auth.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,8 +26,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private HttpServletRequest request;
+    
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
 
     @Autowired
     private AuthAuditLogService authAuditLogService;
@@ -80,14 +85,62 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        String userName = authentication.getName();
+    	String userName = authentication.getName();
         String encryptedPassword = authentication.getCredentials().toString();
         String password = passwordCryptoUtil.decrypt(encryptedPassword);
-
+        
         final LinkedHashMap<String, String> details = (LinkedHashMap<String, String>) authentication.getDetails();
-
         String tenantId = details.get("tenantId");
         String userType = details.get("userType");
+        
+        // =====================================================
+        //  CAPTCHA VALIDATION
+        // =====================================================
+
+        if (!"SYSTEM".equalsIgnoreCase(userType)) {
+	        String encryptedCaptcha = details.get("captcha");
+	        String encryptedCaptchaId = details.get("captchaId");
+	        
+	        String captcha = passwordCryptoUtil.decrypt(encryptedCaptcha); 
+	        String captchaId = passwordCryptoUtil.decrypt(encryptedCaptchaId);
+	        
+	        if (captchaId == null || captchaId.isEmpty()) {
+	            throw new OAuth2Exception("CaptchaId missing");
+	        }
+	
+	        if (captcha == null || captcha.trim().isEmpty()) {
+	            throw new OAuth2Exception("Captcha is mandatory");
+	        }
+	
+	        String redisKey = "CAPTCHA:" + captchaId;
+	
+	        String storedCaptcha = redisTemplate.opsForValue().get(redisKey);
+	
+	        log.info("Captcha entered: {}", captcha);
+	        log.info("Captcha stored in redis: {}", storedCaptcha);
+	
+	        if (storedCaptcha == null) {
+	            throw new OAuth2Exception("Captcha expired. Please refresh captcha");
+	        }
+	
+	        if (!storedCaptcha.equals(captcha)) {
+	
+	            authAuditLogService.log(
+	                    null,
+	                    userName,
+	                    request.getRemoteAddr(),
+	                    request.getHeader("User-Agent"),
+	                    null,
+	                    "LOGIN",
+	                    "FAILURE",
+	                    request.getRequestURI()
+	            );
+	
+	            throw new OAuth2Exception("Invalid captcha");
+	        }
+	        // delete after use
+	        redisTemplate.delete(redisKey);
+        }
 
         if (isEmpty(tenantId)) {
             throw new OAuth2Exception("TenantId is mandatory");
