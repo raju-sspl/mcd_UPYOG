@@ -1,20 +1,26 @@
 import CryptoJS from "crypto-js";
 
-const SECRET_KEY = "9f3c7a1d8e5b4c6f2a7d9e3c5b8f1a6d9f3c7a1d8e5b4c6f";
+const SECRET_KEY = process.env.REACT_APP_SECRET_KEY;
 
 export const encryptAES = (plainText) => {
     if (!plainText) return "";
-    
+
+    // 1. Create a Cryptographically Secure Nonce using CryptoJS
+    const nonce = CryptoJS.lib.WordArray.random(16).toString(); 
+    const timestamp = new Date().toISOString();
+
+    // 2. Format: Password|Nonce|Timestamp (Matches Java Backend)
+    const dataToEncrypt = `${plainText}|${nonce}|${timestamp}`;
+
     const salt = CryptoJS.lib.WordArray.random(8);
-    // PBKDF2 is the industry standard for Key Derivation
     const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
-        keySize: 256/32,
+        keySize: 256 / 32,
         iterations: 1000,
         hasher: CryptoJS.algo.SHA256
     });
 
     const iv = CryptoJS.lib.WordArray.random(16);
-    const encrypted = CryptoJS.AES.encrypt(plainText, key, {
+    const encrypted = CryptoJS.AES.encrypt(dataToEncrypt, key, {
         iv: iv,
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
@@ -30,40 +36,33 @@ export const encryptAES = (plainText) => {
 
 export const decryptAES = (cipherText) => {
     if (!cipherText) return "";
+    try {
+        const decodedStr = decodeURIComponent(cipherText);
+        const combined = CryptoJS.enc.Base64.parse(decodedStr);
+        const salt = CryptoJS.lib.WordArray.create(combined.words.slice(2, 4));
+        const iv = CryptoJS.lib.WordArray.create(combined.words.slice(4, 8));
+        const encryptedData = CryptoJS.lib.WordArray.create(
+            combined.words.slice(8),
+            combined.sigBytes - 32 
+        );
 
-    // 1. Decode URL and parse Base64 back to WordArray
-    const decodedStr = decodeURIComponent(cipherText);
-    const combined = CryptoJS.enc.Base64.parse(decodedStr);
-    
-    // Salt: words 2-4 (8 bytes)
-    const salt = CryptoJS.lib.WordArray.create(combined.words.slice(2, 4));
-    
-    // IV: words 4-8 (16 bytes)
-    const iv = CryptoJS.lib.WordArray.create(combined.words.slice(4, 8));
-    
-    // Ciphertext: everything after word 8
-    const encryptedData = CryptoJS.lib.WordArray.create(
-        combined.words.slice(8),
-        combined.sigBytes - 32 // 8 (header) + 8 (salt) + 16 (iv) = 32 bytes to subtract
-    );
+        const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
+            keySize: 256 / 32,
+            iterations: 1000,
+            hasher: CryptoJS.algo.SHA256,
+        });
 
-    // 3. Re-derive the key using PBKDF2
-    const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
-        keySize: 256/32,
-        iterations: 1000,
-        hasher: CryptoJS.algo.SHA256
-    });
-
-    // 4. Decrypt
-    const decrypted = CryptoJS.AES.decrypt(
-        { ciphertext: encryptedData },
-        key,
-        {
+        const decrypted = CryptoJS.AES.decrypt({ ciphertext: encryptedData }, key, {
             iv: iv,
             mode: CryptoJS.mode.CBC,
             padding: CryptoJS.pad.Pkcs7
-        }
-    );
+        });
 
-    return decrypted.toString(CryptoJS.enc.Utf8);
+        const decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
+        const parts = decryptedStr.split("|");
+        
+        return parts.length >= 3 ? parts[0] : ""; 
+    } catch (e) {
+        return "";
+    }
 };
