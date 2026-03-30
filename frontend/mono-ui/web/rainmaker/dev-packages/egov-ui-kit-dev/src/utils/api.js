@@ -20,65 +20,68 @@ import CryptoJS from "crypto-js";
 const SECRET_KEY = process.env.REACT_APP_ENCRYPTION_SECRET;
 
 export const encryptAES = (plainText) => {
-  if (!plainText) return "";
+    if (!plainText) return "";
 
-  // Generate 8-byte random salt
-  const salt = CryptoJS.lib.WordArray.random(8);
+    // 1. Create a Cryptographically Secure Nonce using CryptoJS
+    const nonce = CryptoJS.lib.WordArray.random(16).toString(); 
+    const timestamp = new Date().toISOString();
 
-  // Derive Key using PBKDF2 (Matches Backend SecretKeyFactory)
-  const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
-    keySize: 256 / 32,
-    iterations: 1000,
-    hasher: CryptoJS.algo.SHA256,
-  });
+    // 2. Format: Password|Nonce|Timestamp (Matches Java Backend)
+    const dataToEncrypt = `${plainText}|${nonce}|${timestamp}`;
 
-  // 3. Generate 16-byte random IV
-  const iv = CryptoJS.lib.WordArray.random(16);
+    const salt = CryptoJS.lib.WordArray.random(8);
+    const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
+        keySize: 256 / 32,
+        iterations: 1000,
+        hasher: CryptoJS.algo.SHA256
+    });
 
-  const encrypted = CryptoJS.AES.encrypt(plainText, key, {
-    iv: iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-  });
-  const combined = CryptoJS.enc.Utf8.parse("Salted__")
-    .concat(salt)
-    .concat(iv)
-    .concat(encrypted.ciphertext);
+    const iv = CryptoJS.lib.WordArray.random(16);
+    const encrypted = CryptoJS.AES.encrypt(dataToEncrypt, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+    });
 
-  // 6. Base64 + URL Encode for transport
-  return encodeURIComponent(CryptoJS.enc.Base64.stringify(combined));
+    const combined = CryptoJS.enc.Utf8.parse("Salted__")
+        .concat(salt)
+        .concat(iv)
+        .concat(encrypted.ciphertext);
+
+    return encodeURIComponent(CryptoJS.enc.Base64.stringify(combined));
 };
 
 export const decryptAES = (cipherText) => {
-  if (!cipherText) return "";
-  try {
-    const decodedStr = decodeURIComponent(cipherText);
-    const combined = CryptoJS.enc.Base64.parse(decodedStr);
+    if (!cipherText) return "";
+    try {
+        const decodedStr = decodeURIComponent(cipherText);
+        const combined = CryptoJS.enc.Base64.parse(decodedStr);
+        const salt = CryptoJS.lib.WordArray.create(combined.words.slice(2, 4));
+        const iv = CryptoJS.lib.WordArray.create(combined.words.slice(4, 8));
+        const encryptedData = CryptoJS.lib.WordArray.create(
+            combined.words.slice(8),
+            combined.sigBytes - 32 
+        );
 
-    const salt = CryptoJS.lib.WordArray.create(combined.words.slice(2, 4));
-    const iv = CryptoJS.lib.WordArray.create(combined.words.slice(4, 8));
-    const encryptedData = CryptoJS.lib.WordArray.create(
-      combined.words.slice(8),
-      combined.sigBytes - 32
-    );
+        const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
+            keySize: 256 / 32,
+            iterations: 1000,
+            hasher: CryptoJS.algo.SHA256,
+        });
 
-    const key = CryptoJS.PBKDF2(SECRET_KEY, salt, {
-      keySize: 256 / 32,
-      iterations: 1000,
-      hasher: CryptoJS.algo.SHA256,
-    });
+        const decrypted = CryptoJS.AES.decrypt({ ciphertext: encryptedData }, key, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
 
-    const decrypted = CryptoJS.AES.decrypt({ ciphertext: encryptedData }, key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-
-    return decrypted.toString(CryptoJS.enc.Utf8);
-  } catch (e) {
-    console.error("Decryption failed", e);
-    return "";
-  }
+        const decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
+        const parts = decryptedStr.split("|");
+        
+        return parts.length >= 3 ? parts[0] : ""; 
+    } catch (e) {
+        return "";
+    }
 };
 
 axios.interceptors.response.use(
