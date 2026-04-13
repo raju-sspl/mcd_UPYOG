@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 
 @Slf4j
 @Service
@@ -17,6 +18,7 @@ public class CustomTokenService extends DefaultTokenServices {
     @Autowired
     private TokenService tokenService;
 
+    
     // manual token store pass as constructor param removed
     @Autowired
     public void setTokenStore(TokenStore tokenStore) {
@@ -57,7 +59,6 @@ public class CustomTokenService extends DefaultTokenServices {
             throw e; // You can rethrow or wrap if you want
         }
         //return super.createAccessToken(authentication);
-    }
-
+    }    
 
 }
