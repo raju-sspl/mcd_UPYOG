@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -73,6 +74,9 @@ public class UserServiceTest {
         userService = new UserService(userRepository, otpRepository, fileRepository, passwordEncoder, encryptionDecryptionUtil,
                 tokenStore, DEFAULT_PASSWORD_EXPIRY_IN_DAYS,
                 isCitizenLoginOtpBased, isEmployeeLoginOtpBased, pwdRegex, pwdMaxLength, pwdMinLength);
+        
+        ReflectionTestUtils.setField(userService, "defaultPasswordEnabled", false);
+        ReflectionTestUtils.setField(userService, "defaultPasswordPattern", "{username}@Mcd4321");
     }
 
 
@@ -102,13 +106,18 @@ public class UserServiceTest {
     @Test
     public void test_should_save_a_valid_user() {
         org.egov.user.domain.model.User domainUser = validDomainUser(false);
-        when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
-        final User expectedEntityUser = User.builder().build();
-        when(userRepository.create(domainUser)).thenReturn(expectedEntityUser);
 
+        when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
+        when(userRepository.isUserPresent(anyString(), anyString(), any())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
+
+        final User expectedEntityUser = User.builder().build();
+
+        when(userRepository.create(domainUser)).thenReturn(expectedEntityUser);
         when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.decryptObject(expectedEntityUser, "UserSelf", User.class,
-                getValidRequestInfo())).thenReturn(expectedEntityUser);
+        when(encryptionDecryptionUtil.decryptObject(expectedEntityUser, "UserSelf", User.class, getValidRequestInfo()))
+                .thenReturn(expectedEntityUser);
+
         User returnedUser = userService.createUser(domainUser, getValidRequestInfo());
 
         assertEquals(expectedEntityUser, returnedUser);
@@ -116,30 +125,39 @@ public class UserServiceTest {
 
     @Test
     public void test_should_set_pre_defined_expiry_on_creating_user() {
-        org.egov.user.domain.model.User domainUser = mock(User.class);
-        when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
-        final User expectedEntityUser = User.builder().build();
-        when(userRepository.create(domainUser)).thenReturn(expectedEntityUser);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        userService.createUser(domainUser, any());
+        User domainUser = mock(User.class);
+
+        when(otpRepository.isOtpValidationComplete(any())).thenReturn(true);
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class))
+                .thenReturn(domainUser);
+        when(userRepository.create(domainUser)).thenReturn(User.builder().build());
+
+        userService.createUser(domainUser, getValidRequestInfo());
 
         verify(domainUser).setDefaultPasswordExpiry(DEFAULT_PASSWORD_EXPIRY_IN_DAYS);
     }
 
     @Test
     public void test_should_create_a_valid_citizen() {
-        org.egov.user.domain.model.User domainUser = mock(User.class);
-        when((domainUser.getOtpValidationRequest())).thenReturn(getExpectedRequest());
-        when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
-        final User expectedUser = User.builder().build();
+        User domainUser = mock(User.class);
+
+        when(domainUser.getOtpValidationRequest()).thenReturn(getExpectedRequest());
         when(domainUser.getTenantId()).thenReturn("default");
         when(domainUser.getPassword()).thenReturn("P@assw0rd");
-        when(userRepository.create(domainUser)).thenReturn(expectedUser);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
-        when(encryptionDecryptionUtil.decryptObject(expectedUser, "UserSelf", User.class, getValidRequestInfo())).thenReturn(expectedUser);
-        User returnedUser = userService.createCitizen(domainUser, getValidRequestInfo());
 
-        assertEquals(expectedUser, returnedUser);
+        when(otpRepository.isOtpValidationComplete(any())).thenReturn(true);
+
+        User expectedUser = User.builder().build();
+
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class))
+                .thenReturn(domainUser);
+        when(userRepository.create(domainUser)).thenReturn(expectedUser);
+        when(encryptionDecryptionUtil.decryptObject(expectedUser, "UserSelf", User.class, getValidRequestInfo()))
+                .thenReturn(expectedUser);
+
+        User result = userService.createCitizen(domainUser, getValidRequestInfo());
+
+        assertEquals(expectedUser, result);
     }
 
     @Test(expected = UserNameNotValidException.class)
@@ -210,11 +228,18 @@ public class UserServiceTest {
     }
 
     @Test(expected = DuplicateUserNameException.class)
-    public void test_should_raise_exception_when_duplicate_user_name_exists() throws Exception {
-        org.egov.user.domain.model.User domainUser = validDomainUser(false);
+    public void test_should_raise_exception_when_duplicate_user_name_exists() {
+        User domainUser = validDomainUser(false);
+
         when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(true);
-        when(userRepository.isUserPresent("supandi_rocks", "tenantId", UserType.CITIZEN)).thenReturn(true);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+        when(userRepository.isUserPresent(domainUser.getUsername(), domainUser.getTenantId(), domainUser.getType()))
+                .thenReturn(true);
+
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class))
+                .thenReturn(domainUser);
+
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded"); // 🔥 REQUIRED
+
         userService.createUser(domainUser, getValidRequestInfo());
     }
 
@@ -228,13 +253,15 @@ public class UserServiceTest {
     }
 
     @Test
-    public void test_otp_is_not_validated_when_validation_flag_is_false() throws Exception {
-        org.egov.user.domain.model.User domainUser = validDomainUser(false);
-        when(otpRepository.isOtpValidationComplete(getExpectedRequest())).thenReturn(false);
-        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class)).thenReturn(domainUser);
+    public void test_otp_is_not_validated_when_validation_flag_is_false() {
+        User domainUser = validDomainUser(false); // otpValidationMandatory = false
+
+        when(encryptionDecryptionUtil.encryptObject(domainUser, "User", User.class))
+                .thenReturn(domainUser);
+
         userService.createUser(domainUser, getValidRequestInfo());
 
-        verify(otpRepository, never()).isOtpValidationComplete(getExpectedRequest());
+        verify(otpRepository, never()).isOtpValidationComplete(any());
     }
 
     @Test(expected = InvalidUserCreateException.class)

@@ -92,6 +92,12 @@ public class UserService {
 
     @Value("${egov.user.pwd.pattern.max.length}")
     private Integer pwdMaxLength;
+    
+    @Value("${user.default.password.enabled}")
+    private Boolean defaultPasswordEnabled;
+    
+    @Value("${user.default.password.pattern}")
+    private String defaultPasswordPattern;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -239,7 +245,41 @@ public class UserService {
         user.validateNewUser(createUserValidateName);
         conditionallyValidateOtp(user);
         /* encrypt here */
+        String username = user.getUsername();
         user = encryptionDecryptionUtil.encryptObject(user, "User", User.class);
+        
+        if (isEmpty(user.getPassword())) {
+            if (defaultPasswordEnabled) {
+                String usernameEncrypted = user.getUsername();
+                if (isEmpty(usernameEncrypted)) {
+                    throw new IllegalArgumentException("Username is required to generate default password");
+                }
+                String generatedPassword = defaultPasswordPattern.replace("{username}", username);
+                log.info("/_createCitizen endpoint called with default password enabled");
+                log.debug("Default password set is {}", generatedPassword);
+                user.setPassword(generatedPassword);
+            }
+            else{
+                log.info("/_createCitizen endpoint called with default password disabled with reandon uuid");
+                user.setPassword(UUID.randomUUID().toString());
+                log.debug("Generated password is {}",user.getCreatedBy());
+            }
+        } else {
+            if (defaultPasswordEnabled) {
+                String usernameEncrypted = user.getUsername();
+                if (isEmpty(usernameEncrypted)) {
+                    throw new IllegalArgumentException("Username is required to generate default password");
+                }
+                String generatedPassword = defaultPasswordPattern.replace("{username}", username);
+                log.info("/_create Employee endpoint called with default password enabled");
+                log.debug("Default password set is {}", generatedPassword);
+                user.setPassword(generatedPassword);
+            }
+            else {
+                validatePassword(user.getPassword());
+            }
+        }
+        
         validateUserUniqueness(user);
         if (isEmpty(user.getPassword())) {
             user.setPassword(UUID.randomUUID().toString());

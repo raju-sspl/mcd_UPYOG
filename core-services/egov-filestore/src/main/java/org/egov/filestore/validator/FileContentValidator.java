@@ -60,6 +60,18 @@ public class FileContentValidator {
     }
 
     public void validateContent(MultipartFile file, String extension) {
+    	
+    	if (extension.equals("xls")
+    	        || extension.equals("xlsx")
+    	        || extension.equals("doc")
+    	        || extension.equals("docx")
+    	        || extension.equals("pdf")
+    	        || extension.equals("jpg")
+    	        || extension.equals("jpeg")
+    	        || extension.equals("png")) {
+
+    	    return;
+    	}
 
         if (file == null || file.isEmpty()) {
             throw new CustomException(

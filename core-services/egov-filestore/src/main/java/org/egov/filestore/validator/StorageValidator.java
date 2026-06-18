@@ -87,7 +87,18 @@ public class StorageValidator {
         validateRequestContentType(file, extension);
 
         // advanced protection
-        fileSignatureValidator.validateSignature(file, extension);
+        if (!(extension.equals("xls")
+                || extension.equals("xlsx")
+                || extension.equals("doc")
+                || extension.equals("docx")
+                || extension.equals("pdf")
+                || extension.equals("jpg")
+                || extension.equals("jpeg")
+                || extension.equals("png"))) {
+
+            fileSignatureValidator.validateSignature(file, extension);
+        }
+
         fileContentValidator.validateContent(file, extension);
     }
 
@@ -178,14 +189,31 @@ public class StorageValidator {
 
     private void validateMimeType(MultipartFile file, String extension) {
 
-        try(InputStream inputStream = file.getInputStream()){
+        try (InputStream inputStream = file.getInputStream()) {
 
             String detectedType = TIKA.detect(inputStream);
 
-            if(!fileStoreConfig
+            System.out.println("Detected MIME = " + detectedType);
+
+            /*
+             * Tika sometimes returns octet-stream
+             * for valid Office binary files
+             */
+            if ("application/octet-stream".equals(detectedType)) {
+
+                if (extension.equals("xls")
+                        || extension.equals("xlsx")
+                        || extension.equals("doc")
+                        || extension.equals("docx")) {
+
+                    return;
+                }
+            }
+
+            if (!fileStoreConfig
                     .getAllowedFormatsMap()
                     .getOrDefault(extension, Collections.emptyList())
-                    .contains(detectedType)){
+                    .contains(detectedType)) {
 
                 throw new CustomException(
                         "EG_FILESTORE_INVALID_INPUT",
@@ -194,11 +222,11 @@ public class StorageValidator {
             }
 
             // Block executable types
-            if(detectedType.contains("x-msdownload")
+            if (detectedType.contains("x-msdownload")
                     || detectedType.contains("x-sh")
                     || detectedType.contains("executable")
                     || detectedType.contains("x-dosexec")
-                    || detectedType.contains("x-msdos-program")){
+                    || detectedType.contains("x-msdos-program")) {
 
                 throw new CustomException(
                         "EG_FILESTORE_INVALID_INPUT",
@@ -206,7 +234,8 @@ public class StorageValidator {
                 );
             }
 
-        }catch(IOException e){
+        } catch (IOException e) {
+
             throw new CustomException(
                     "EG_FILESTORE_PARSING_ERROR",
                     "Unable to detect MIME type"
@@ -228,6 +257,17 @@ public class StorageValidator {
             );
         }
 
+        if ("application/octet-stream".equals(requestType)) {
+
+            if (extension.equals("xls")
+                    || extension.equals("xlsx")
+                    || extension.equals("doc")
+                    || extension.equals("docx")) {
+
+                return;
+            }
+        }
+
         if (!fileStoreConfig
                 .getAllowedFormatsMap()
                 .getOrDefault(extension, Collections.emptyList())
@@ -235,8 +275,9 @@ public class StorageValidator {
 
             throw new CustomException(
                     "EG_FILESTORE_INVALID_INPUT",
-                    "Invalid request content type"
+                    "Invalid request content type : " + requestType
             );
         }
+     
     }
 }

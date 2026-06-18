@@ -30,9 +30,20 @@ public class FileSignatureValidator {
 
         // MS Office old format
         FILE_SIGNATURES.put("doc",
-                new byte[]{(byte)0xD0,(byte)0xCF,0x11,(byte)0xE0});
+                new byte[]{
+                        (byte)0xD0,
+                        (byte)0xCF,
+                        0x11,
+                        (byte)0xE0
+                });
+
         FILE_SIGNATURES.put("xls",
-                new byte[]{(byte)0xD0,(byte)0xCF,0x11,(byte)0xE0});
+                new byte[]{
+                        (byte)0xD0,
+                        (byte)0xCF,
+                        0x11,
+                        (byte)0xE0
+                });
 
         // Office OpenXML (ZIP container)
         FILE_SIGNATURES.put("docx",
@@ -64,6 +75,8 @@ public class FileSignatureValidator {
             return; // skip signature validation for text files
         }
 
+        
+        
         try(InputStream is = file.getInputStream()){
 
             byte[] header = new byte[expected.length];
@@ -73,8 +86,21 @@ public class FileSignatureValidator {
                 throw new CustomException("INVALID_FILE","Invalid file header");
             }
 
-            for(int i=0;i<expected.length;i++){
-                if(header[i] != expected[i]){
+            System.out.print("Expected: ");
+            for (byte b : expected) {
+                System.out.print(String.format("%02X ", b));
+            }
+            System.out.println();
+
+            System.out.print("Actual: ");
+            for (byte b : header) {
+                System.out.print(String.format("%02X ", b));
+            }
+            System.out.println();
+            for (int i = 0; i < expected.length; i++) {
+
+                if ((header[i] & 0xFF) != (expected[i] & 0xFF)) {
+
                     throw new CustomException(
                             "INVALID_FILE",
                             "File signature mismatch"
